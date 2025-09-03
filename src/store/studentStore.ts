@@ -41,7 +41,7 @@ export const useStudentStore = create<StudentStore>()(
       students: [],
       addStudent: (student: NewStudent) =>
         set((state) => {
-          const sessions: Session[] = [];
+          let sessions: Session[] = [];
           student.firstSessionDates.forEach((firstDate: Date) => {
             for (let i = 0; i < 4; i++) {
               const sessionDate = addWeeks(new Date(firstDate), i);
@@ -54,6 +54,10 @@ export const useStudentStore = create<StudentStore>()(
               });
             }
           });
+          // مرتب‌سازی جلسات بر اساس تاریخ
+          sessions = sessions.sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+          );
           return {
             students: [
               ...state.students,

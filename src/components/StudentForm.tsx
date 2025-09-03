@@ -101,7 +101,7 @@ export default function StudentForm() {
         required
       />
       <div className="flex gap-4 items-center">
-        <label>Class type:</label>
+        <label className="text-sm">Class type:</label>
         <select
           value={classType}
           onChange={(e) => setClassType(e.target.value)}
@@ -112,7 +112,7 @@ export default function StudentForm() {
         </select>
       </div>
       <div className="flex gap-2 items-center">
-        <label>Start time:</label>
+        <label className="text-sm">Start time:</label>
         <input
           type="time"
           value={startTime}
@@ -120,7 +120,7 @@ export default function StudentForm() {
           className="border rounded px-2 py-1"
           required
         />
-        <label>Duration (hours):</label>
+        <label className="text-sm">Duration (hours):</label>
         <input
           type="number"
           min={1}
@@ -130,16 +130,11 @@ export default function StudentForm() {
           className="border rounded px-2 py-1 w-20"
           required
         />
-        <label>End time:</label>
-        <input
-          type="time"
-          value={endTime}
-          readOnly
-          className="border rounded pl-2 py-1 bg-gray-600"
-        />
+        <label className="text-sm">End time:</label>
+        <p>{endTime}</p>
       </div>
       <div className="flex gap-2 items-center">
-        <label>
+        <label className="text-sm">
           <input
             type="checkbox"
             checked={multiDay}
@@ -154,7 +149,7 @@ export default function StudentForm() {
         </label>
         {multiDay && (
           <div className="flex gap-2 items-center">
-            <label>Days per week:</label>
+            <label className="text-sm">Days per week:</label>
             <input
               type="number"
               min={1}
@@ -171,7 +166,7 @@ export default function StudentForm() {
         )}
       </div>
       <div className="flex gap-2 items-center">
-        <label>
+        <label className="text-sm">
           {multiDay
             ? `Select ${daysPerWeek} days (first session dates):`
             : "Select first session date:"}
@@ -205,7 +200,7 @@ export default function StudentForm() {
         />
       </div>
       <div className="flex gap-2 items-center">
-        <label>Session price:</label>
+        <label className="text-sm">Session price:</label>
         <input
           type="number"
           min={0}

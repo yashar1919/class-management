@@ -1,5 +1,25 @@
 "use client";
+import React from "react";
+import { CaretRightOutlined } from "@ant-design/icons";
+import type { CollapseProps } from "antd";
+import { Collapse } from "antd";
 import { useStudentStore } from "../store/studentStore";
+import CalendarTable from "./CalendarTable";
+
+const weekDaysFa: Record<string, string> = {
+  Sunday: "یکشنبه",
+  Monday: "دوشنبه",
+  Tuesday: "سه‌شنبه",
+  Wednesday: "چهارشنبه",
+  Thursday: "پنج‌شنبه",
+  Friday: "جمعه",
+  Saturday: "شنبه",
+};
+
+function getWeekDayFa(date: Date) {
+  const en = date.toLocaleDateString("en-US", { weekday: "long" });
+  return weekDaysFa[en] || en;
+}
 
 export default function StudentList() {
   const students = useStudentStore((s) => s.students);
@@ -10,29 +30,63 @@ export default function StudentList() {
       <div className="text-gray-500">No students have been added yet.</div>
     );
 
-  return (
-    <ul className="space-y-2">
-      {students.map((student) => (
-        <li
-          key={student.id}
-          className="flex items-center justify-between bg-gray-500 p-2 rounded shadow"
+  const panelStyle: React.CSSProperties = {
+    marginBottom: 24,
+    background: "#2563eb",
+    borderRadius: 16,
+    border: "none",
+    color: "#fff",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+  };
+
+  const items: CollapseProps["items"] = students.map((student) => ({
+    key: student.id,
+    label: (
+      <div className="flex flex-col md:flex-row md:items-center gap-2 justify-between">
+        <span className="font-bold text-lg">{student.name}</span>
+        <span className="text-sm">
+          {student.classType === "online" ? "آنلاین" : "حضوری"}
+        </span>
+        <span className="text-sm">
+          روزهای کلاس:{" "}
+          {student.sessions
+            .map((s) => getWeekDayFa(new Date(s.date)))
+            .filter((v, i, arr) => arr.indexOf(v) === i)
+            .join("، ")}
+        </span>
+        <span className="text-sm">مدت کلاس: {student.duration} ساعت</span>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            removeStudent(student.id);
+          }}
+          className="bg-red-400 text-white px-2 py-1 rounded"
         >
-          <span>
-            <span className="font-bold">{student.name}</span>
-            {student.phone && (
-              <span className="text-sm text-gray-300 ml-2">
-                ({student.phone})
-              </span>
-            )}
-          </span>
-          <button
-            onClick={() => removeStudent(student.id)}
-            className="bg-red-400 text-white px-2 py-1 rounded"
-          >
-            Remove
-          </button>
-        </li>
-      ))}
-    </ul>
+          حذف
+        </button>
+      </div>
+    ),
+    children: (
+      <div className="p-2 bg-blue-500 rounded-b-lg">
+        <CalendarTable student={student} />
+      </div>
+    ),
+    style: panelStyle,
+  }));
+
+  return (
+    <Collapse
+      bordered={false}
+      defaultActiveKey={[]}
+      expandIcon={({ isActive }) => (
+        <CaretRightOutlined
+          style={{ color: "#fff" }}
+          rotate={isActive ? 90 : 0}
+        />
+      )}
+      style={{ background: "transparent" }}
+      items={items}
+      className=""
+    />
   );
 }

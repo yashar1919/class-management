@@ -1,170 +1,94 @@
-/* "use client";
-import { useState } from "react";
-import DatePicker from "react-multi-date-picker";
-//import { Calendar } from "react-multi-date-picker";
-import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
-import { useStudentStore } from "../store/studentStore";
-
-type Session = {
-  //eslint-disable-next-line
-  date: any;
-  attended: boolean;
-};
-
-type StudentSessions = {
-  [studentId: string]: Session[];
-};
-
-export default function CalendarTable() {
-  const students = useStudentStore((s) => s.students);
-  const [sessions, setSessions] = useState<StudentSessions>({});
-  //eslint-disable-next-line
-  const handleDatesChange = (studentId: string, dates: any[]) => {
-    setSessions((prev) => ({
-      ...prev,
-      [studentId]: dates.map((date, idx) => ({
-        date,
-        attended: prev[studentId]?.[idx]?.attended || false,
-      })),
-    }));
-  };
-
-  const handleAttend = (studentId: string, idx: number) => {
-    setSessions((prev) => ({
-      ...prev,
-      [studentId]: prev[studentId].map((session, i) =>
-        i === idx ? { ...session, attended: !session.attended } : session
-      ),
-    }));
-  };
-
-  return (
-    <div className="mt-10">
-      <h2 className="text-xl font-bold text-teal-600 mb-4">Calendar</h2>
-      {students.length === 0 && (
-        <div className="text-gray-400">No students have been added yet.</div>
-      )}
-      {students.map((student) => (
-        <div key={student.id} className="mb-8 p-4 border rounded shadow">
-          <div className="font-bold mb-2">{student.name}</div>
-          <DatePicker
-            value={sessions[student.id]?.map((s) => s.date) || []}
-            //eslint-disable-next-line
-            onChange={(dates: any) => handleDatesChange(student.id, dates)}
-            calendar={persian}
-            locale={persian_fa}
-            multiple
-            format="YYYY/MM/DD"
-            //showOtherDays
-            highlightToday
-            weekDays={["ش", "ی", "د", "س", "چ", "پ", "ج"]}
-            //containerClassName="calendar-custom"
-            numberOfMonths={1}
-            weekStartDayIndex={0}
-            monthYearSeparator={" "}
-            headerOrder={["LEFT_BUTTON", "MONTH_YEAR", "RIGHT_BUTTON"]}
-            className="mb-4"
-          />
-          <table className="w-full text-center border mt-4">
-            <thead>
-              <tr className="bg-gray-700">
-                <th>Meeting</th>
-                <th>Date</th>
-                <th>Attendance</th>
-                <th>Deposit</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sessions[student.id]?.map((session, idx) => (
-                <tr key={idx} className="border-b">
-                  <td>{idx + 1}</td>
-                  <td>
-                    {session.date?.format?.("YYYY/MM/DD") ??
-                      session.date?.toString?.()}
-                  </td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={session.attended}
-                      onChange={() => handleAttend(student.id, idx)}
-                    />
-                  </td>
-                  <td>
-                    {(idx + 1) % 4 === 0 && (
-                      <span className="bg-yellow-400 text-yellow-800 px-2 rounded">
-                        قبل از این جلسه باید واریزی انجام شود!
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ))}
-    </div>
-  );
-} */
-
 "use client";
-import { useStudentStore } from "../store/studentStore";
+import { Student, useStudentStore } from "../store/studentStore";
 
-export default function CalendarTable() {
-  const students = useStudentStore((s) => s.students);
+const weekDaysFa: Record<string, string> = {
+  Sunday: "یکشنبه",
+  Monday: "دوشنبه",
+  Tuesday: "سه‌شنبه",
+  Wednesday: "چهارشنبه",
+  Thursday: "پنج‌شنبه",
+  Friday: "جمعه",
+  Saturday: "شنبه",
+};
+
+function getWeekDayFa(date: Date) {
+  const en = date.toLocaleDateString("en-US", { weekday: "long" });
+  return weekDaysFa[en] || en;
+}
+
+type CalendarTableProps = {
+  student: Student;
+};
+
+export default function CalendarTable({ student }: CalendarTableProps) {
   const toggleAttendance = useStudentStore((s) => s.toggleAttendance);
 
-  if (students.length === 0)
-    return <div className="text-gray-500">No students added yet.</div>;
+  if (!student || !student.sessions) {
+    return <div className="text-gray-500">No session data available.</div>;
+  }
 
   return (
-    <div className="mt-10">
-      {students.map((student) => (
-        <div
-          key={student.id}
-          className="mb-8 p-4 border rounded shadow bg-gray-900"
-        >
-          <div className="font-bold mb-2 text-white">{student.name}</div>
-          <table className="w-full text-center border mt-4">
-            <thead>
-              <tr className="bg-gray-700 text-white">
-                <th>Session</th>
-                <th>Date</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Attendance</th>
-                <th>Price</th>
-                <th>Deposit</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(student.sessions ?? []).map((session, idx) => (
-                <tr key={idx} className="border-b">
-                  <td>{idx + 1}</td>
-                  <td>{new Date(session.date).toLocaleDateString("fa-IR")}</td>
-                  <td>{session.startTime}</td>
-                  <td>{session.endTime}</td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={session.attended}
-                      onChange={() => toggleAttendance(student.id, idx)}
-                    />
-                  </td>
-                  <td>{session.price}</td>
-                  <td>
-                    {(idx + 1) % 4 === 0 && (
-                      <span className="bg-yellow-400 text-yellow-800 px-2 rounded">
-                        Payment required before this session!
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ))}
+    <div className="overflow-x-auto">
+      <table className="w-full text-center border bg-gray-800 rounded">
+        <thead>
+          <tr className="bg-gray-900 text-white">
+            <th className="px-4 py-2">Session</th>
+            <th className="px-4 py-2">Date</th>
+            <th className="px-4 py-2">Weekday</th>
+            <th className="px-4 py-2">Start</th>
+            <th className="px-4 py-2">End</th>
+            <th className="px-4 py-2">Attendance</th>
+            <th className="px-4 py-2">Price</th>
+            <th className="px-4 py-2">Deposit</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(student.sessions ?? []).map((session, idx) => (
+            <tr
+              key={idx}
+              className={`border-b transition-all ${
+                session.attended ? "bg-green-100 text-gray-400" : "text-white"
+              }`}
+              style={session.attended ? { opacity: 0.7 } : {}}
+            >
+              <td className="px-4 py-2">{idx + 1}</td>
+              <td className="px-4 py-2">
+                {new Date(session.date).toLocaleDateString("fa-IR")}
+              </td>
+              <td className="px-4 py-2">
+                {getWeekDayFa(new Date(session.date))}
+              </td>
+              <td className="px-4 py-2">{session.startTime}</td>
+              <td className="px-4 py-2">{session.endTime}</td>
+              <td className="px-4 py-2 flex items-center justify-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={session.attended}
+                  onChange={() => toggleAttendance(student.id, idx)}
+                />
+                {session.attended && (
+                  <span className="text-green-600 font-bold text-xs flex items-center gap-1">
+                    <span className="inline-block w-3 h-3 bg-green-500 rounded-full"></span>
+                    برگزار شد
+                  </span>
+                )}
+              </td>
+              <td className="px-4 py-2">{session.price}</td>
+              <td className="px-4 py-2">
+                {(idx + 1) % (student.daysPerWeek * 4) === 0 ? (
+                  <span className="bg-yellow-400 text-yellow-800 px-2 rounded text-xs">
+                    Payment required before this session!
+                  </span>
+                ) : (
+                  <span className="bg-green-400 text-green-800 px-2 rounded text-xs">
+                    Payment has been made.
+                  </span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
