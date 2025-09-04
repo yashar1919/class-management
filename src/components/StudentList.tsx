@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { CaretRightOutlined } from "@ant-design/icons";
+import { CaretRightOutlined, DeleteOutlined } from "@ant-design/icons";
 import type { CollapseProps } from "antd";
 import { Collapse } from "antd";
 import { useStudentStore } from "../store/studentStore";
@@ -32,7 +32,7 @@ export default function StudentList() {
 
   const panelStyle: React.CSSProperties = {
     marginBottom: 24,
-    background: "#2563eb",
+    background: "#314158",
     borderRadius: 16,
     border: "none",
     color: "#fff",
@@ -42,7 +42,7 @@ export default function StudentList() {
   const items: CollapseProps["items"] = students.map((student) => ({
     key: student.id,
     label: (
-      <div className="flex flex-col md:flex-row md:items-center gap-2 justify-between">
+      <div className="flex flex-col md:flex-row md:items-center gap-2 justify-between text-white">
         <span className="font-bold text-lg">{student.name}</span>
         <span className="text-sm">
           {student.classType === "online" ? "آنلاین" : "حضوری"}
@@ -60,14 +60,14 @@ export default function StudentList() {
             e.stopPropagation();
             removeStudent(student.id);
           }}
-          className="bg-red-400 text-white px-2 py-1 rounded"
+          className="bg-red-500 text-white px-2 py-2 rounded-lg flex justify-center items-center cursor-pointer hover:bg-red-600"
         >
-          حذف
+          <DeleteOutlined style={{ fontSize: "20px" }} />
         </button>
       </div>
     ),
     children: (
-      <div className="p-2 bg-blue-500 rounded-b-lg">
+      <div className="px-3 pb-4 bg-slate-700 rounded-b-2xl">
         <CalendarTable student={student} />
       </div>
     ),

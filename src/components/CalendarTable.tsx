@@ -29,9 +29,11 @@ export default function CalendarTable({ student }: CalendarTableProps) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-center border bg-gray-800 rounded">
+      {/* <table className="w-full text-center border-2 border-slate-500 bg-gray-800"> */}
+      <table className="w-full text-center border-2 border-slate-500 bg-neutral-800">
         <thead>
-          <tr className="bg-gray-900 text-white">
+          {/* <tr className="bg-gray-900 text-white"> */}
+          <tr className="bg-black text-white">
             <th className="px-4 py-2">Session</th>
             <th className="px-4 py-2">Date</th>
             <th className="px-4 py-2">Weekday</th>

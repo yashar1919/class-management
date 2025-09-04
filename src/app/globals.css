@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-:root {
+/* :root {
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -23,7 +23,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-}
+} */
 
 
 :where(.css-dev-only-do-not-override-kbg4zp).ant-collapse-borderless>.ant-collapse-item>.ant-collapse-content>.ant-collapse-content-box {
@@ -35,5 +35,17 @@ body {
 }
 
 .ant-collapse-expand-icon svg {
-  color: #000 !important;
+  color: #fff !important;
+}
+
+@keyframes slidein {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.animate-slidein {
+  animation: slidein 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
