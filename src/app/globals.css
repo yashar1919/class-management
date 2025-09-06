@@ -42,10 +42,54 @@ body {
   from {
     transform: translateX(-100%);
   }
+
   to {
     transform: translateX(0);
   }
 }
+
 .animate-slidein {
   animation: slidein 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* .input-form {
+  @apply w-full rounded-lg border border-slate-600 bg-slate-700 text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 transition;
+} */
+
+.custom-timepicker input::placeholder {
+  color: #a3a3a3 !important;
+  opacity: 1;
+}
+
+/* .ant-picker-panel-layout{
+  background-color: black;
+}
+
+:where(.css-dev-only-do-not-override-kbg4zp).ant-picker-dropdown .ant-picker-time-panel-column >li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner{
+  color: white;
+}
+
+:where(.css-dev-only-do-not-override-kbg4zp).ant-btn-variant-solid:disabled, :where(.css-dev-only-do-not-override-kbg4zp).ant-btn-variant-solid.ant-btn-disabled{
+  color: white;
+}
+
+:where(.css-dev-only-do-not-override-kbg4zp).ant-picker-dropdown .ant-picker-panel-container .ant-picker-panel{
+  border-top: 1px solid white;
+  border-left: 1px solid white;
+  border-right: 1px solid white;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+:where(.css-dev-only-do-not-override-kbg4zp).ant-picker-dropdown .ant-picker-ranges{
+  border-bottom: 1px solid white;
+  border-left: 1px solid white;
+  border-right: 1px solid white;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-top: 1px solid white;
+} */
+
+.ant-picker-suffix .anticon {
+  color: white;
 }

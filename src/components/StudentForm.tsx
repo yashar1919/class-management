@@ -1,219 +1,198 @@
 "use client";
-import { useState } from "react";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import InputField from "./UI/InputField";
 import { useStudentStore } from "../store/studentStore";
-import DatePicker from "react-multi-date-picker";
-import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
+import {
+  UserOutlined,
+  PhoneOutlined,
+  HomeOutlined,
+  ClusterOutlined,
+} from "@ant-design/icons";
+import type { MenuProps } from "antd";
+import DropdownField from "./UI/DropdownField";
+import TimePickerCustom from "./UI/TimePickerCustom";
+
+const classTypeItems: MenuProps["items"] = [
+  { label: "Offline", key: "Offline", icon: <ClusterOutlined /> },
+  { label: "Online", key: "Online", icon: <ClusterOutlined /> },
+];
+
+const schema = yup.object({
+  name: yup.string().required("Full name is required"),
+  phone: yup
+    .string()
+    .matches(/^\d{8,15}$/, "Phone must be 8-15 digits")
+    .nullable()
+    .notRequired(),
+  address: yup.string().required("Address is required"),
+  classType: yup.string().required("Class type is required"),
+  startTime: yup.string().required("Start time is required"),
+});
+
+type FormValues = {
+  name: string;
+  phone?: string;
+  address: string;
+  classType: string;
+  startTime: string;
+};
+
+const defaultValues: FormValues = {
+  name: "",
+  phone: "",
+  address: "",
+  classType: "",
+  startTime: "",
+};
 
 export default function StudentForm() {
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [classType, setClassType] = useState("offline");
-  const [startTime, setStartTime] = useState("");
-  const [duration, setDuration] = useState(1);
-  const [price, setPrice] = useState("");
-  const [phone, setPhone] = useState("");
-  const [multiDay, setMultiDay] = useState(false);
-  const [daysPerWeek, setDaysPerWeek] = useState(1);
-  //eslint-disable-next-line
-  const [selectedDates, setSelectedDates] = useState<any[]>([]);
-
   const addStudent = useStudentStore((s) => s.addStudent);
 
-  // End time calculation
-  const endTime = startTime
-    ? (() => {
-        const [h, m] = startTime.split(":").map(Number);
-        const endH = h + duration;
-        return `${endH.toString().padStart(2, "0")}:${m
-          .toString()
-          .padStart(2, "0")}`;
-      })()
-    : "";
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({
+    resolver: yupResolver(schema) as any, // رفع خطای تایپ اسکریپت
+    defaultValues,
+    mode: "onTouched",
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      !name.trim() ||
-      !address.trim() ||
-      !startTime ||
-      !price ||
-      selectedDates.length !== daysPerWeek
-    )
-      return;
-
-    // Save all selected dates as first session days
+  // فقط برای تست، بعداً بقیه فیلدها اضافه می‌شود
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
     addStudent({
-      name,
-      phone,
-      address,
-      classType,
-      startTime,
-      endTime,
-      duration,
-      price,
-      firstSessionDates: selectedDates.map((d) => d?.toDate?.() ?? d),
-      daysPerWeek,
-      multiDay,
+      ...data,
+      // مقادیر تستی برای فیلدهای اجباری دیگر
       sessions: [],
+      classType: "Offline",
+      startTime: "00:00",
+      endTime: "00:00",
+      duration: 1,
+      price: 0,
+      firstSessionDates: [],
+      daysPerWeek: 1,
+      multiDay: false,
     });
-
-    setName("");
-    setAddress("");
-    setClassType("offline");
-    setStartTime("");
-    setDuration(1);
-    setPrice("");
-    setPhone("");
-    setMultiDay(false);
-    setDaysPerWeek(1);
-    setSelectedDates([]);
+    reset();
   };
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-3 mb-6 bg-slate-800 p-6 rounded shadow"
+      className="w-full max-w-xl mx-auto bg-slate-800 p-8 rounded-2xl shadow-lg flex flex-col gap-7 mt-8 mb-20"
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
     >
-      <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="Full name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="border rounded px-2 py-1 w-full"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Phone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="border rounded px-2 py-1 w-full"
-        />
-      </div>
-      <input
-        type="text"
-        placeholder="Address"
-        value={address}
-        onChange={(e) => setAddress(e.target.value)}
-        className="border rounded px-2 py-1"
-        required
-      />
-      <div className="flex gap-4 items-center">
-        <label className="text-sm">Class type:</label>
-        <select
-          value={classType}
-          onChange={(e) => setClassType(e.target.value)}
-          className="border rounded px-2 py-1"
-        >
-          <option value="offline">Offline</option>
-          <option value="online">Online</option>
-        </select>
-      </div>
-      <div className="flex gap-2 items-center">
-        <label className="text-sm">Start time:</label>
-        <input
-          type="time"
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-          className="border rounded px-2 py-1"
-          required
-        />
-        <label className="text-sm">Duration (hours):</label>
-        <input
-          type="number"
-          min={1}
-          max={4}
-          value={duration}
-          onChange={(e) => setDuration(Number(e.target.value))}
-          className="border rounded px-2 py-1 w-20"
-          required
-        />
-        <label className="text-sm">End time:</label>
-        <p>{endTime}</p>
-      </div>
-      <div className="flex gap-2 items-center">
-        <label className="text-sm">
-          <input
-            type="checkbox"
-            checked={multiDay}
-            onChange={() => {
-              setMultiDay((v) => !v);
-              setDaysPerWeek(1);
-              setSelectedDates([]);
-            }}
-            className="mr-2"
+      <h2 className="text-3xl font-bold text-teal-400 mb-2 text-center">
+        Add New Student
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <Controller
+            name="name"
+            control={control}
+            render={({ field }) => (
+              <InputField
+                placeholder="Full Name"
+                prefix={<UserOutlined />}
+                value={field.value}
+                onChange={field.onChange}
+                error={!!errors.name}
+              />
+            )}
           />
-          Multi-day class per week
-        </label>
-        {multiDay && (
-          <div className="flex gap-2 items-center">
-            <label className="text-sm">Days per week:</label>
-            <input
-              type="number"
-              min={1}
-              max={7}
-              value={daysPerWeek}
-              onChange={(e) => {
-                setDaysPerWeek(Number(e.target.value));
-                setSelectedDates([]);
-              }}
-              className="border rounded px-2 py-1 w-16"
-              required
-            />
-          </div>
-        )}
-      </div>
-      <div className="flex gap-2 items-center">
-        <label className="text-sm">
-          {multiDay
-            ? `Select ${daysPerWeek} days (first session dates):`
-            : "Select first session date:"}
-        </label>
-        <DatePicker
-          value={multiDay ? selectedDates : selectedDates[0] ?? null}
-          //eslint-disable-next-line
-          onChange={(dates: any) => {
-            if (multiDay) {
-              if (Array.isArray(dates) && dates.length <= daysPerWeek) {
-                setSelectedDates(dates);
-              }
-            } else {
-              setSelectedDates(dates ? [dates] : []);
-            }
-          }}
-          calendar={persian}
-          locale={persian_fa}
-          format="YYYY/MM/DD"
-          highlightToday
-          multiple={multiDay}
-          numberOfMonths={1}
-          className="border rounded px-2 py-1"
-          placeholder={
-            multiDay ? `Pick ${daysPerWeek} days` : "Pick first session date"
-          }
-          minDate={undefined}
-          maxDate={undefined}
-          disabled={false}
-          onOpen={() => setSelectedDates([])}
-        />
-      </div>
-      <div className="flex gap-2 items-center">
-        <label className="text-sm">Session price:</label>
-        <input
-          type="number"
-          min={0}
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="border rounded px-2 py-1 w-32"
-          required
-        />
+          {errors.name && (
+            <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+          )}
+        </div>
+        <div>
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <InputField
+                placeholder="Phone"
+                prefix={<PhoneOutlined />}
+                value={field.value}
+                onChange={field.onChange}
+                error={!!errors.phone}
+                type="tel"
+              />
+            )}
+          />
+          {errors.phone && (
+            <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
+          )}
+        </div>
+        <div className="md:col-span-2">
+          <Controller
+            name="address"
+            control={control}
+            render={({ field }) => (
+              <InputField
+                placeholder="Address"
+                prefix={<HomeOutlined />}
+                value={field.value}
+                onChange={field.onChange}
+                error={!!errors.address}
+              />
+            )}
+          />
+          {errors.address && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.address.message}
+            </p>
+          )}
+        </div>
+        <div className="md:col-span-2">
+          <Controller
+            name="classType"
+            control={control}
+            render={({ field }) => (
+              <DropdownField
+                label="Class Type"
+                icon={<ClusterOutlined />}
+                items={classTypeItems}
+                value={field.value}
+                onChange={(val) =>
+                  field.onChange(val === "Offline" ? "Offline" : "Online")
+                }
+                error={!!errors.classType}
+              />
+            )}
+          />
+          {errors.classType && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.classType.message}
+            </p>
+          )}
+        </div>
+        <div>
+          <Controller
+            name="startTime"
+            control={control}
+            render={({ field }) => (
+              <TimePickerCustom
+                value={field.value}
+                onChange={field.onChange}
+                error={!!errors.startTime}
+                placeholder="Start Time"
+              />
+            )}
+          />
+          {errors.startTime && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.startTime.message}
+            </p>
+          )}
+        </div>
       </div>
       <button
         type="submit"
-        className="bg-teal-500 text-white px-4 py-2 rounded mt-2"
-        disabled={selectedDates.length !== daysPerWeek}
+        className="bg-teal-500 hover:bg-teal-600 transition text-white px-6 py-2 rounded-lg font-light text-xl shadow mt-4 disabled:opacity-60"
+        disabled={isSubmitting}
       >
         Add student
       </button>
