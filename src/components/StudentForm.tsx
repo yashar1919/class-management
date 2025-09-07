@@ -9,10 +9,18 @@ import {
   PhoneOutlined,
   HomeOutlined,
   ClusterOutlined,
+  HistoryOutlined,
+  SwapRightOutlined,
+  DollarOutlined,
 } from "@ant-design/icons";
-import type { MenuProps } from "antd";
+import { Checkbox, ConfigProvider, Button, theme, type MenuProps } from "antd";
 import DropdownField from "./UI/DropdownField";
 import TimePickerCustom from "./UI/TimePickerCustom";
+import InputNumberField from "./UI/InputNumberField";
+import dayjs from "dayjs";
+import PersianCalendarPicker from "./UI/PersianCalendarPicker";
+import { useState } from "react";
+import { DateObject } from "react-multi-date-picker";
 
 const classTypeItems: MenuProps["items"] = [
   { label: "Offline", key: "Offline", icon: <ClusterOutlined /> },
@@ -28,7 +36,36 @@ const schema = yup.object({
     .notRequired(),
   address: yup.string().required("Address is required"),
   classType: yup.string().required("Class type is required"),
+  duration: yup
+    .number()
+    .typeError("Duration must be a number")
+    .min(1, "Min 1 hour")
+    .max(8, "Max 8 hours")
+    .required("Duration is required"),
   startTime: yup.string().required("Start time is required"),
+  multiDay: yup.boolean().default(false),
+  selectedDates: yup
+    .array()
+    .min(1, "At least one date must be selected")
+    .required("At least one date must be selected"),
+  daysPerWeek: yup
+    .number()
+    .when("multiDay", {
+      is: true,
+      then: (schema) =>
+        schema
+          .typeError("تعداد روزها باید عدد باشد")
+          .min(2, "حداقل ۲ روز")
+          .max(7, "حداکثر ۷ روز")
+          .required("تعداد روزهای کلاس الزامی است"),
+      otherwise: (schema) => schema.notRequired(),
+    })
+    .default(2),
+  sessionPrice: yup
+    .number()
+    .typeError("Session price must be a number")
+    .min(0, "Session price cannot be negative")
+    .required("Session price is required"),
 });
 
 type FormValues = {
@@ -36,7 +73,12 @@ type FormValues = {
   phone?: string;
   address: string;
   classType: string;
+  duration: number;
   startTime: string;
+  multiDay: boolean;
+  daysPerWeek: number;
+  sessionPrice: number;
+  selectedDates: any[];
 };
 
 const defaultValues: FormValues = {
@@ -44,7 +86,12 @@ const defaultValues: FormValues = {
   phone: "",
   address: "",
   classType: "",
+  duration: 1,
   startTime: "",
+  multiDay: false,
+  daysPerWeek: 2,
+  sessionPrice: 1,
+  selectedDates: [],
 };
 
 export default function StudentForm() {
@@ -54,18 +101,59 @@ export default function StudentForm() {
     control,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
+    watch,
   } = useForm<FormValues>({
-    resolver: yupResolver(schema) as any, // رفع خطای تایپ اسکریپت
+    resolver: yupResolver(schema) as any,
     defaultValues,
     mode: "onTouched",
   });
 
-  // فقط برای تست، بعداً بقیه فیلدها اضافه می‌شود
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
+  /* const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      // ... سایر فیلدها ...
+      selectedDates: [],
+    },
+    resolver: yupResolver(schema),
+  }); */
+
+  const multiDay = watch("multiDay");
+  const daysPerWeek = watch("daysPerWeek");
+
+  const startTimeValue = watch("startTime");
+  console.log(
+    "startTime value:",
+    startTimeValue && typeof startTimeValue.format === "function"
+      ? startTimeValue.format("HH:mm")
+      : startTimeValue
+  );
+
+  const startTime = watch("startTime"); // رشته مثل "03:05"
+  const duration = watch("duration"); // عدد
+
+  function calcEndTime(start: string, duration: number) {
+    if (!start) return "--:--";
+    const [h, m] = start.split(":").map(Number);
+    if (isNaN(h) || isNaN(m)) return "--:--";
+    let endHour = h + Number(duration);
+    let endMinute = m;
+    // اگر ساعت از 24 گذشت، به 0 برگردد
+    if (endHour >= 24) endHour = endHour % 24;
+    // فرمت دو رقمی
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    return `${pad(endHour)}:${pad(endMinute)}`;
+  }
+
+  const endTime = calcEndTime(startTime, duration);
+
+  /* const onSubmit: SubmitHandler<FormValues> = (data) => {
     addStudent({
       ...data,
-      // مقادیر تستی برای فیلدهای اجباری دیگر
       sessions: [],
       classType: "Offline",
       startTime: "00:00",
@@ -77,34 +165,76 @@ export default function StudentForm() {
       multiDay: false,
     });
     reset();
+    setSelectedDates([new DateObject()]);
+  }; */
+
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
+    if (!selectedDates || selectedDates.length === 0) {
+      setCalendarError("Date is required");
+      return;
+    }
+    setCalendarError(false);
+    console.log("calendarError set:", false);
+
+    addStudent({
+      ...data,
+      sessions: [],
+      classType: "Offline",
+      startTime: "00:00",
+      endTime: "00:00",
+      duration: 1,
+      price: 0,
+      firstSessionDates: [],
+      daysPerWeek: 1,
+      multiDay: false,
+    });
+    reset();
+    setSelectedDates([]);
   };
+
+  const [selectedDates, setSelectedDates] = useState<any>([]);
+  const [calendarError, setCalendarError] = useState<string | boolean>(false);
 
   return (
     <form
-      className="w-full max-w-xl mx-auto bg-slate-800 p-8 rounded-2xl shadow-lg flex flex-col gap-7 mt-8 mb-20"
+      className="w-full max-w-3xl mx-auto bg-[#141414] p-8 rounded-2xl shadow-lg flex flex-col gap-7 mt-8 mb-20"
       onSubmit={handleSubmit(onSubmit)}
       noValidate
     >
       <h2 className="text-3xl font-bold text-teal-400 mb-2 text-center">
         Add New Student
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
         <div>
           <Controller
             name="name"
             control={control}
             render={({ field }) => (
-              <InputField
-                placeholder="Full Name"
-                prefix={<UserOutlined />}
-                value={field.value}
-                onChange={field.onChange}
-                error={!!errors.name}
-              />
+              <ConfigProvider
+                theme={{
+                  algorithm: theme.darkAlgorithm,
+                  components: {
+                    Input: {
+                      colorPrimary: "#008080",
+                      algorithm: true,
+                    },
+                  },
+                }}
+              >
+                <InputField
+                  placeholder="Full Name"
+                  prefix={<UserOutlined />}
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={!!errors.name}
+                />
+              </ConfigProvider>
             )}
           />
           {errors.name && (
-            <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+            <p className="text-red-500 text-xs mt-1 ml-2">
+              {errors.name.message}
+            </p>
           )}
         </div>
         <div>
@@ -112,14 +242,26 @@ export default function StudentForm() {
             name="phone"
             control={control}
             render={({ field }) => (
-              <InputField
-                placeholder="Phone"
-                prefix={<PhoneOutlined />}
-                value={field.value}
-                onChange={field.onChange}
-                error={!!errors.phone}
-                type="tel"
-              />
+              <ConfigProvider
+                theme={{
+                  algorithm: theme.darkAlgorithm,
+                  components: {
+                    Input: {
+                      colorPrimary: "#008080",
+                      algorithm: true,
+                    },
+                  },
+                }}
+              >
+                <InputField
+                  placeholder="Phone"
+                  prefix={<PhoneOutlined />}
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={!!errors.phone}
+                  type="tel"
+                />
+              </ConfigProvider>
             )}
           />
           {errors.phone && (
@@ -131,13 +273,25 @@ export default function StudentForm() {
             name="address"
             control={control}
             render={({ field }) => (
-              <InputField
-                placeholder="Address"
-                prefix={<HomeOutlined />}
-                value={field.value}
-                onChange={field.onChange}
-                error={!!errors.address}
-              />
+              <ConfigProvider
+                theme={{
+                  algorithm: theme.darkAlgorithm,
+                  components: {
+                    Input: {
+                      colorPrimary: "#008080",
+                      algorithm: true,
+                    },
+                  },
+                }}
+              >
+                <InputField
+                  placeholder="Address"
+                  prefix={<HomeOutlined />}
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={!!errors.address}
+                />
+              </ConfigProvider>
             )}
           />
           {errors.address && (
@@ -151,16 +305,28 @@ export default function StudentForm() {
             name="classType"
             control={control}
             render={({ field }) => (
-              <DropdownField
-                label="Class Type"
-                icon={<ClusterOutlined />}
-                items={classTypeItems}
-                value={field.value}
-                onChange={(val) =>
-                  field.onChange(val === "Offline" ? "Offline" : "Online")
-                }
-                error={!!errors.classType}
-              />
+              <ConfigProvider
+                theme={{
+                  algorithm: theme.darkAlgorithm,
+                  components: {
+                    Dropdown: {
+                      colorPrimary: "#fff",
+                      algorithm: true,
+                    },
+                  },
+                }}
+              >
+                <DropdownField
+                  label="Class Type"
+                  icon={<ClusterOutlined />}
+                  items={classTypeItems}
+                  value={field.value}
+                  onChange={(val) =>
+                    field.onChange(val === "Offline" ? "Offline" : "Online")
+                  }
+                  error={!!errors.classType}
+                />
+              </ConfigProvider>
             )}
           />
           {errors.classType && (
@@ -169,33 +335,249 @@ export default function StudentForm() {
             </p>
           )}
         </div>
-        <div>
+        <div className="md:col-span-2">
           <Controller
-            name="startTime"
+            name="duration"
             control={control}
             render={({ field }) => (
-              <TimePickerCustom
-                value={field.value}
-                onChange={field.onChange}
-                error={!!errors.startTime}
-                placeholder="Start Time"
-              />
+              <ConfigProvider
+                theme={{
+                  algorithm: theme.darkAlgorithm,
+                  components: {
+                    InputNumber: {
+                      colorPrimary: "#008080",
+                      algorithm: true,
+                    },
+                  },
+                }}
+              >
+                <InputNumberField
+                  placeholder="Duration (hours)"
+                  addonBefore={<HistoryOutlined />}
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={!!errors.duration}
+                />
+              </ConfigProvider>
             )}
           />
-          {errors.startTime && (
+          {errors.duration && (
             <p className="text-red-500 text-xs mt-1">
-              {errors.startTime.message}
+              {errors.duration.message}
+            </p>
+          )}
+        </div>
+        <div className="grid grid-cols-4 items-center w-full">
+          <div className="col-span-2">
+            <Controller
+              name="startTime"
+              control={control}
+              render={({ field }) => (
+                <ConfigProvider
+                  theme={{
+                    algorithm: theme.darkAlgorithm,
+                    components: {
+                      DatePicker: {
+                        colorPrimary: "#008080",
+                        algorithm: true,
+                      },
+                    },
+                  }}
+                >
+                  <TimePickerCustom
+                    value={field.value ? dayjs(field.value, "HH:mm") : null}
+                    onChange={(val) => {
+                      if (val && typeof val.format === "function") {
+                        console.log("onChange value:", val.format("HH:mm"));
+                        field.onChange(val.format("HH:mm"));
+                      } else {
+                        console.log("onChange value:", val);
+                        field.onChange(val);
+                      }
+                    }}
+                    error={!!errors.startTime}
+                    placeholder="Start Time"
+                  />
+                </ConfigProvider>
+              )}
+            />
+            {errors.startTime && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.startTime.message}
+              </p>
+            )}
+          </div>
+          <div className="col-span-1 text-center">
+            <SwapRightOutlined
+              style={{
+                color: startTimeValue ? "#008080" : "gray",
+                fontSize: "24px",
+              }}
+            />
+          </div>
+          <div className="text-start col-span-1">
+            <p className="text-gray-400 text-xs mb-1">End Time</p>
+            <p className="text-lg font-bold text-white">{endTime}</p>
+          </div>
+          {/* <div className="flex items-center gap-2">
+            <p className="text-gray-400 text-xs mb-1">End Time:</p>
+            <p className="text-lg font-bold text-white">{endTime}</p>
+          </div> */}
+        </div>
+
+        <div className="flex items-center justify-between">
+          <Controller
+            name="multiDay"
+            control={control}
+            defaultValue={false}
+            render={({ field }) => (
+              <ConfigProvider
+                theme={{
+                  algorithm: theme.darkAlgorithm,
+                  components: {
+                    Checkbox: {
+                      colorPrimary: "#008080",
+                      algorithm: true,
+                    },
+                  },
+                }}
+              >
+                <Checkbox
+                  checked={field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                >
+                  <p className="text-xs">
+                    Is the class more than one day a week?
+                  </p>
+                </Checkbox>
+              </ConfigProvider>
+            )}
+          />
+          {multiDay && (
+            <div className="w-1/2">
+              <Controller
+                name="daysPerWeek"
+                control={control}
+                defaultValue={2}
+                render={({ field }) => (
+                  <ConfigProvider
+                    theme={{
+                      algorithm: theme.darkAlgorithm,
+                      components: {
+                        InputNumber: {
+                          colorPrimary: "#008080",
+                          algorithm: true,
+                        },
+                      },
+                    }}
+                  >
+                    <InputNumberField
+                      placeholder="Num of class"
+                      //addonBefore={<HistoryOutlined />}
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors.daysPerWeek}
+                    />
+                  </ConfigProvider>
+                )}
+              />
+              {errors.daysPerWeek && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.daysPerWeek.message}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+          <div className="w-6/7">
+            {/* <Controller
+              name="selectedDates"
+              control={control}
+              render={({ field }) => (
+                <PersianCalendarPicker
+                  value={field.value}
+                  onChange={field.onChange}
+                  multiple={multiDay}
+                  error={errors.selectedDates?.message}
+                />
+              )}
+            /> */}
+
+            <Controller
+  name="selectedDates"
+  control={control}
+  render={({ field }) => (
+    <PersianCalendarPicker
+  value={field.value}
+  onChange={field.onChange}
+  multiple={multiDay}
+  error={errors.selectedDates?.message}
+  max={multiDay ? 3 : undefined} // حداکثر 3 روز
+/>
+  )}
+/>
+            {errors.selectedDates && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.selectedDates.message}
+              </p>
+            )}
+            {calendarError && (
+              <p className="text-red-500 text-xs mt-1">
+                {typeof calendarError === "string"
+                  ? calendarError
+                  : "لطفاً یک یا چند روز را انتخاب کنید"}
+              </p>
+            )}
+          </div>
+          <Controller
+            name="sessionPrice"
+            control={control}
+            defaultValue={1}
+            render={({ field }) => (
+              <ConfigProvider
+                theme={{
+                  algorithm: theme.darkAlgorithm,
+                  components: {
+                    InputNumber: {
+                      colorPrimary: "#008080",
+                      algorithm: true,
+                    },
+                  },
+                }}
+              >
+                <InputNumberField
+                  placeholder="Session Price"
+                  addonBefore={<DollarOutlined />}
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={!!errors.sessionPrice}
+                />
+              </ConfigProvider>
+            )}
+          />
+          {errors.sessionPrice && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.sessionPrice.message}
             </p>
           )}
         </div>
       </div>
-      <button
-        type="submit"
-        className="bg-teal-500 hover:bg-teal-600 transition text-white px-6 py-2 rounded-lg font-light text-xl shadow mt-4 disabled:opacity-60"
-        disabled={isSubmitting}
+      <Button
+        type="default"
+        htmlType="submit"
+        style={{
+          background: "#008080",
+          color: "#fff",
+          borderRadius: "10px",
+          fontSize: "16px",
+          padding: "19px 0px",
+          border: "none",
+          marginTop: "30px",
+        }}
       >
         Add student
-      </button>
+      </Button>
     </form>
   );
 }

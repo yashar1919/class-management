@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import type { ReactNode } from "react";
 import { InputNumber } from "antd";
-//import { useTheme } from "../../../context/ThemeContext";
 
 interface InputNumberFieldProps {
   placeholder: string;
@@ -29,32 +28,24 @@ const InputNumberField: React.FC<InputNumberFieldProps> = ({
 
   const isFloating =
     focused || (currentValue !== null && currentValue !== undefined);
-  const labelColor = focused ? "text-custom-primary-500" : "text-gray-400";
-  const borderColor = focused ? "border-blue-600" : "border-gray-300";
-  //const { theme } = useTheme();
+  const labelColor = error
+    ? "text-red-500"
+    : focused
+    ? "text-teal-500"
+    : "text-gray-400";
 
   return (
-    <div
-      className={`input-number-wrapper relative w-full ${
-        error ? " input-number-error" : ""
-      }`}
-    >
+    <div className={`relative w-full ${error ? "input-number-error" : ""}`}>
       <span
         className={`
-          absolute transition-all duration-300 pointer-events-none z-10 px-1
+          absolute transition-all duration-300 pointer-events-none z-10 px-2
           text-xs font-normal
           ${labelColor}
+          ${isFloating ? "bg-[#141414]" : ""}
         `}
-        /* className={`
-          absolute transition-all duration-300 pointer-events-none z-10 ${
-            theme === "dark" ? "bg-[#1e2636]" : "bg-white"
-          } px-1
-          text-xs font-normal
-          ${labelColor}
-        `} */
         style={{
-          left: isFloating ? "3rem" : "2.5rem",
-          top: isFloating ? "-0.75rem" : "50%",
+          left: isFloating ? (addonBefore ? "2.5rem" : "0.75rem") : "2.2rem",
+          top: isFloating ? "-0.7rem" : "50%",
           transform: isFloating ? "none" : "translateY(-50%)",
           fontStyle: isFloating ? "italic" : undefined,
         }}
@@ -62,7 +53,15 @@ const InputNumberField: React.FC<InputNumberFieldProps> = ({
         {placeholder}
       </span>
       <InputNumber
-        className={`w-full rounded-2xl ${borderColor}`}
+        size="large"
+        className={`transition-all duration-200 ${
+          error
+            ? "border-red-500"
+            : focused
+            ? "border-teal-500"
+            : "border-gray-300"
+        }`}
+        style={{ width: "100%", borderRadius: "10px" }}
         addonBefore={
           addonBefore ? (
             <span className="text-gray-400">{addonBefore}</span>
