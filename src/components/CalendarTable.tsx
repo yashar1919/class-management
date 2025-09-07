@@ -77,7 +77,7 @@ export default function CalendarTable({ student }: CalendarTableProps) {
               </td>
               <td className="px-4 py-2">{session.price}</td>
               <td className="px-4 py-2">
-                {(idx + 1) % (student.daysPerWeek * 4) === 0 ? (
+                {idx + 1 > student.daysPerWeek * 4 ? ( // بعد از 4 هفته payment required
                   <span className="bg-yellow-400 text-yellow-800 px-2 rounded text-xs">
                     Payment required before this session!
                   </span>

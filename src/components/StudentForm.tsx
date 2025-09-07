@@ -78,7 +78,7 @@ type FormValues = {
   multiDay: boolean;
   daysPerWeek: number;
   sessionPrice: number;
-  selectedDates: any[];
+  selectedDates: DateObject[];
 };
 
 const defaultValues: FormValues = {
@@ -123,15 +123,10 @@ export default function StudentForm() {
   }); */
 
   const multiDay = watch("multiDay");
-  const daysPerWeek = watch("daysPerWeek");
+  //const daysPerWeek = watch("daysPerWeek");
 
   const startTimeValue = watch("startTime");
-  console.log(
-    "startTime value:",
-    startTimeValue && typeof startTimeValue.format === "function"
-      ? startTimeValue.format("HH:mm")
-      : startTimeValue
-  );
+  //console.log("startTime value:", startTimeValue);
 
   const startTime = watch("startTime"); // رشته مثل "03:05"
   const duration = watch("duration"); // عدد
@@ -141,7 +136,7 @@ export default function StudentForm() {
     const [h, m] = start.split(":").map(Number);
     if (isNaN(h) || isNaN(m)) return "--:--";
     let endHour = h + Number(duration);
-    let endMinute = m;
+    const endMinute = m;
     // اگر ساعت از 24 گذشت، به 0 برگردد
     if (endHour >= 24) endHour = endHour % 24;
     // فرمت دو رقمی
@@ -169,30 +164,39 @@ export default function StudentForm() {
   }; */
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    if (!selectedDates || selectedDates.length === 0) {
+    if (!data.selectedDates || data.selectedDates.length === 0) {
       setCalendarError("Date is required");
       return;
     }
     setCalendarError(false);
     console.log("calendarError set:", false);
 
+    // تبدیل selectedDates به firstSessionDates
+    const firstSessionDates = data.selectedDates.map(
+      (dateObj) => new Date(dateObj.toDate())
+    );
+
+    // محاسبه daysPerWeek بر اساس تعداد روزهای انتخاب شده
+    const actualDaysPerWeek = data.multiDay ? data.selectedDates.length : 1;
+
     addStudent({
-      ...data,
-      sessions: [],
-      classType: "Offline",
-      startTime: "00:00",
-      endTime: "00:00",
-      duration: 1,
-      price: 0,
-      firstSessionDates: [],
-      daysPerWeek: 1,
-      multiDay: false,
+      name: data.name,
+      phone: data.phone || "",
+      address: data.address,
+      classType: data.classType,
+      startTime: data.startTime,
+      endTime: calcEndTime(data.startTime, data.duration),
+      duration: data.duration,
+      price: data.sessionPrice.toString(),
+      firstSessionDates,
+      daysPerWeek: actualDaysPerWeek,
+      multiDay: data.multiDay,
     });
     reset();
     setSelectedDates([]);
   };
 
-  const [selectedDates, setSelectedDates] = useState<any>([]);
+  const [selectedDates, setSelectedDates] = useState<DateObject[]>([]);
   const [calendarError, setCalendarError] = useState<string | boolean>(false);
 
   return (
@@ -425,7 +429,7 @@ export default function StudentForm() {
           </div> */}
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-end">
           <Controller
             name="multiDay"
             control={control}
@@ -446,48 +450,13 @@ export default function StudentForm() {
                   checked={field.value}
                   onChange={(e) => field.onChange(e.target.checked)}
                 >
-                  <p className="text-xs">
+                  <p className="text-sm">
                     Is the class more than one day a week?
                   </p>
                 </Checkbox>
               </ConfigProvider>
             )}
           />
-          {multiDay && (
-            <div className="w-1/2">
-              <Controller
-                name="daysPerWeek"
-                control={control}
-                defaultValue={2}
-                render={({ field }) => (
-                  <ConfigProvider
-                    theme={{
-                      algorithm: theme.darkAlgorithm,
-                      components: {
-                        InputNumber: {
-                          colorPrimary: "#008080",
-                          algorithm: true,
-                        },
-                      },
-                    }}
-                  >
-                    <InputNumberField
-                      placeholder="Num of class"
-                      //addonBefore={<HistoryOutlined />}
-                      value={field.value}
-                      onChange={field.onChange}
-                      error={!!errors.daysPerWeek}
-                    />
-                  </ConfigProvider>
-                )}
-              />
-              {errors.daysPerWeek && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.daysPerWeek.message}
-                </p>
-              )}
-            </div>
-          )}
         </div>
         <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
           <div className="w-6/7">
@@ -505,18 +474,17 @@ export default function StudentForm() {
             /> */}
 
             <Controller
-  name="selectedDates"
-  control={control}
-  render={({ field }) => (
-    <PersianCalendarPicker
-  value={field.value}
-  onChange={field.onChange}
-  multiple={multiDay}
-  error={errors.selectedDates?.message}
-  max={multiDay ? 3 : undefined} // حداکثر 3 روز
-/>
-  )}
-/>
+              name="selectedDates"
+              control={control}
+              render={({ field }) => (
+                <PersianCalendarPicker
+                  value={field.value}
+                  onChange={field.onChange}
+                  multiple={multiDay}
+                  error={errors.selectedDates?.message}
+                />
+              )}
+            />
             {errors.selectedDates && (
               <p className="text-red-500 text-xs mt-1">
                 {errors.selectedDates.message}

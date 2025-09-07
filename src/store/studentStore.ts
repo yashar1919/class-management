@@ -28,7 +28,7 @@ export type Student = {
 
 type StudentStore = {
   students: Student[];
-  addStudent: (student: Omit<Student, "id">) => void;
+  addStudent: (student: NewStudent) => void;
   removeStudent: (id: string) => void;
   toggleAttendance: (studentId: string, sessionIdx: number) => void;
 };
@@ -43,7 +43,8 @@ export const useStudentStore = create<StudentStore>()(
         set((state) => {
           let sessions: Session[] = [];
           student.firstSessionDates.forEach((firstDate: Date) => {
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 5; i++) {
+              // تغییر از 4 به 5
               const sessionDate = addWeeks(new Date(firstDate), i);
               sessions.push({
                 date: sessionDate,
