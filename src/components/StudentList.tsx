@@ -32,11 +32,11 @@ export default function StudentList() {
 
   const panelStyle: React.CSSProperties = {
     marginBottom: 24,
-    background: "#314158",
+    background: "#141414",
     borderRadius: 16,
     border: "none",
     color: "#fff",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    boxShadow: "0px 0px 5px gray",
   };
 
   const items: CollapseProps["items"] = students.map((student) => ({
@@ -45,7 +45,7 @@ export default function StudentList() {
       <div className="flex flex-col md:flex-row md:items-center gap-2 justify-between text-white">
         <span className="font-bold text-lg">{student.name}</span>
         <span className="text-sm">
-          {student.classType === "online" ? "آنلاین" : "حضوری"}
+          {student.classType === "Online" ? "آنلاین" : "حضوری"}
         </span>
         <span className="text-sm">
           روزهای کلاس:{" "}
@@ -67,7 +67,7 @@ export default function StudentList() {
       </div>
     ),
     children: (
-      <div className="px-3 pb-4 bg-slate-700 rounded-b-2xl">
+      <div className="px-3 pb-4 bg-[#141414] rounded-b-2xl">
         <CalendarTable student={student} />
       </div>
     ),

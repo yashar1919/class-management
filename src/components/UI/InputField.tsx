@@ -1,23 +1,26 @@
 import React, { useState } from "react";
 import { Input } from "antd";
-import { UserOutlined } from "@ant-design/icons";
 
 interface InputFieldProps {
-  placeholder: string;
+  placeholder?: string;
   prefix?: React.ReactNode;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   type?: string;
   error?: boolean;
+  disabled?: boolean;
+  className?: string;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
   placeholder,
-  prefix = <UserOutlined />,
+  prefix,
   value,
   onChange,
   type = "text",
   error,
+  disabled = false,
+  className = "",
 }) => {
   const [focused, setFocused] = useState(false);
 
@@ -64,7 +67,8 @@ const InputField: React.FC<InputFieldProps> = ({
         onBlur={() => setFocused(false)}
         className={`transition-all duration-300 pt-6 pb-2 ${
           error ? "input-error-placeholder" : ""
-        }`}
+        } ${className}`}
+        disabled={disabled}
       />
     </div>
   );

@@ -1,4 +1,6 @@
-"use client";
+import React, { useMemo } from "react";
+import { Table, Tag, ConfigProvider, theme } from "antd";
+import type { ColumnsType, TableProps } from "antd/es/table";
 import { Student, useStudentStore } from "../store/studentStore";
 
 const weekDaysFa: Record<string, string> = {
@@ -20,6 +22,18 @@ type CalendarTableProps = {
   student: Student;
 };
 
+interface SessionRow {
+  key: number;
+  session: number;
+  date: string;
+  weekday: string;
+  startTime: string;
+  endTime: string;
+  attended: boolean;
+  price: string | number;
+  deposit: React.ReactNode;
+}
+
 export default function CalendarTable({ student }: CalendarTableProps) {
   const toggleAttendance = useStudentStore((s) => s.toggleAttendance);
 
@@ -27,70 +41,125 @@ export default function CalendarTable({ student }: CalendarTableProps) {
     return <div className="text-gray-500">No session data available.</div>;
   }
 
+  const data: SessionRow[] = (student.sessions ?? []).map((session, idx) => ({
+    key: idx,
+    session: idx + 1,
+    date: new Date(session.date).toLocaleDateString("fa-IR"),
+    weekday: getWeekDayFa(new Date(session.date)),
+    startTime: session.startTime,
+    endTime: session.endTime,
+    attended: session.attended,
+    price: session.price,
+    deposit:
+      idx + 1 > student.daysPerWeek * 4 ? (
+        <Tag color="yellow">Payment required before this session!</Tag>
+      ) : (
+        <Tag color="green">Payment has been made.</Tag>
+      ),
+  }));
+
+  const columns: ColumnsType<SessionRow> = [
+    {
+      title: "Session",
+      dataIndex: "session",
+      key: "session",
+      align: "center",
+      width: 50,
+    },
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      align: "center",
+      width: 80,
+    },
+    {
+      title: "Weekday",
+      dataIndex: "weekday",
+      key: "weekday",
+      align: "center",
+      width: 70,
+    },
+    {
+      title: "Start",
+      dataIndex: "startTime",
+      key: "startTime",
+      align: "center",
+      width: 60,
+    },
+    {
+      title: "End",
+      dataIndex: "endTime",
+      key: "endTime",
+      align: "center",
+      width: 60,
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+      align: "center",
+      width: 90,
+    },
+    {
+      title: "Deposit",
+      dataIndex: "deposit",
+      key: "deposit",
+      align: "center",
+      width: 190,
+    },
+  ];
+
+  // فقط ایندکس‌هایی که attended=true هستند را انتخاب کن
+  const selectedRowKeys = useMemo(
+    () => data.filter((row) => row.attended).map((row) => row.key),
+    [data]
+  );
+
+  const rowSelection: TableProps<SessionRow>["rowSelection"] = {
+    selectedRowKeys,
+    onChange: (selectedKeys: React.Key[]) => {
+      // هر بار که چک‌باکس تغییر کند، toggleAttendance را صدا بزن
+      data.forEach((row) => {
+        const shouldBeAttended = selectedKeys.includes(row.key);
+        if (row.attended !== shouldBeAttended) {
+          toggleAttendance(student.id, row.key);
+        }
+      });
+    },
+    columnTitle: "Attendance",
+    columnWidth: 70,
+  };
+
   return (
-    <div className="overflow-x-auto">
-      {/* <table className="w-full text-center border-2 border-slate-500 bg-gray-800"> */}
-      <table className="w-full text-center border-2 border-slate-500 bg-neutral-800">
-        <thead>
-          {/* <tr className="bg-gray-900 text-white"> */}
-          <tr className="bg-black text-white">
-            <th className="px-4 py-2">Session</th>
-            <th className="px-4 py-2">Date</th>
-            <th className="px-4 py-2">Weekday</th>
-            <th className="px-4 py-2">Start</th>
-            <th className="px-4 py-2">End</th>
-            <th className="px-4 py-2">Attendance</th>
-            <th className="px-4 py-2">Price</th>
-            <th className="px-4 py-2">Deposit</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(student.sessions ?? []).map((session, idx) => (
-            <tr
-              key={idx}
-              className={`border-b transition-all ${
-                session.attended ? "bg-green-100 text-gray-400" : "text-white"
-              }`}
-              style={session.attended ? { opacity: 0.7 } : {}}
-            >
-              <td className="px-4 py-2">{idx + 1}</td>
-              <td className="px-4 py-2">
-                {new Date(session.date).toLocaleDateString("fa-IR")}
-              </td>
-              <td className="px-4 py-2">
-                {getWeekDayFa(new Date(session.date))}
-              </td>
-              <td className="px-4 py-2">{session.startTime}</td>
-              <td className="px-4 py-2">{session.endTime}</td>
-              <td className="px-4 py-2 flex items-center justify-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={session.attended}
-                  onChange={() => toggleAttendance(student.id, idx)}
-                />
-                {session.attended && (
-                  <span className="text-green-600 font-bold text-xs flex items-center gap-1">
-                    <span className="inline-block w-3 h-3 bg-green-500 rounded-full"></span>
-                    برگزار شد
-                  </span>
-                )}
-              </td>
-              <td className="px-4 py-2">{session.price}</td>
-              <td className="px-4 py-2">
-                {idx + 1 > student.daysPerWeek * 4 ? ( // بعد از 4 هفته payment required
-                  <span className="bg-yellow-400 text-yellow-800 px-2 rounded text-xs">
-                    Payment required before this session!
-                  </span>
-                ) : (
-                  <span className="bg-green-400 text-green-800 px-2 rounded text-xs">
-                    Payment has been made.
-                  </span>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div
+      className="overflow-x-auto rounded-lg border border-gray-500"
+      style={{ maxHeight: 300, overflowY: "auto" }}
+    >
+      <ConfigProvider
+        theme={{
+          algorithm: theme.darkAlgorithm,
+          components: {
+            Table: {
+              colorPrimary: "#008080",
+              algorithm: true,
+            },
+          },
+        }}
+      >
+        <Table
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+          size="small"
+          bordered
+          scroll={{ y: 250 }}
+          rowSelection={rowSelection}
+          rowClassName={(record) =>
+            record.attended ? "bg-green-100 text-gray-400" : "text-white"
+          }
+        />
+      </ConfigProvider>
     </div>
   );
 }

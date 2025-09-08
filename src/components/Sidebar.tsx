@@ -4,8 +4,12 @@ import Logo from "../../public/logo.png";
 import {
   BookOutlined,
   CloseOutlined,
+  FormOutlined,
+  FundOutlined,
   InfoCircleOutlined,
+  //LogoutOutlined,
   MenuOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 
 const menuItems = [
@@ -18,6 +22,21 @@ const menuItems = [
     id: "info",
     title: "Student Info",
     icon: <InfoCircleOutlined style={{ fontSize: "18px" }} />,
+  },
+  {
+    id: "profile",
+    title: "Profile",
+    icon: <UserOutlined style={{ fontSize: "18px" }} />,
+  },
+  {
+    id: "reports",
+    title: "Reports",
+    icon: <FundOutlined style={{ fontSize: "18px" }} />,
+  },
+  {
+    id: "lessonPlan",
+    title: "Lesson Plan",
+    icon: <FormOutlined style={{ fontSize: "18px" }} />,
   },
 ];
 
@@ -48,7 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   if (isMobile && !isOpen) {
     return (
       <button
-        className="fixed top-4 left-4 z-50 p-3 bg-slate-800 rounded-full shadow-lg border border-teal-500 text-teal-500"
+        className="fixed top-4 -left-2 z-50 p-3 bg-neutral-900 rounded-r-full shadow-lg border-r border-t border-b border-teal-500 text-teal-500"
         onClick={() => setIsOpen(true)}
       >
         <MenuOutlined style={{ fontSize: "24px" }} />
@@ -65,7 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           onClick={() => setIsOpen(false)}
         />
         <aside
-          className="fixed inset-0 z-50 bg-slate-800 shadow-lg border-l-4 border-teal-500 flex flex-col
+          className="fixed inset-0 z-50 bg-neutral-900 shadow-lg flex flex-col
         transition-transform duration-300
         transform translate-x-0
         animate-slidein"
@@ -110,14 +129,22 @@ const Sidebar: React.FC<SidebarProps> = ({
   }
 
   // حالت دسکتاپ
+  {
+    /* <aside
+    className={`fixed top-3 left-3 bottom-3 h-auto z-50 bg-slate-800 shadow-lg border rounded-2xl border-teal-500 transition-all duration-300 ${
+      isOpen ? "w-64" : "w-20"
+    }`}
+  > */
+  }
   return (
     <aside
-      className={`fixed top-3 left-3 bottom-3 h-auto z-50 bg-slate-800 shadow-lg border rounded-2xl border-teal-500 transition-all duration-300 ${
+      className={`fixed top-3 left-3 bottom-3 h-auto z-50 bg-neutral-900 rounded-2xl transition-all duration-300 ${
         isOpen ? "w-64" : "w-20"
       }`}
+      style={{ boxShadow: "0px 0px 5px #008080" }}
     >
       {/* Logo & Toggle */}
-      <div className="px-4 py-3 border-b border-teal-900">
+      <div className="px-4 py-3">
         <div className={`${isOpen ? "hidden" : "block"} mb-3`}>
           <Image src={Logo} width={50} alt="classco logo" />
         </div>
@@ -135,13 +162,13 @@ const Sidebar: React.FC<SidebarProps> = ({
             )}
           </button>
         </div>
-        <div className={`${isOpen ? "block" : "hidden"}`}>
-          <Image src={Logo} width={200} alt="classco logo" />
+        <div className={`${isOpen ? "block" : "hidden"} flex justify-center`}>
+          <Image src={Logo} width={250} alt="classco logo" />
         </div>
       </div>
 
       {/* Menu */}
-      <nav className="mt-6">
+      <nav className="mt-10">
         <ul className="space-y-3 px-2">
           {menuItems.map((item) => {
             const isActive = activeTab === item.id;
@@ -151,12 +178,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => setActiveTab(item.id)}
                   className={`flex items-center ${
                     isOpen
-                      ? "w-full px-5 py-2 rounded-xl"
+                      ? "w-full px-5 py-2 rounded-lg"
                       : "mx-auto px-4 py-3 rounded-full"
                   } gap-4 transition-colors duration-200 cursor-pointer ${
                     isActive
                       ? "bg-teal-500 text-white shadow"
-                      : "text-teal-400 hover:bg-teal-100"
+                      : "text-gray-200 hover:bg-teal-100"
                   }`}
                 >
                   <span>{item.icon}</span>

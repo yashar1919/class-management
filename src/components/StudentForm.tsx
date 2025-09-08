@@ -201,7 +201,8 @@ export default function StudentForm() {
 
   return (
     <form
-      className="w-full max-w-3xl mx-auto bg-[#141414] p-8 rounded-2xl shadow-lg flex flex-col gap-7 mt-8 mb-20"
+      className="w-full max-w-3xl mx-auto bg-[#141414] p-8 rounded-3xl flex flex-col gap-7 mt-8 mb-20"
+      style={{boxShadow:"0px 0px 7px gray"}}
       onSubmit={handleSubmit(onSubmit)}
       noValidate
     >
@@ -371,7 +372,7 @@ export default function StudentForm() {
             </p>
           )}
         </div>
-        <div className="grid grid-cols-4 items-center w-full">
+        <div className="grid grid-cols-5 items-center w-full">
           <div className="col-span-2">
             <Controller
               name="startTime"
@@ -419,14 +420,31 @@ export default function StudentForm() {
               }}
             />
           </div>
-          <div className="text-start col-span-1">
+          {/* <div className="text-start col-span-1">
             <p className="text-gray-400 text-xs mb-1">End Time</p>
-            <p className="text-lg font-bold text-white">{endTime}</p>
-          </div>
-          {/* <div className="flex items-center gap-2">
-            <p className="text-gray-400 text-xs mb-1">End Time:</p>
-            <p className="text-lg font-bold text-white">{endTime}</p>
+            <p className="text-lg font-medium text-white">{endTime}</p>
           </div> */}
+          <div className="flex items-center col-span-2">
+            {/* <p className="text-gray-400 text-xs mb-1">End Time:</p>
+            <p className="text-lg font-bold text-white">{endTime}</p> */}
+
+            <ConfigProvider
+              theme={{
+                algorithm: theme.darkAlgorithm,
+                components: {
+                  DatePicker: {
+                    colorPrimary: "#008080",
+                    algorithm: true,
+                  },
+                },
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-gray-500">End Time:</p> 
+                <InputField value={endTime} disabled className="text-center"/>
+              </div>
+            </ConfigProvider>
+          </div>
         </div>
 
         <div className="flex items-center justify-end">
