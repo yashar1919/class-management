@@ -89,8 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         transform translate-x-0
         animate-slidein"
         >
-          <div className="flex items-center justify-between px-6 py-4 border-b border-teal-900">
-            <Image src={Logo} width={50} alt="classco logo" />
+          <div className="flex items-center justify-end px-6 pt-5">
             <button
               onClick={() => setIsOpen(false)}
               className="text-teal-500 hover:text-gray-500 transition cursor-pointer"
@@ -98,7 +97,10 @@ const Sidebar: React.FC<SidebarProps> = ({
               <CloseOutlined style={{ fontSize: "24px" }} />
             </button>
           </div>
-          <nav className="flex-1 flex flex-col justify-center items-center">
+          <div className="flex justify-center">
+            <Image src={Logo} width={250} alt="classco logo" />
+          </div>
+          <nav className="flex-1 flex flex-col items-center mt-10">
             <ul className="space-y-6 w-full px-8">
               {menuItems.map((item) => {
                 const isActive = activeTab === item.id;
@@ -109,10 +111,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                         setActiveTab(item.id);
                         setIsOpen(false);
                       }}
-                      className={`flex items-center w-full px-6 py-4 rounded-xl gap-4 text-lg justify-center transition-colors duration-200 cursor-pointer ${
+                      className={`flex items-center w-full px-6 py-4 rounded-2xl gap-4 text-lg justify-start transition-colors duration-200 cursor-pointer ${
                         isActive
                           ? "bg-teal-500 text-white shadow"
-                          : "text-teal-400 hover:bg-teal-100"
+                          : "text-gray-200 hover:bg-teal-100"
                       }`}
                     >
                       <span>{item.icon}</span>
