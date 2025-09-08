@@ -96,7 +96,7 @@ const defaultValues: FormValues = {
 };
 
 export default function StudentForm() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const addStudent = useStudentStore((s) => s.addStudent);
 
   const {
