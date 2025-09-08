@@ -21,6 +21,7 @@ import dayjs from "dayjs";
 import PersianCalendarPicker from "./UI/PersianCalendarPicker";
 import { useState } from "react";
 import { DateObject } from "react-multi-date-picker";
+import { useTranslation } from "react-i18next";
 
 const classTypeItems: MenuProps["items"] = [
   { label: "Offline", key: "Offline", icon: <ClusterOutlined /> },
@@ -95,6 +96,7 @@ const defaultValues: FormValues = {
 };
 
 export default function StudentForm() {
+  const { t, i18n } = useTranslation();
   const addStudent = useStudentStore((s) => s.addStudent);
 
   const {
@@ -104,6 +106,7 @@ export default function StudentForm() {
     formState: { errors },
     watch,
   } = useForm<FormValues>({
+    //eslint-disable-next-line
     resolver: yupResolver(schema) as any,
     defaultValues,
     mode: "onTouched",
@@ -193,16 +196,16 @@ export default function StudentForm() {
       multiDay: data.multiDay,
     });
     reset();
-    setSelectedDates([]);
+    //setSelectedDates([]);
   };
 
-  const [selectedDates, setSelectedDates] = useState<DateObject[]>([]);
+  //const [selectedDates, setSelectedDates] = useState<DateObject[]>([]);
   const [calendarError, setCalendarError] = useState<string | boolean>(false);
 
   return (
     <form
       className="w-full max-w-3xl mx-auto bg-[#141414] p-8 rounded-3xl flex flex-col gap-7 mt-8 mb-20"
-      style={{boxShadow:"0px 0px 7px gray"}}
+      style={{ boxShadow: "0px 0px 7px gray" }}
       onSubmit={handleSubmit(onSubmit)}
       noValidate
     >
@@ -440,8 +443,8 @@ export default function StudentForm() {
               }}
             >
               <div className="flex items-center gap-2">
-                <p className="text-xs text-gray-500">End Time:</p> 
-                <InputField value={endTime} disabled className="text-center"/>
+                <p className="text-xs text-gray-500">End Time:</p>
+                <InputField value={endTime} disabled className="text-center" />
               </div>
             </ConfigProvider>
           </div>
@@ -532,12 +535,28 @@ export default function StudentForm() {
                   },
                 }}
               >
+                {/* <InputNumberField
+                  placeholder="Session Price"
+                  addonBefore={<DollarOutlined />}
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={!!errors.sessionPrice}
+                /> */}
+
                 <InputNumberField
                   placeholder="Session Price"
                   addonBefore={<DollarOutlined />}
                   value={field.value}
                   onChange={field.onChange}
                   error={!!errors.sessionPrice}
+                  formatter={(value: string | number | undefined) =>
+                    value
+                      ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                      : ""
+                  }
+                  parser={(value: string | undefined) =>
+                    value ? value.replace(/(,*)/g, "") : ""
+                  }
                 />
               </ConfigProvider>
             )}
@@ -562,7 +581,7 @@ export default function StudentForm() {
           marginTop: "30px",
         }}
       >
-        Add student
+        {t("add_student")}
       </Button>
     </form>
   );

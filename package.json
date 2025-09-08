@@ -12,10 +12,12 @@
     "@hookform/resolvers": "^5.2.1",
     "antd": "^5.27.2",
     "date-fns": "^4.1.0",
+    "i18next": "^25.5.2",
     "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.62.0",
+    "react-i18next": "^15.7.3",
     "react-multi-date-picker": "^4.5.2",
     "yup": "^1.7.0",
     "zustand": "^5.0.8"

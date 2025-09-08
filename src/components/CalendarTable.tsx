@@ -37,7 +37,7 @@ interface SessionRow {
 export default function CalendarTable({ student }: CalendarTableProps) {
   const toggleAttendance = useStudentStore((s) => s.toggleAttendance);
 
-  if (!student || !student.sessions) {
+ /*  if (!student || !student.sessions) {
     return <div className="text-gray-500">No session data available.</div>;
   }
 
@@ -57,6 +57,40 @@ export default function CalendarTable({ student }: CalendarTableProps) {
         <Tag color="green">Payment has been made.</Tag>
       ),
   }));
+
+  
+
+  const selectedRowKeys = useMemo(
+    () => data.filter((row) => row.attended).map((row) => row.key),
+    [data]
+  ); */
+
+  const data: SessionRow[] = (student?.sessions ?? []).map((session, idx) => ({
+    key: idx,
+    session: idx + 1,
+    date: new Date(session.date).toLocaleDateString("fa-IR"),
+    weekday: getWeekDayFa(new Date(session.date)),
+    startTime: session.startTime,
+    endTime: session.endTime,
+    attended: session.attended,
+    price: session.price,
+    deposit:
+      idx + 1 > student.daysPerWeek * 4 ? (
+        <Tag color="yellow">Payment required before this session!</Tag>
+      ) : (
+        <Tag color="green">Payment has been made.</Tag>
+      ),
+  }));
+
+  const selectedRowKeys = useMemo(
+    () => data.filter((row) => row.attended).map((row) => row.key),
+    [data]
+  );
+
+  if (!student || !student.sessions) {
+    return <div className="text-gray-500">No session data available.</div>;
+  }
+
 
   const columns: ColumnsType<SessionRow> = [
     {
@@ -109,12 +143,6 @@ export default function CalendarTable({ student }: CalendarTableProps) {
       width: 190,
     },
   ];
-
-  // فقط ایندکس‌هایی که attended=true هستند را انتخاب کن
-  const selectedRowKeys = useMemo(
-    () => data.filter((row) => row.attended).map((row) => row.key),
-    [data]
-  );
 
   const rowSelection: TableProps<SessionRow>["rowSelection"] = {
     selectedRowKeys,

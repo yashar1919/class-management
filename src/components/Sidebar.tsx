@@ -11,6 +11,8 @@ import {
   MenuOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import { Switch } from "antd";
+import { useTranslation } from "react-i18next";
 
 const menuItems = [
   {
@@ -55,6 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   // تشخیص موبایل با media query
   const [isMobile, setIsMobile] = React.useState(false);
+  const { i18n } = useTranslation();
 
   React.useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -150,7 +153,26 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className={`${isOpen ? "hidden" : "block"} mb-3`}>
           <Image src={Logo} width={50} alt="classco logo" />
         </div>
-        <div className={`flex ${isOpen ? "justify-end" : "justify-center"}`}>
+        <div
+          className={`flex mb-5 ${
+            isOpen ? "justify-between" : "justify-center"
+          }`}
+        >
+          <div className="flex items-center">
+            <Switch
+              checked={i18n.language === "en"}
+              onChange={(checked) => i18n.changeLanguage(checked ? "en" : "fa")}
+              checkedChildren="EN"
+              unCheckedChildren="FA"
+              style={{
+                background:
+                  i18n.language === "en" ? "darkolivegreen" : "darkslateblue",
+                borderColor:
+                  i18n.language === "en" ? "darkolivegreen" : "darkslateblue",
+                color: "#fff",
+              }}
+            />
+          </div>
           <button
             onClick={() => setIsOpen(!isOpen)}
             className={`text-teal-500 ${

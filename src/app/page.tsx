@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import StudentForm from "../components/StudentForm";
 import StudentList from "../components/StudentList";
 import StudentsInfo from "../components/StudentsInfo";
+import "../i18n";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("class");
