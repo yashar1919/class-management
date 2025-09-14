@@ -158,7 +158,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             isOpen ? "justify-between" : "justify-center"
           }`}
         >
-          <div className="flex items-center">
+          <div className={`${isOpen ? "flex" : "hidden"} items-center`}>
             <Switch
               checked={i18n.language === "en"}
               onChange={(checked) => i18n.changeLanguage(checked ? "en" : "fa")}
