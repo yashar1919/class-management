@@ -204,7 +204,7 @@ export default function StudentForm() {
 
   return (
     <form
-      className="w-full max-w-3xl mx-auto bg-[#141414] p-8 rounded-3xl flex flex-col gap-7 mt-8 mb-20"
+      className="w-full max-w-[950px] mx-auto bg-[#141414] p-8 rounded-2xl flex flex-col gap-7 mt-8 mb-8"
       style={{ boxShadow: "0px 0px 7px gray" }}
       onSubmit={handleSubmit(onSubmit)}
       noValidate

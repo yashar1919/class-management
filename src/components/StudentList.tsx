@@ -75,18 +75,20 @@ export default function StudentList() {
   }));
 
   return (
-    <Collapse
-      bordered={false}
-      defaultActiveKey={[]}
-      expandIcon={({ isActive }) => (
-        <CaretRightOutlined
-          style={{ color: "#fff" }}
-          rotate={isActive ? 90 : 0}
-        />
-      )}
-      style={{ background: "transparent" }}
-      items={items}
-      className=""
-    />
+    <div className="max-w-[950px] mx-auto">
+      <Collapse
+        bordered={false}
+        defaultActiveKey={[]}
+        expandIcon={({ isActive }) => (
+          <CaretRightOutlined
+            style={{ color: "#fff" }}
+            rotate={isActive ? 90 : 0}
+          />
+        )}
+        style={{ background: "transparent" }}
+        items={items}
+        className=""
+      />
+    </div>
   );
 }
