@@ -1,5 +1,38 @@
 {
-  "class": "Class",
-  "info": "Info",
-  "add_student": "Add Student"
+  "sidebar": {
+    "classManagement": "Class Management",
+    "studentInfo": "Student Info",
+    "profile": "Profile",
+    "reports": "Reports",
+    "lessonPlan": "Lesson Plan"
+  },
+  "studentForm": {
+    "addNewStudent": "Add New Student",
+    "addStudent": "Add Student",
+    "fullName": "Full Name",
+    "phone": "Phone",
+    "address": "Address",
+    "classType": "Class Type",
+    "online": "Online",
+    "offline": "In-Person",
+    "durationHours": "Duration (hours)",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "isClassMoreThanOneDay": "Is the class more than one day a week?",
+    "chooseClassDate": "Choose Class Date",
+    "sessionPrice": "Session Price"
+  },
+  "studentList": {
+    "classDays": "Class Days",
+    "hour": "hour",
+    "classDuration": "Class Duration",
+    "sunday": "Sunday",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday"
+  },
+  "table": {}
 }

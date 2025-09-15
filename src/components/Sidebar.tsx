@@ -14,34 +14,6 @@ import {
 import { Switch } from "antd";
 import { useTranslation } from "react-i18next";
 
-const menuItems = [
-  {
-    id: "class",
-    title: "Class Management",
-    icon: <BookOutlined style={{ fontSize: "18px" }} />,
-  },
-  {
-    id: "info",
-    title: "Student Info",
-    icon: <InfoCircleOutlined style={{ fontSize: "18px" }} />,
-  },
-  {
-    id: "profile",
-    title: "Profile",
-    icon: <UserOutlined style={{ fontSize: "18px" }} />,
-  },
-  {
-    id: "reports",
-    title: "Reports",
-    icon: <FundOutlined style={{ fontSize: "18px" }} />,
-  },
-  {
-    id: "lessonPlan",
-    title: "Lesson Plan",
-    icon: <FormOutlined style={{ fontSize: "18px" }} />,
-  },
-];
-
 type SidebarProps = {
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -57,7 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   // تشخیص موبایل با media query
   const [isMobile, setIsMobile] = React.useState(false);
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   React.useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -65,6 +37,34 @@ const Sidebar: React.FC<SidebarProps> = ({
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  const menuItems = [
+    {
+      id: "class",
+      title: t("sidebar.classManagement"),
+      icon: <BookOutlined style={{ fontSize: "18px" }} />,
+    },
+    {
+      id: "info",
+      title: t("sidebar.studentInfo"),
+      icon: <InfoCircleOutlined style={{ fontSize: "18px" }} />,
+    },
+    {
+      id: "profile",
+      title: t("sidebar.profile"),
+      icon: <UserOutlined style={{ fontSize: "18px" }} />,
+    },
+    {
+      id: "reports",
+      title: t("sidebar.reports"),
+      icon: <FundOutlined style={{ fontSize: "18px" }} />,
+    },
+    {
+      id: "lessonPlan",
+      title: t("sidebar.lessonPlan"),
+      icon: <FormOutlined style={{ fontSize: "18px" }} />,
+    },
+  ];
 
   // اگر موبایل است و سایدبار بسته است فقط دکمه منو را نمایش بده
   if (isMobile && !isOpen) {
@@ -134,13 +134,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   }
 
   // حالت دسکتاپ
-  {
-    /* <aside
-    className={`fixed top-3 left-3 bottom-3 h-auto z-50 bg-slate-800 shadow-lg border rounded-2xl border-teal-500 transition-all duration-300 ${
-      isOpen ? "w-64" : "w-20"
-    }`}
-  > */
-  }
   return (
     <aside
       className={`fixed top-3 left-3 bottom-3 h-auto z-50 bg-neutral-900 rounded-2xl transition-all duration-300 ${

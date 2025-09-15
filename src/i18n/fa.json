@@ -1,5 +1,38 @@
 {
-  "class": "کلاس",
-  "info": "اطلاعات",
-  "add_student": "افزودن دانش‌آموز"
+  "sidebar": {
+    "classManagement": "مدیریت کلاس",
+    "studentInfo": "اطلاعات دانش‌آموز",
+    "profile": "پروفایل",
+    "reports": "گزارشات",
+    "lessonPlan": "درسنامه"
+  },
+  "studentForm": {
+    "addNewStudent": "افزودن دانش آموز جدید",
+    "addStudent": "افزودن دانش‌آموز",
+    "fullName": "نام کامل",
+    "phone": "شماره تماس",
+    "address": "آدرس",
+    "classType": "نوع کلاس",
+    "online": "آنلاین",
+    "offline": "حضوری",
+    "durationHours": "مدت زمان (ساعت)",
+    "startTime": "زمان شروع",
+    "endTime": "زمان پایان",
+    "isClassMoreThanOneDay": "آیا کلاس شما بیش از یک روز در هفته است؟",
+    "chooseClassDate": "انتخاب تاریخ کلاس",
+    "sessionPrice": "هزینه هر جلسه"
+  },
+  "studentList": {
+    "classDays": "روز های کلاس",
+    "hour": "ساعت",
+    "classDuration": "مدت زمان کلاس",
+    "sunday": "یکشنبه",
+    "monday": "دوشنبه",
+    "tuesday": "سه‌شنبه",
+    "wednesday": "چهارشنبه",
+    "thursday": "پنج‌شنبه",
+    "friday": "جمعه",
+    "saturday": "شنبه"
+  },
+  "table": {}
 }

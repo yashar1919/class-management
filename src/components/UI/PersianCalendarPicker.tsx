@@ -7,6 +7,7 @@ import "react-multi-date-picker/styles/backgrounds/bg-dark.css";
 import "react-multi-date-picker/styles/layouts/mobile.css";
 import { DateObject } from "react-multi-date-picker";
 import { CalendarOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 
 interface PersianCalendarPickerProps {
   value: DateObject | DateObject[] | null;
@@ -25,6 +26,7 @@ const PersianCalendarPicker: React.FC<PersianCalendarPickerProps> = ({
     //console.log("PersianCalendarPicker error prop:", error);
   }, [error]);
 
+  const { t } = useTranslation();
   const handleChange = (val: DateObject | DateObject[] | null) => {
     // همیشه آرایه برگردونیم، حتی اگه multiple=false باشه
     if (val === null) {
@@ -72,7 +74,7 @@ const PersianCalendarPicker: React.FC<PersianCalendarPickerProps> = ({
           fontSize: "12px",
           color: error ? "red" : undefined,
         }}
-        placeholder="Choose class date"
+        placeholder={t("studentForm.chooseClassDate")}
       />
     </div>
   );

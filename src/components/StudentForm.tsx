@@ -23,11 +23,6 @@ import { useState } from "react";
 import { DateObject } from "react-multi-date-picker";
 import { useTranslation } from "react-i18next";
 
-const classTypeItems: MenuProps["items"] = [
-  { label: "Offline", key: "Offline", icon: <ClusterOutlined /> },
-  { label: "Online", key: "Online", icon: <ClusterOutlined /> },
-];
-
 const schema = yup.object({
   name: yup.string().required("Full name is required"),
   phone: yup
@@ -98,6 +93,19 @@ const defaultValues: FormValues = {
 export default function StudentForm() {
   const { t } = useTranslation();
   const addStudent = useStudentStore((s) => s.addStudent);
+
+  const classTypeItems: MenuProps["items"] = [
+    {
+      label: t("studentForm.offline"),
+      key: "Offline",
+      icon: <ClusterOutlined />,
+    },
+    {
+      label: t("studentForm.online"),
+      key: "Online",
+      icon: <ClusterOutlined />,
+    },
+  ];
 
   const {
     control,
@@ -210,7 +218,7 @@ export default function StudentForm() {
       noValidate
     >
       <h2 className="text-3xl font-bold text-teal-400 mb-2 text-center">
-        Add New Student
+        {t("studentForm.addNewStudent")}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
         <div>
@@ -230,7 +238,7 @@ export default function StudentForm() {
                 }}
               >
                 <InputField
-                  placeholder="Full Name"
+                  placeholder={t("studentForm.fullName")}
                   prefix={<UserOutlined />}
                   value={field.value}
                   onChange={field.onChange}
@@ -262,7 +270,7 @@ export default function StudentForm() {
                 }}
               >
                 <InputField
-                  placeholder="Phone"
+                  placeholder={t("studentForm.phone")}
                   prefix={<PhoneOutlined />}
                   value={field.value}
                   onChange={field.onChange}
@@ -293,7 +301,7 @@ export default function StudentForm() {
                 }}
               >
                 <InputField
-                  placeholder="Address"
+                  placeholder={t("studentForm.address")}
                   prefix={<HomeOutlined />}
                   value={field.value}
                   onChange={field.onChange}
@@ -325,7 +333,7 @@ export default function StudentForm() {
                 }}
               >
                 <DropdownField
-                  label="Class Type"
+                  label={t("studentForm.classType")}
                   icon={<ClusterOutlined />}
                   items={classTypeItems}
                   value={field.value}
@@ -360,7 +368,7 @@ export default function StudentForm() {
                 }}
               >
                 <InputNumberField
-                  placeholder="Duration (hours)"
+                  placeholder={t("studentForm.durationHours")}
                   addonBefore={<HistoryOutlined />}
                   value={field.value}
                   onChange={field.onChange}
@@ -404,7 +412,7 @@ export default function StudentForm() {
                       }
                     }}
                     error={!!errors.startTime}
-                    placeholder="Start Time"
+                    placeholder={t("studentForm.startTime")}
                   />
                 </ConfigProvider>
               )}
@@ -443,7 +451,9 @@ export default function StudentForm() {
               }}
             >
               <div className="flex items-center gap-2">
-                <p className="text-xs text-gray-500">End Time:</p>
+                <p className="text-xs text-gray-500">
+                  {t("studentForm.endTime")}:
+                </p>
                 <InputField value={endTime} disabled className="text-center" />
               </div>
             </ConfigProvider>
@@ -472,7 +482,7 @@ export default function StudentForm() {
                   onChange={(e) => field.onChange(e.target.checked)}
                 >
                   <p className="text-sm">
-                    Is the class more than one day a week?
+                    {t("studentForm.isClassMoreThanOneDay")}
                   </p>
                 </Checkbox>
               </ConfigProvider>
@@ -544,7 +554,7 @@ export default function StudentForm() {
                 /> */}
 
                 <InputNumberField
-                  placeholder="Session Price"
+                  placeholder={t("studentForm.sessionPrice")}
                   addonBefore={<DollarOutlined />}
                   value={field.value}
                   onChange={field.onChange}
@@ -581,7 +591,7 @@ export default function StudentForm() {
           marginTop: "30px",
         }}
       >
-        {t("add_student")}
+        {t("studentForm.addStudent")}
       </Button>
     </form>
   );

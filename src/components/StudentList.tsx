@@ -5,25 +5,30 @@ import type { CollapseProps } from "antd";
 import { Collapse } from "antd";
 import { useStudentStore } from "../store/studentStore";
 import CalendarTable from "./CalendarTable";
-
-const weekDaysFa: Record<string, string> = {
-  Sunday: "یکشنبه",
-  Monday: "دوشنبه",
-  Tuesday: "سه‌شنبه",
-  Wednesday: "چهارشنبه",
-  Thursday: "پنج‌شنبه",
-  Friday: "جمعه",
-  Saturday: "شنبه",
-};
-
-function getWeekDayFa(date: Date) {
-  const en = date.toLocaleDateString("en-US", { weekday: "long" });
-  return weekDaysFa[en] || en;
-}
+import { useTranslation } from "react-i18next";
 
 export default function StudentList() {
   const students = useStudentStore((s) => s.students);
   const removeStudent = useStudentStore((s) => s.removeStudent);
+  const { t } = useTranslation();
+
+  const weekDaysFa: Record<string, string> = {
+    Sunday: t("studentList.sunday"),
+    Monday: t("studentList.monday"),
+    Tuesday: t("studentList.tuesday"),
+    Wednesday: t("studentList.wednesday"),
+    Thursday: t("studentList.thursday"),
+    Friday: t("studentList.friday"),
+    Saturday: t("studentList.saturday"),
+
+
+    
+  };
+
+  function getWeekDayFa(date: Date) {
+    const en = date.toLocaleDateString("en-US", { weekday: "long" });
+    return weekDaysFa[en] || en;
+  }
 
   if (students.length === 0)
     return (
@@ -45,16 +50,21 @@ export default function StudentList() {
       <div className="flex flex-col md:flex-row md:items-center gap-2 justify-between text-white">
         <span className="font-bold text-lg">{student.name}</span>
         <span className="text-sm">
-          {student.classType === "Online" ? "آنلاین" : "حضوری"}
+          {student.classType === "Online"
+            ? t("studentForm.online")
+            : t("studentForm.offline")}
         </span>
         <span className="text-sm">
-          روزهای کلاس:{" "}
+          {t("studentList.classDays")}:{" "}
           {student.sessions
             .map((s) => getWeekDayFa(new Date(s.date)))
             .filter((v, i, arr) => arr.indexOf(v) === i)
             .join("، ")}
         </span>
-        <span className="text-sm">مدت کلاس: {student.duration} ساعت</span>
+        <span className="text-sm">
+          {t("studentList.classDuration")}: {student.duration}{" "}
+          {t("studentList.hour")}
+        </span>
         <button
           onClick={(e) => {
             e.stopPropagation();
