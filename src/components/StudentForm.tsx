@@ -12,6 +12,7 @@ import {
   HistoryOutlined,
   SwapRightOutlined,
   DollarOutlined,
+  SwapLeftOutlined,
 } from "@ant-design/icons";
 import { Checkbox, ConfigProvider, Button, theme, type MenuProps } from "antd";
 import DropdownField from "./UI/DropdownField";
@@ -91,7 +92,7 @@ const defaultValues: FormValues = {
 };
 
 export default function StudentForm() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const addStudent = useStudentStore((s) => s.addStudent);
 
   const classTypeItems: MenuProps["items"] = [
@@ -428,12 +429,21 @@ export default function StudentForm() {
             )}
           </div>
           <div className="col-span-1 text-center">
-            <SwapRightOutlined
-              style={{
-                color: startTimeValue ? "#008080" : "gray",
-                fontSize: "24px",
-              }}
-            />
+            {i18n.language === "fa" ? (
+              <SwapLeftOutlined
+                style={{
+                  color: startTimeValue ? "#008080" : "gray",
+                  fontSize: "24px",
+                }}
+              />
+            ) : (
+              <SwapRightOutlined
+                style={{
+                  color: startTimeValue ? "#008080" : "gray",
+                  fontSize: "24px",
+                }}
+              />
+            )}
           </div>
           {/* <div className="text-start col-span-1">
             <p className="text-gray-400 text-xs mb-1">End Time</p>

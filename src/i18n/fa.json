@@ -34,5 +34,16 @@
     "friday": "جمعه",
     "saturday": "شنبه"
   },
-  "table": {}
+  "table": {
+    "attendance": "حضور/غیاب",
+    "session": "جلسه",
+    "date": "تاریخ",
+    "weekday": "روز هفته",
+    "start": "شروع",
+    "end": "پایان",
+    "price": "هزینه",
+    "deposit": "شرح پرداخت",
+    "tuitionDone": "شهریه پرداخت شده است.",
+    "tuitionRequired": "نیاز به پرداخت شهریه!"
+  }
 }

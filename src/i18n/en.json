@@ -34,5 +34,16 @@
     "friday": "Friday",
     "saturday": "Saturday"
   },
-  "table": {}
+  "table": {
+    "attendance": "Attendance",
+    "session": "Session",
+    "date": "Date",
+    "weekday": "Weekday",
+    "start": "Start",
+    "end": "End",
+    "price": "Price",
+    "deposit": "Deposit",
+    "tuitionDone": "Tuition has been paid.",
+    "tuitionRequired": "Tuition must be paid!"
+  }
 }
