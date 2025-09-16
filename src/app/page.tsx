@@ -102,7 +102,13 @@ export default function Home() {
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
       />
-      <main className="transition-all duration-300" style={mainStyle}>
+      <main
+        className="transition-all duration-300"
+        style={{
+          ...mainStyle,
+          paddingBottom: isMobile ? "4.5rem" : undefined, // اضافه کردن فضای خالی پایین فقط در موبایل
+        }}
+      >
         <div
           className={`max-w-5xl mx-auto ${isMobile ? "mt-20" : "mt-3"} px-4`}
         >

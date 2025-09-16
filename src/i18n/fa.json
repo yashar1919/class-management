@@ -4,7 +4,8 @@
     "studentInfo": "اطلاعات دانش‌آموز",
     "profile": "پروفایل",
     "reports": "گزارشات",
-    "lessonPlan": "درسنامه"
+    "lessonPlan": "درسنامه",
+    "settings": "تنظیمات"
   },
   "studentForm": {
     "addNewStudent": "افزودن دانش آموز جدید",

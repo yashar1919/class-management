@@ -13,6 +13,11 @@ import {
 } from "@ant-design/icons";
 import { Switch } from "antd";
 import { useTranslation } from "react-i18next";
+import dynamic from "next/dynamic";
+
+const MobileBottomNav = dynamic(() => import("./MobileBottomNav"), {
+  ssr: false,
+});
 
 type SidebarProps = {
   activeTab: string;
@@ -64,71 +69,17 @@ const Sidebar: React.FC<SidebarProps> = ({
       title: t("sidebar.lessonPlan"),
       icon: <FormOutlined style={{ fontSize: "18px" }} />,
     },
+    {
+      id: "settings",
+      title: t("sidebar.settings"),
+      icon: <FormOutlined style={{ fontSize: "18px" }} />,
+    },
   ];
 
-  // اگر موبایل است و سایدبار بسته است فقط دکمه منو را نمایش بده
-  if (isMobile && !isOpen) {
-    return (
-      <button
-        className="fixed top-4 -left-2 z-50 p-3 bg-neutral-900 rounded-r-full shadow-lg border-r border-t border-b border-teal-500 text-teal-500"
-        onClick={() => setIsOpen(true)}
-      >
-        <MenuOutlined style={{ fontSize: "24px" }} />
-      </button>
-    );
-  }
-
-  // اگر موبایل است و سایدبار باز است، سایدبار تمام‌صفحه و تارکننده پس‌زمینه
-  if (isMobile && isOpen) {
+  if (isMobile) {
     return (
       <>
-        <div
-          className="fixed inset-0 bg-black/60 z-40"
-          onClick={() => setIsOpen(false)}
-        />
-        <aside
-          className="fixed inset-0 z-50 bg-neutral-900 shadow-lg flex flex-col
-        transition-transform duration-300
-        transform translate-x-0
-        animate-slidein"
-        >
-          <div className="flex items-center justify-end px-6 pt-5">
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-teal-500 hover:text-gray-500 transition cursor-pointer"
-            >
-              <CloseOutlined style={{ fontSize: "24px" }} />
-            </button>
-          </div>
-          <div className="flex justify-center">
-            <Image src={Logo} width={250} alt="classco logo" />
-          </div>
-          <nav className="flex-1 flex flex-col items-center mt-10">
-            <ul className="space-y-6 w-full px-8">
-              {menuItems.map((item) => {
-                const isActive = activeTab === item.id;
-                return (
-                  <li key={item.id}>
-                    <button
-                      onClick={() => {
-                        setActiveTab(item.id);
-                        setIsOpen(false);
-                      }}
-                      className={`flex items-center w-full px-6 py-4 rounded-2xl gap-4 text-lg justify-start transition-colors duration-200 cursor-pointer ${
-                        isActive
-                          ? "bg-teal-500 text-white shadow"
-                          : "text-gray-200 hover:bg-teal-100"
-                      }`}
-                    >
-                      <span>{item.icon}</span>
-                      <span className="font-medium">{item.title}</span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        </aside>
+        <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
       </>
     );
   }
@@ -136,7 +87,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   // حالت دسکتاپ
   return (
     <aside
-      className={`fixed top-3 ${i18n.language === "fa" ? "right-3" : "left-3"} left-3 bottom-3 h-auto z-50 bg-neutral-900 rounded-2xl transition-all duration-300 ${
+      className={`fixed top-3 ${
+        i18n.language === "fa" ? "right-3" : "left-3"
+      } left-3 bottom-3 h-auto z-50 bg-neutral-900 rounded-2xl transition-all duration-300 ${
         isOpen ? "w-64" : "w-20"
       }`}
       style={{ boxShadow: "0px 0px 5px #008080" }}

@@ -4,7 +4,8 @@
     "studentInfo": "Student Info",
     "profile": "Profile",
     "reports": "Reports",
-    "lessonPlan": "Lesson Plan"
+    "lessonPlan": "Lesson Plan",
+    "settings": "Settings"
   },
   "studentForm": {
     "addNewStudent": "Add New Student",
