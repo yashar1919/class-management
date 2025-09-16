@@ -136,7 +136,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   // حالت دسکتاپ
   return (
     <aside
-      className={`fixed top-3 left-3 bottom-3 h-auto z-50 bg-neutral-900 rounded-2xl transition-all duration-300 ${
+      className={`fixed top-3 ${i18n.language === "fa" ? "right-3" : "left-3"} left-3 bottom-3 h-auto z-50 bg-neutral-900 rounded-2xl transition-all duration-300 ${
         isOpen ? "w-64" : "w-20"
       }`}
       style={{ boxShadow: "0px 0px 5px #008080" }}

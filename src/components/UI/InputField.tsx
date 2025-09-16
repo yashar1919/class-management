@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Input } from "antd";
+import { useTranslation } from "react-i18next";
 
 interface InputFieldProps {
   placeholder?: string;
@@ -23,6 +24,7 @@ const InputField: React.FC<InputFieldProps> = ({
   className = "",
 }) => {
   const [focused, setFocused] = useState(false);
+  const { i18n } = useTranslation();
 
   const isFloating = focused || (!!value && value.length > 0);
   const labelColor = error
@@ -30,6 +32,13 @@ const InputField: React.FC<InputFieldProps> = ({
     : focused
     ? "text-teal-500"
     : "text-gray-400";
+
+  // تعیین جهت و تراز بر اساس زبان
+  const isRTL = i18n.language === "fa";
+  const inputDir = isRTL ? "rtl" : "ltr";
+  const inputTextAlign = isRTL ? "right" : "left";
+  const labelLeft = isRTL ? undefined : isFloating ? "0.75rem" : "2.2rem";
+  const labelRight = isRTL ? (isFloating ? "0.75rem" : "2.2rem") : undefined;
 
   return (
     <div className="relative">
@@ -41,20 +50,22 @@ const InputField: React.FC<InputFieldProps> = ({
           ${isFloating ? "bg-[#141414]" : ""}
         `}
         style={{
-          left: isFloating ? "0.75rem" : "2.2rem",
+          left: labelLeft,
+          right: labelRight,
           top: isFloating ? "-0.7rem" : "50%",
           transform: isFloating ? "none" : "translateY(-50%)",
           fontStyle: isFloating ? "italic" : undefined,
+          textAlign: inputTextAlign,
         }}
       >
         {placeholder}
       </span>
       <Input
+        dir={inputDir}
         style={{
           borderRadius: "10px",
           borderColor: error ? "#ef4444" : focused ? "#14b8a6" : undefined,
-          //backgroundColor: "transparent",
-          //color: "white",
+          textAlign: inputTextAlign,
         }}
         size="large"
         prefix={

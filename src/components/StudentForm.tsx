@@ -338,7 +338,11 @@ export default function StudentForm() {
                   items={classTypeItems}
                   value={field.value}
                   onChange={(val) =>
-                    field.onChange(val === "Offline" ? "Offline" : "Online")
+                    field.onChange(
+                      val === t("studentForm.offline")
+                        ? t("studentForm.offline")
+                        : t("studentForm.online")
+                    )
                   }
                   error={!!errors.classType}
                 />

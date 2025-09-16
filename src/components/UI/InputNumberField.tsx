@@ -1,96 +1,7 @@
-/* import React, { useState } from "react";
-import type { ReactNode } from "react";
-import { InputNumber } from "antd";
-
-interface InputNumberFieldProps {
-  placeholder: string;
-  value?: number | null;
-  onChange?: (value: number | null) => void;
-  addonBefore?: ReactNode;
-  addonAfter?: ReactNode;
-  error?: boolean;
-}
-
-const InputNumberField: React.FC<InputNumberFieldProps> = ({
-  placeholder,
-  value,
-  onChange,
-  addonBefore,
-  addonAfter,
-  error,
-}) => {
-  const [focused, setFocused] = useState(false);
-  const [internalValue, setInternalValue] = useState<number | null>(
-    value ?? null
-  );
-
-  const currentValue = value !== undefined ? value : internalValue;
-
-  const isFloating =
-    focused || (currentValue !== null && currentValue !== undefined);
-  const labelColor = error
-    ? "text-red-500"
-    : focused
-    ? "text-teal-500"
-    : "text-gray-400";
-
-  return (
-    <div className={`relative w-full ${error ? "input-number-error" : ""}`}>
-      <span
-        className={`
-          absolute transition-all duration-300 pointer-events-none z-10 px-2
-          text-xs font-normal
-          ${labelColor}
-          ${isFloating ? "bg-[#141414]" : ""}
-        `}
-        style={{
-          left: isFloating ? (addonBefore ? "2.5rem" : "0.75rem") : "2.2rem",
-          top: isFloating ? "-0.7rem" : "50%",
-          transform: isFloating ? "none" : "translateY(-50%)",
-          fontStyle: isFloating ? "italic" : undefined,
-        }}
-      >
-        {placeholder}
-      </span>
-      <InputNumber
-        size="large"
-        className={`transition-all duration-200 ${
-          error
-            ? "border-red-500"
-            : focused
-            ? "border-teal-500"
-            : "border-gray-300"
-        }`}
-        style={{ width: "100%", borderRadius: "10px" }}
-        addonBefore={
-          addonBefore ? (
-            <span className="text-gray-400">{addonBefore}</span>
-          ) : undefined
-        }
-        addonAfter={
-          addonAfter ? (
-            <span className="text-gray-400">{addonAfter}</span>
-          ) : undefined
-        }
-        min={1}
-        value={currentValue as number | undefined}
-        onChange={(val) => {
-          setInternalValue(val as number | null);
-          onChange?.(val as number | null);
-        }}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        placeholder=""
-      />
-    </div>
-  );
-};
-
-export default InputNumberField; */
-
 import React, { useState } from "react";
 import type { ReactNode } from "react";
 import { InputNumber } from "antd";
+import { useTranslation } from "react-i18next";
 
 interface InputNumberFieldProps {
   placeholder?: string;
@@ -124,6 +35,11 @@ const InputNumberField: React.FC<InputNumberFieldProps> = ({
   const [internalValue, setInternalValue] = useState<number | null>(
     value ?? null
   );
+  const { i18n } = useTranslation();
+
+  const isRTL = i18n.language === "fa";
+  const inputDir = isRTL ? "rtl" : "ltr";
+  const inputTextAlign = isRTL ? "right" : "left";
 
   const currentValue = value !== undefined ? value : internalValue;
 
@@ -135,8 +51,27 @@ const InputNumberField: React.FC<InputNumberFieldProps> = ({
     ? "text-teal-500"
     : "text-gray-400";
 
+  // جای placeholder و addonها بر اساس زبان
+  const labelLeft = isRTL
+    ? undefined
+    : isFloating
+    ? addonBefore
+      ? "2.5rem"
+      : "0.75rem"
+    : "2.2rem";
+  const labelRight = isRTL
+    ? isFloating
+      ? addonAfter
+        ? "2.5rem"
+        : "2.5rem"
+      : "2.2rem"
+    : undefined;
+
   return (
-    <div className={`relative w-full ${error ? "input-number-error" : ""}`}>
+    <div
+      className={`relative w-full ${error ? "input-number-error" : ""}`}
+      dir={inputDir}
+    >
       {placeholder && (
         <span
           className={`
@@ -146,10 +81,12 @@ const InputNumberField: React.FC<InputNumberFieldProps> = ({
             ${isFloating ? "bg-[#141414]" : ""}
           `}
           style={{
-            left: isFloating ? (addonBefore ? "2.5rem" : "0.75rem") : "2.2rem",
+            left: labelLeft,
+            right: labelRight,
             top: isFloating ? "-0.7rem" : "50%",
             transform: isFloating ? "none" : "translateY(-50%)",
             fontStyle: isFloating ? "italic" : undefined,
+            textAlign: inputTextAlign,
           }}
         >
           {placeholder}
@@ -164,7 +101,22 @@ const InputNumberField: React.FC<InputNumberFieldProps> = ({
             ? "border-teal-500"
             : "border-gray-300"
         } ${className}`}
-        style={{ width: "100%", borderRadius: "10px" }}
+        style={{
+          width: "100%",
+          borderRadius: "10px",
+          textAlign: inputTextAlign,
+          direction: inputDir,
+        }}
+        /* addonBefore={
+          !isRTL && addonBefore ? (
+            <span className="text-gray-400">{addonBefore}</span>
+          ) : undefined
+        }
+        addonAfter={
+          isRTL && addonAfter ? (
+            <span className="text-gray-400">{addonAfter}</span>
+          ) : undefined
+        } */
         addonBefore={
           addonBefore ? (
             <span className="text-gray-400">{addonBefore}</span>

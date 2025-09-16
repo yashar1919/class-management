@@ -3,6 +3,7 @@ import { DownOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Button, Dropdown, message } from "antd";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 interface DropdownFieldProps {
   label?: string; // Placeholder/floating label
@@ -24,6 +25,14 @@ const DropdownField: React.FC<DropdownFieldProps> = ({
   const [selected, setSelected] = useState<string>("");
   const actualSelected = typeof value === "string" ? value : selected;
   const [focused, setFocused] = useState(false);
+  const isFloating = focused || !!actualSelected;
+  const { i18n } = useTranslation();
+
+  const isRTL = i18n.language === "fa";
+  const inputDir = isRTL ? "rtl" : "ltr";
+  const inputTextAlign = isRTL ? "right" : "left";
+  const labelLeft = isRTL ? undefined : isFloating ? "0.75rem" : "2.2rem";
+  const labelRight = isRTL ? (isFloating ? "0.75rem" : "2.2rem") : undefined;
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
     const validItems = (items ?? []).filter(
@@ -48,7 +57,6 @@ const DropdownField: React.FC<DropdownFieldProps> = ({
   };
 
   // Floating label logic
-  const isFloating = focused || !!actualSelected;
   const labelColor = error
     ? "text-red-500"
     : focused
@@ -56,9 +64,13 @@ const DropdownField: React.FC<DropdownFieldProps> = ({
     : "text-gray-400";
 
   return (
-    <div className="w-full relative">
+    <div className="w-full relative" dir={inputDir}>
       {icon && (
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xl text-gray-400 pointer-events-none z-20">
+        <span
+          className={`absolute top-1/2 -translate-y-1/2 text-xl text-gray-400 pointer-events-none z-20
+            ${isRTL ? "right-3" : "left-3"}
+          `}
+        >
           {icon}
         </span>
       )}
@@ -71,10 +83,12 @@ const DropdownField: React.FC<DropdownFieldProps> = ({
           ${isFloating ? "bg-[#141414]" : ""}
         `}
         style={{
-          left: isFloating ? "0.75rem" : "2.2rem",
+          left: labelLeft,
+          right: labelRight,
           top: isFloating ? "-0.7rem" : "50%",
           transform: isFloating ? "none" : "translateY(-50%)",
           fontStyle: isFloating ? "italic" : undefined,
+          textAlign: inputTextAlign,
         }}
       >
         {label}
@@ -83,10 +97,9 @@ const DropdownField: React.FC<DropdownFieldProps> = ({
         menu={menuProps}
         className="w-full"
         onOpenChange={(open) => setFocused(open)}
-        
       >
         <Button
-        size="large"
+          size="small"
           className={`w-full flex items-center relative ${
             error
               ? "border-red-500"
@@ -95,23 +108,30 @@ const DropdownField: React.FC<DropdownFieldProps> = ({
               : "border-gray-300"
           }`}
           style={{
-            textAlign: "left",
+            textAlign: inputTextAlign,
             height: 40,
-            borderColor: focused
-              ? "#14b8a6"
-              : error
-              ? "#ef4444"
-              : undefined,
+            borderColor: focused ? "#14b8a6" : error ? "#ef4444" : undefined,
             borderRadius: "10px",
-            paddingLeft: icon ? 40 : 16,
+            paddingLeft: !isRTL && icon ? 40 : 16,
+            paddingRight: isRTL && icon ? 40 : 16,
             ...(error && { borderColor: "#ef4444", borderWidth: 1 }),
-            //background: "transparent",
-            //color: "white",
           }}
         >
-          <DownOutlined className="absolute right-4" />
-          <span className="w-full text-left pr-6">
+          {/* فلش را سمت مخالف آیکون قرار بده */}
+          <span
+            className={`flex-1 ${isRTL ? "text-right pl-6" : "text-left pr-6"}`}
+            style={{ minHeight: 24 }}
+          >
             {actualSelected ? actualSelected : ""}
+          </span>
+          {/* فلش وسط عمودی و ریز */}
+          <span
+            className={`absolute top-1/2 ${
+              isRTL ? "left-4" : "right-4"
+            } -translate-y-1/2`}
+            style={{ fontSize: 12, pointerEvents: "none" }}
+          >
+            <DownOutlined />
           </span>
         </Button>
       </Dropdown>

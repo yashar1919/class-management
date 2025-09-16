@@ -20,9 +20,6 @@ export default function StudentList() {
     Thursday: t("studentList.thursday"),
     Friday: t("studentList.friday"),
     Saturday: t("studentList.saturday"),
-
-
-    
   };
 
   function getWeekDayFa(date: Date) {
