@@ -95,7 +95,7 @@ export default function StudentForm() {
   const { t, i18n } = useTranslation();
   const addStudent = useStudentStore((s) => s.addStudent);
 
-  const classTypeItems: MenuProps["items"] = [
+  /* const classTypeItems: MenuProps["items"] = [
     {
       label: t("studentForm.inPerson"),
       key: "inPerson",
@@ -104,6 +104,19 @@ export default function StudentForm() {
     {
       label: t("studentForm.online"),
       key: "Online",
+      icon: <ClusterOutlined />,
+    },
+  ]; */
+
+  const classTypeItems: MenuProps["items"] = [
+    {
+      label: t("studentForm.inPerson"),
+      key: "in-person",
+      icon: <ClusterOutlined />,
+    },
+    {
+      label: t("studentForm.online"),
+      key: "online",
       icon: <ClusterOutlined />,
     },
   ];
@@ -321,13 +334,14 @@ export default function StudentForm() {
                   icon={<ClusterOutlined />}
                   items={classTypeItems}
                   value={field.value}
-                  onChange={(val) =>
+                  /* onChange={(val) =>
                     field.onChange(
                       val === t("studentForm.inPerson")
                         ? t("studentForm.inPerson")
                         : t("studentForm.online")
                     )
-                  }
+                  } */
+                  onChange={(val) => field.onChange(val)}
                   error={!!errors.classType}
                 />
               </ConfigProvider>

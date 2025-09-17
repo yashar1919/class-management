@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import DirectionManager from "./DirectionManager";
 import "@ant-design/v5-patch-for-react-19";
+import AppShell from "./AppShell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,8 +46,7 @@ export default function RootLayout({
             content="black-translucent"
           />
         </head>
-        <DirectionManager />
-        {children}
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

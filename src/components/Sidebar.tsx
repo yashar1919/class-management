@@ -7,34 +7,30 @@ import {
   FormOutlined,
   FundOutlined,
   InfoCircleOutlined,
-  //LogoutOutlined,
   MenuOutlined,
   SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import dynamic from "next/dynamic";
+import { usePathname, useRouter } from "next/navigation";
 
 const MobileBottomNav = dynamic(() => import("./MobileBottomNav"), {
   ssr: false,
 });
 
 type SidebarProps = {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
 };
 
-const Sidebar: React.FC<SidebarProps> = ({
-  activeTab,
-  setActiveTab,
-  isOpen,
-  setIsOpen,
-}) => {
-  // تشخیص موبایل با media query
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const [isMobile, setIsMobile] = React.useState(false);
   const { i18n, t } = useTranslation();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const activeTab = pathname?.split("/")[1] || "class";
 
   React.useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -48,43 +44,54 @@ const Sidebar: React.FC<SidebarProps> = ({
       id: "class",
       title: t("sidebar.classManagement"),
       icon: <BookOutlined style={{ fontSize: "18px" }} />,
+      path: "/class",
     },
     {
       id: "info",
       title: t("sidebar.studentInfo"),
       icon: <InfoCircleOutlined style={{ fontSize: "18px" }} />,
+      path: "/info",
     },
     {
       id: "profile",
       title: t("sidebar.profile"),
       icon: <UserOutlined style={{ fontSize: "18px" }} />,
+      path: "/profile",
     },
     {
       id: "reports",
       title: t("sidebar.reports"),
       icon: <FundOutlined style={{ fontSize: "18px" }} />,
+      path: "/reports",
     },
     {
-      id: "lessonPlan",
+      id: "lesson-plan",
       title: t("sidebar.lessonPlan"),
       icon: <FormOutlined style={{ fontSize: "18px" }} />,
+      path: "/lesson-plan",
     },
     {
       id: "settings",
       title: t("sidebar.settings"),
       icon: <SettingOutlined style={{ fontSize: "18px" }} />,
+      path: "/settings",
     },
   ];
 
   if (isMobile) {
     return (
       <>
-        <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        <MobileBottomNav
+          activeTab={activeTab}
+          setActiveTab={(tab) => {
+            const item = menuItems.find((i) => i.id === tab);
+            if (item) router.push(item.path);
+          }}
+        />
       </>
     );
   }
 
-  // حالت دسکتاپ
   return (
     <aside
       className={`fixed top-3 ${
@@ -102,21 +109,6 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div
           className={`flex mb-2 ${isOpen ? "justify-end" : "justify-center"}`}
         >
-          {/* <div className={`${isOpen ? "flex" : "hidden"} items-center`}>
-            <Switch
-              checked={i18n.language === "en"}
-              onChange={(checked) => i18n.changeLanguage(checked ? "en" : "fa")}
-              checkedChildren="EN"
-              unCheckedChildren="FA"
-              style={{
-                background:
-                  i18n.language === "en" ? "darkolivegreen" : "darkslateblue",
-                borderColor:
-                  i18n.language === "en" ? "darkolivegreen" : "darkslateblue",
-                color: "#fff",
-              }}
-            />
-          </div> */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className={`text-teal-500 ${
@@ -143,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             return (
               <li key={item.id}>
                 <button
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => router.push(item.path)}
                   className={`flex items-center ${
                     isOpen
                       ? "w-full px-5 py-2 rounded-lg"

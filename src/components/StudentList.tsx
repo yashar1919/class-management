@@ -46,8 +46,13 @@ export default function StudentList() {
     label: (
       <div className="flex flex-col md:flex-row md:items-center gap-2 justify-between text-white">
         <span className="font-bold text-lg">{student.name}</span>
-        <span className="text-sm">
+        {/* <span className="text-sm">
           {student.classType === "Online"
+            ? t("studentForm.online")
+            : t("studentForm.inPerson")}
+        </span> */}
+        <span className="text-sm">
+          {student.classType === "online"
             ? t("studentForm.online")
             : t("studentForm.inPerson")}
         </span>

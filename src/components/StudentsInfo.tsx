@@ -90,7 +90,7 @@ export default function StudentsInfo() {
     // نوع کلاس
     if (typeFilter !== "all") {
       result = result.filter(
-        (student) => student.classType?.toLowerCase() === typeFilter
+        (student) => student.classType === typeFilter
       );
     }
 
@@ -311,9 +311,17 @@ export default function StudentsInfo() {
           <div>
             <b>{t("studentForm.address") || "Address"}:</b> {student.address}
           </div>
-          <div>
+          {/* <div>
             <b>{t("studentForm.classType") || "Class type"}:</b>{" "}
             {student.classType}
+          </div> */}
+          <div>
+            <b>{t("studentForm.classType") || "Class type"}:</b>{" "}
+            {student.classType === "online"
+              ? t("studentForm.online")
+              : student.classType === "in-person"
+              ? t("studentForm.inPerson")
+              : student.classType}
           </div>
           <div>
             <b>{t("studentForm.startTime") || "Start time"}:</b>{" "}

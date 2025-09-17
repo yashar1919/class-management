@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { DownOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Button, Dropdown, message } from "antd";
+import { Button, Dropdown } from "antd";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -35,20 +35,12 @@ const DropdownField: React.FC<DropdownFieldProps> = ({
   const labelRight = isRTL ? (isFloating ? "0.75rem" : "2.2rem") : undefined;
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
-    const validItems = (items ?? []).filter(
-      (item): item is Exclude<typeof item, null> => item !== null
-    );
-    const found = validItems.find(
-      (item) => "key" in item && item.key === e.key && "label" in item
-    );
-    if (found && "label" in found) {
-      if (onChange) {
-        onChange(found.label as string);
-      } else {
-        setSelected(found.label as string);
-      }
+    if (onChange) {
+      onChange(e.key as string); // مقدار انگلیسی (key) را ست کن
+    } else {
+      setSelected(e.key as string);
     }
-    message.info(`Selected: ${found && "label" in found ? found.label : ""}`);
+    // message.info(`Selected: ${e.key}`); // می‌توانید حذف کنید یا نگه دارید
   };
 
   const menuProps = {
@@ -122,7 +114,13 @@ const DropdownField: React.FC<DropdownFieldProps> = ({
             className={`flex-1 ${isRTL ? "text-right pl-6" : "text-left pr-6"}`}
             style={{ minHeight: 24 }}
           >
-            {actualSelected ? actualSelected : ""}
+            {/* نمایش ترجمه‌شده */}
+            {(() => {
+              const found = (items ?? []).find(
+                (item) => item && "key" in item && item.key === actualSelected
+              );
+              return found && "label" in found ? found.label : "";
+            })()}
           </span>
           {/* فلش وسط عمودی و ریز */}
           <span
