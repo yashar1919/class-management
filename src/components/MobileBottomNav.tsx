@@ -39,7 +39,10 @@ const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) => {
   //const { t } = useTranslation();
 
   return (
-    <nav className="fixed bottom-2 left-0 right-0 z-50 bg-neutral-900 border-t border-gray-800 flex justify-around items-center h-16 md:hidden rounded-full mx-2">
+    <nav
+      className="fixed bottom-5 left-0 right-0 z-50 bg-neutral-900 border-t border-gray-800 flex justify-around items-center h-16 md:hidden rounded-full mx-5"
+      style={{ boxShadow: "0px 0px 15px #084848" }}
+    >
       {navItems.map((item) => {
         const isActive = activeTab === item.id;
         return (
@@ -55,7 +58,7 @@ const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) => {
                 transition-all duration-300
                 ${
                   isActive
-                    ? "scale-100 bg-teal-900 opacity-100"
+                    ? "scale-115 bg-teal-900 opacity-100"
                     : "scale-75 bg-transparent opacity-0"
                 }
               `}
@@ -67,7 +70,7 @@ const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) => {
                 transition-all duration-300
                 ${
                   isActive
-                    ? "text-teal-400 scale-110"
+                    ? "text-teal-400 scale-130"
                     : "text-gray-500 scale-100"
                 }
               `}

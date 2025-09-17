@@ -46,5 +46,9 @@
     "deposit": "شرح پرداخت",
     "tuitionDone": "شهریه پرداخت شده است.",
     "tuitionRequired": "نیاز به پرداخت شهریه!"
+  },
+  "settings": {
+    "languageTitle": "زبان",
+    "languageDesc": "برای تغییر زبان برنامه از سوییچ زیر استفاده کنید."
   }
 }

@@ -61,6 +61,10 @@ import StudentForm from "../components/StudentForm";
 import StudentList from "../components/StudentList";
 import StudentsInfo from "../components/StudentsInfo";
 import "../i18n";
+import Settings from "@/components/Settings";
+import Profile from "@/components/Profile";
+import Reports from "@/components/Reports";
+import LessonPlan from "@/components/LessonPlan";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("class");
@@ -106,7 +110,9 @@ export default function Home() {
         className="transition-all duration-300"
         style={{
           ...mainStyle,
-          paddingBottom: isMobile ? "4.5rem" : undefined, // اضافه کردن فضای خالی پایین فقط در موبایل
+          paddingBottom: isMobile ? "6rem" : undefined, // اضافه کردن فضای خالی پایین فقط در موبایل
+          paddingLeft: !isMobile && i18n.language !== "fa" ? 32 : undefined, // فاصله از چپ برای LTR
+          paddingRight: !isMobile && i18n.language === "fa" ? 32 : undefined, // فاصله از راست برای RTL
         }}
       >
         <div
@@ -119,6 +125,10 @@ export default function Home() {
             </div>
           )}
           {activeTab === "info" && <StudentsInfo />}
+          {activeTab === "profile" && <Profile />}
+          {activeTab === "reports" && <Reports />}
+          {activeTab === "lessonPlan" && <LessonPlan />}
+          {activeTab === "settings" && <Settings />}
         </div>
       </main>
     </div>

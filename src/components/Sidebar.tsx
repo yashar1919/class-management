@@ -9,9 +9,9 @@ import {
   InfoCircleOutlined,
   //LogoutOutlined,
   MenuOutlined,
+  SettingOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Switch } from "antd";
 import { useTranslation } from "react-i18next";
 import dynamic from "next/dynamic";
 
@@ -72,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     {
       id: "settings",
       title: t("sidebar.settings"),
-      icon: <FormOutlined style={{ fontSize: "18px" }} />,
+      icon: <SettingOutlined style={{ fontSize: "18px" }} />,
     },
   ];
 
@@ -100,11 +100,9 @@ const Sidebar: React.FC<SidebarProps> = ({
           <Image src={Logo} width={50} alt="classco logo" />
         </div>
         <div
-          className={`flex mb-5 ${
-            isOpen ? "justify-between" : "justify-center"
-          }`}
+          className={`flex mb-2 ${isOpen ? "justify-end" : "justify-center"}`}
         >
-          <div className={`${isOpen ? "flex" : "hidden"} items-center`}>
+          {/* <div className={`${isOpen ? "flex" : "hidden"} items-center`}>
             <Switch
               checked={i18n.language === "en"}
               onChange={(checked) => i18n.changeLanguage(checked ? "en" : "fa")}
@@ -118,7 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 color: "#fff",
               }}
             />
-          </div>
+          </div> */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className={`text-teal-500 ${
@@ -138,7 +136,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Menu */}
-      <nav className="mt-10">
+      <nav className={`${isOpen ? "mt-10" : "mt-4"}`}>
         <ul className="space-y-3 px-2">
           {menuItems.map((item) => {
             const isActive = activeTab === item.id;
@@ -153,7 +151,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   } gap-4 transition-colors duration-200 cursor-pointer ${
                     isActive
                       ? "bg-teal-500 text-white shadow"
-                      : "text-gray-200 hover:bg-teal-100"
+                      : "text-gray-200 hover:bg-teal-100 hover:text-gray-800"
                   }`}
                 >
                   <span>{item.icon}</span>
