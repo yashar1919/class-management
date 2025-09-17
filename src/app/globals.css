@@ -84,7 +84,7 @@ body {
 /* :where(.css-dev-only-do-not-override-kbg4zp).ant-btn-variant-solid:disabled, :where(.css-dev-only-do-not-override-kbg4zp).ant-btn-variant-solid.ant-btn-disabled{
   color: white;
 } */
- 
+
 /* :where(.css-dev-only-do-not-override-kbg4zp).ant-picker-dropdown .ant-picker-panel-container .ant-picker-panel{
   border-top: 1px solid white;
   border-left: 1px solid white;
@@ -135,4 +135,57 @@ body {
 
 .rmdp-container {
   display: block !important;
+}
+
+:where(.css-dev-only-do-not-override-118lmih).ant-btn-variant-solid:not(:disabled):not(.ant-btn-disabled):hover {
+  background-color: #008080;
+  opacity: 0.7;
+}
+
+:where(.css-dev-only-do-not-override-cc4bdi).ant-btn-variant-outlined:not(:disabled):not(.ant-btn-disabled):hover,
+:where(.css-dev-only-do-not-override-cc4bdi).ant-btn-variant-dashed:not(:disabled):not(.ant-btn-disabled):hover {
+  border: 1px solid #008080;
+  color: #008080;
+}
+
+.ant-radio-group-solid :where(.css-dev-only-do-not-override-1td8cbh).ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
+  background-color: #008080;
+  /* opacity: 0.7; */
+  border: 1px solid #008080;
+}
+
+:where(.css-dev-only-do-not-override-1td8cbh).ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer):hover .ant-select-selector {
+  border: 1px solid #008080;
+}
+
+:where(.css-dev-only-do-not-override-1td8cbh).ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: #008080;
+}
+
+.ant-select-focused:where(.css-dev-only-do-not-override-1td8cbh).ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(.ant-pagination-size-changer) .ant-select-selector {
+  box-shadow: none !important;
+}
+
+:where(.css-dev-only-do-not-override-1td8cbh).ant-slider .ant-slider-track {
+  background-color: #008080;
+}
+
+:where(.css-dev-only-do-not-override-1td8cbh).ant-slider:hover .ant-slider-track {
+  background-color: #015353;
+}
+
+:where(.css-dev-only-do-not-override-1td8cbh).ant-slider .ant-slider-handle::after {
+  box-shadow: none !important;
+  border: 1px solid #008080;
+}
+
+:where(.css-dev-only-do-not-override-1td8cbh).ant-btn-variant-outlined:not(:disabled):not(.ant-btn-disabled):active,
+:where(.css-dev-only-do-not-override-1td8cbh).ant-btn-variant-dashed:not(:disabled):not(.ant-btn-disabled):active {
+  border: 1px solid #008080;
+  color: #008080;
+}
+
+:where(.css-dev-only-do-not-override-1td8cbh).ant-btn-variant-outlined:not(:disabled):not(.ant-btn-disabled):hover, :where(.css-dev-only-do-not-override-1td8cbh).ant-btn-variant-dashed:not(:disabled):not(.ant-btn-disabled):hover{
+  border:1px solid #008080;
+  color: #008080;
 }

@@ -49,7 +49,7 @@ export default function StudentList() {
         <span className="text-sm">
           {student.classType === "Online"
             ? t("studentForm.online")
-            : t("studentForm.offline")}
+            : t("studentForm.inPerson")}
         </span>
         <span className="text-sm">
           {t("studentList.classDays")}:{" "}

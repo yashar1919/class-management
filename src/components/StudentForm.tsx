@@ -97,8 +97,8 @@ export default function StudentForm() {
 
   const classTypeItems: MenuProps["items"] = [
     {
-      label: t("studentForm.offline"),
-      key: "Offline",
+      label: t("studentForm.inPerson"),
+      key: "inPerson",
       icon: <ClusterOutlined />,
     },
     {
@@ -157,23 +157,6 @@ export default function StudentForm() {
   }
 
   const endTime = calcEndTime(startTime, duration);
-
-  /* const onSubmit: SubmitHandler<FormValues> = (data) => {
-    addStudent({
-      ...data,
-      sessions: [],
-      classType: "Offline",
-      startTime: "00:00",
-      endTime: "00:00",
-      duration: 1,
-      price: 0,
-      firstSessionDates: [],
-      daysPerWeek: 1,
-      multiDay: false,
-    });
-    reset();
-    setSelectedDates([new DateObject()]);
-  }; */
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
     if (!data.selectedDates || data.selectedDates.length === 0) {
@@ -340,8 +323,8 @@ export default function StudentForm() {
                   value={field.value}
                   onChange={(val) =>
                     field.onChange(
-                      val === t("studentForm.offline")
-                        ? t("studentForm.offline")
+                      val === t("studentForm.inPerson")
+                        ? t("studentForm.inPerson")
                         : t("studentForm.online")
                     )
                   }
