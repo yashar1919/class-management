@@ -67,7 +67,9 @@
     "noStudent": "هنوز دانش‌آموزی اضافه نشده.",
     "noResults": "نتیجه‌ای یافت نشد.",
     "firstSessionDates": "تاریخ اولین جلسات",
-    "toman": "تومان"
+    "toman": "تومان",
+    "time": "زمان",
+    "until":"تا"
   },
   "settings": {
     "languageTitle": "زبان",

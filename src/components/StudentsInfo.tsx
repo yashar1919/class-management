@@ -10,8 +10,13 @@ import {
   Radio,
   Slider,
   Select,
+  Avatar,
 } from "antd";
-import { FilterOutlined } from "@ant-design/icons";
+import {
+  FilterOutlined,
+  ArrowRightOutlined,
+  ArrowLeftOutlined,
+} from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 const { Search } = Input;
 
@@ -89,9 +94,7 @@ export default function StudentsInfo() {
 
     // نوع کلاس
     if (typeFilter !== "all") {
-      result = result.filter(
-        (student) => student.classType === typeFilter
-      );
+      result = result.filter((student) => student.classType === typeFilter);
     }
 
     // فیلتر زمان شروع
@@ -132,7 +135,7 @@ export default function StudentsInfo() {
 
   return (
     <div className="space-y-4">
-      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
+      <div className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
         <ConfigProvider
           theme={{
             algorithm: theme.darkAlgorithm,
@@ -157,7 +160,8 @@ export default function StudentsInfo() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onSearch={setSearch}
-            style={{ maxWidth: 700 }}
+            size="large"
+            //style={{ maxWidth: 700 }}
           />
         </ConfigProvider>
         <ConfigProvider
@@ -173,7 +177,8 @@ export default function StudentsInfo() {
           <Button
             icon={<FilterOutlined />}
             onClick={() => setFilterOpen(true)}
-            className="flex items-center"
+            className=""
+            size="large"
           >
             {t("studentInfo.filters") || "Filters"}
           </Button>
@@ -302,56 +307,146 @@ export default function StudentsInfo() {
           {t("studentInfo.noResults") || "No results found."}
         </div>
       )}
+
       {filteredStudents.map((student) => (
-        <div key={student.id} className="bg-gray-800 p-4 rounded shadow">
-          <div className="font-bold text-lg mb-2">{student.name}</div>
-          <div>
-            <b>{t("studentForm.phone") || "Phone"}:</b> {student.phone || "-"}
+        <div
+          key={student.id}
+          className="bg-neutral-900 rounded-full px-3 py-3 flex items-center relative overflow-hidden mb-5 shadow-md"
+          style={{
+            boxShadow: "0px 0px 7px #989898",
+            flexDirection: i18n.language === "fa" ? "row-reverse" : "row",
+          }}
+          dir={i18n.language === "fa" ? "rtl" : "ltr"}
+        >
+          {/* دکمه فلش فارسی */}
+          {i18n.language === "fa" && (
+            <button
+              className="absolute left-0 top-0 bottom-0 w-[50px] bg-[#E98C00] flex items-center justify-center border-none outline-none cursor-pointer transition-all rounded-l-full hover:bg-orange-500"
+              style={{
+                height: "100%",
+                boxShadow: "none",
+              }}
+              // onClick={() => ...}
+            >
+              <span className="text-white text-2xl flex items-center justify-center">
+                <ArrowLeftOutlined />
+              </span>
+            </button>
+          )}
+
+          {/* آواتار و اطلاعات */}
+          <div
+            className={`flex flex-1 items-center ${
+              i18n.language === "fa" ? "justify-end" : "justify-start"
+            }`}
+          >
+            {/* آواتار */}
+            <Avatar
+              style={{
+                backgroundColor: "whitesmoke",
+                color: "#E98C00",
+                fontSize: "45px",
+                boxShadow: "0px 0px 20px #989898",
+                display: "flex",
+                alignItems: "center",
+                marginLeft: i18n.language === "fa" ? "20px" : undefined,
+                marginRight: i18n.language === "en" ? "20px" : undefined,
+              }}
+              size={70}
+              //className={i18n.language === "fa" ? "ml-4" : "mr-4"}
+            >
+              {student.name?.[0]?.toUpperCase() || "Y"}
+            </Avatar>
+            {/* اسم و اطلاعات */}
+            <div
+              className={`flex flex-col flex-1 ${
+                i18n.language === "fa" ? "pl-[60px]" : "pr-[60px]"
+              }`}
+            >
+              <div
+                className={`font-bold text-xl mb-2 text-[#FF9900] break-words ${
+                  i18n.language === "fa" ? "text-right" : "text-left"
+                }`}
+              >
+                {student.name}
+              </div>
+              <div
+                className={`flex w-full justify-between items-center mt-1 flex-wrap gap-y-2`}
+                dir={i18n.language === "fa" ? "rtl" : "ltr"}
+              >
+                <div className="w-full sm:w-auto">
+                  <span className="text-[#E98C00] text-xs">
+                    {t("studentForm.phone") || "Phone"}:
+                  </span>
+                  <span
+                    className={`text-sm break-all ${
+                      i18n.language === "fa" ? "mr-1" : "ml-1"
+                    }`}
+                  >
+                    {student.phone || "-"}
+                  </span>
+                </div>
+                <div className="w-full sm:w-auto">
+                  <span className="text-[#E98C00] text-xs">
+                    {t("studentForm.classType") || "Class type"}:
+                  </span>
+                  <span
+                    className={`text-sm ${
+                      i18n.language === "fa" ? "mr-1" : "ml-1"
+                    }`}
+                  >
+                    {student.classType === "online"
+                      ? t("studentForm.online")
+                      : student.classType === "in-person"
+                      ? t("studentForm.inPerson")
+                      : student.classType}
+                  </span>
+                </div>
+                <div className="w-full sm:w-auto">
+                  <span className="text-[#E98C00] text-xs">
+                    {t("studentInfo.time") || "Time"}:
+                  </span>
+                  <span
+                    className={`text-sm ${
+                      i18n.language === "fa" ? "mr-1" : "ml-1"
+                    }`}
+                  >
+                    {student.startTime}{" "}
+                    <span className="text-xs">{t("studentInfo.until")}</span>{" "}
+                    {student.endTime}
+                  </span>
+                </div>
+                <div className="w-full sm:w-auto">
+                  <span className="text-[#E98C00] text-xs">
+                    {t("studentForm.durationHours") || "Duration"}:
+                  </span>
+                  <span
+                    className={`text-sm ${
+                      i18n.language === "fa" ? "mr-1" : "ml-1"
+                    }`}
+                  >
+                    {student.duration} {t("studentList.hour") || "hour(s)"}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <b>{t("studentForm.address") || "Address"}:</b> {student.address}
-          </div>
-          {/* <div>
-            <b>{t("studentForm.classType") || "Class type"}:</b>{" "}
-            {student.classType}
-          </div> */}
-          <div>
-            <b>{t("studentForm.classType") || "Class type"}:</b>{" "}
-            {student.classType === "online"
-              ? t("studentForm.online")
-              : student.classType === "in-person"
-              ? t("studentForm.inPerson")
-              : student.classType}
-          </div>
-          <div>
-            <b>{t("studentForm.startTime") || "Start time"}:</b>{" "}
-            {student.startTime}
-          </div>
-          <div>
-            <b>{t("studentForm.endTime") || "End time"}:</b> {student.endTime}
-          </div>
-          <div>
-            <b>{t("studentForm.durationHours") || "Duration"}:</b>{" "}
-            {student.duration} {t("studentList.hour") || "hour(s)"}
-          </div>
-          <div>
-            <b>{t("studentForm.sessionPrice") || "Session price"}:</b>{" "}
-            {student.price}
-          </div>
-          <div>
-            <b>
-              {t("studentInfo.firstSessionDates") || "First session dates"}:
-            </b>{" "}
-            {student.firstSessionDates && student.firstSessionDates.length > 0
-              ? student.firstSessionDates
-                  .map((d) =>
-                    new Date(d).toLocaleDateString(
-                      i18n.language === "fa" ? "fa-IR" : "en-US"
-                    )
-                  )
-                  .join(", ")
-              : "-"}
-          </div>
+
+          {/* دکمه فلش انگلیسی */}
+          {i18n.language !== "fa" && (
+            <button
+              className="absolute right-0 top-0 bottom-0 w-[50px] bg-[#E98C00] flex items-center justify-center border-none outline-none cursor-pointer transition-all rounded-r-full hover:bg-orange-500"
+              style={{
+                height: "100%",
+                boxShadow: "none",
+              }}
+              // onClick={() => ...}
+            >
+              <span className="text-white text-2xl flex items-center justify-center">
+                <ArrowRightOutlined />
+              </span>
+            </button>
+          )}
         </div>
       ))}
     </div>

@@ -67,7 +67,9 @@
     "noStudent": "No students added yet.",
     "noResults": "No results found.",
     "firstSessionDates": "First session dates",
-    "toman": "Toman"
+    "toman": "Toman",
+    "time":"Time",
+    "until":"until"
   },
   "settings": {
     "languageTitle": "Language",
