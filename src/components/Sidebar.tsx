@@ -146,7 +146,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                       : "text-gray-200 hover:bg-teal-100 hover:text-gray-800"
                   }`}
                 >
-                  <span>{item.icon}</span>
+                  <span
+                    className={`transition-all duration-300 ${
+                      !isOpen && isActive ? "scale-130" : undefined
+                    }`}
+                  >
+                    {item.icon}
+                  </span>
                   <span
                     className={`${isOpen ? "block" : "hidden"} font-medium`}
                   >

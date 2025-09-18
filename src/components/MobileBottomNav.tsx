@@ -49,7 +49,7 @@ const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) => {
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className="flex flex-col items-center justify-center relative w-11 h-11 transition-all duration-200"
+            className="flex flex-col items-center justify-center relative p-3 transition-all duration-200"
           >
             <span
               className={`
@@ -63,7 +63,7 @@ const MobileBottomNav: React.FC<Props> = ({ activeTab, setActiveTab }) => {
                 }
               `}
               style={{ zIndex: 1 }}
-            />
+            ></span>
             <span
               className={`
                 relative flex items-center justify-center
