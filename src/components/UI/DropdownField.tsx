@@ -102,7 +102,7 @@ const DropdownField: React.FC<DropdownFieldProps> = ({
           style={{
             textAlign: inputTextAlign,
             height: 40,
-            borderColor: focused ? "#14b8a6" : error ? "#ef4444" : undefined,
+            borderColor: focused ? "#00bba7" : error ? "#ef4444" : undefined,
             borderRadius: "10px",
             paddingLeft: !isRTL && icon ? 40 : 16,
             paddingRight: isRTL && icon ? 40 : 16,

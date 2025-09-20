@@ -214,7 +214,7 @@ export default function StudentForm() {
       onSubmit={handleSubmit(onSubmit)}
       noValidate
     >
-      <h2 className="text-3xl font-bold text-teal-400 mb-2 text-center">
+      <h2 className="text-4xl font-bold text-teal-300 mb-2 text-center">
         {t("studentForm.addNewStudent")}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
@@ -228,7 +228,7 @@ export default function StudentForm() {
                   algorithm: theme.darkAlgorithm,
                   components: {
                     Input: {
-                      colorPrimary: "#008080",
+                      colorPrimary: "#00bba7",
                       algorithm: true,
                     },
                   },
@@ -260,7 +260,7 @@ export default function StudentForm() {
                   algorithm: theme.darkAlgorithm,
                   components: {
                     Input: {
-                      colorPrimary: "#008080",
+                      colorPrimary: "#00bba7",
                       algorithm: true,
                     },
                   },
@@ -291,7 +291,7 @@ export default function StudentForm() {
                   algorithm: theme.darkAlgorithm,
                   components: {
                     Input: {
-                      colorPrimary: "#008080",
+                      colorPrimary: "#00bba7",
                       algorithm: true,
                     },
                   },
@@ -363,7 +363,7 @@ export default function StudentForm() {
                   algorithm: theme.darkAlgorithm,
                   components: {
                     InputNumber: {
-                      colorPrimary: "#008080",
+                      colorPrimary: "#00bba7",
                       algorithm: true,
                     },
                   },
@@ -396,7 +396,7 @@ export default function StudentForm() {
                     algorithm: theme.darkAlgorithm,
                     components: {
                       DatePicker: {
-                        colorPrimary: "#008080",
+                        colorPrimary: "#00bba7",
                         algorithm: true,
                       },
                     },
@@ -429,14 +429,14 @@ export default function StudentForm() {
             {i18n.language === "fa" ? (
               <SwapLeftOutlined
                 style={{
-                  color: startTimeValue ? "#008080" : "gray",
+                  color: startTimeValue ? "#00bba7" : "gray",
                   fontSize: "24px",
                 }}
               />
             ) : (
               <SwapRightOutlined
                 style={{
-                  color: startTimeValue ? "#008080" : "gray",
+                  color: startTimeValue ? "#00bba7" : "gray",
                   fontSize: "24px",
                 }}
               />
@@ -455,7 +455,7 @@ export default function StudentForm() {
                 algorithm: theme.darkAlgorithm,
                 components: {
                   DatePicker: {
-                    colorPrimary: "#008080",
+                    colorPrimary: "#00bba7",
                     algorithm: true,
                   },
                 },
@@ -482,7 +482,7 @@ export default function StudentForm() {
                   algorithm: theme.darkAlgorithm,
                   components: {
                     Checkbox: {
-                      colorPrimary: "#008080",
+                      colorPrimary: "#00bba7",
                       algorithm: true,
                     },
                   },
@@ -550,7 +550,7 @@ export default function StudentForm() {
                   algorithm: theme.darkAlgorithm,
                   components: {
                     InputNumber: {
-                      colorPrimary: "#008080",
+                      colorPrimary: "#00bba7",
                       algorithm: true,
                     },
                   },
@@ -593,10 +593,11 @@ export default function StudentForm() {
         type="default"
         htmlType="submit"
         style={{
-          background: "#008080",
+          background: "#00aa98",
           color: "#fff",
           borderRadius: "10px",
           fontSize: "16px",
+          fontWeight: 500,
           padding: "19px 0px",
           border: "none",
           marginTop: "30px",

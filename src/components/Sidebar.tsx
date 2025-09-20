@@ -99,7 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       } left-3 bottom-3 h-auto z-50 bg-neutral-900 rounded-2xl transition-all duration-300 ${
         isOpen ? "w-64" : "w-20"
       }`}
-      style={{ boxShadow: "0px 0px 5px #008080" }}
+      style={{ boxShadow: "0px 0px 5px #33c9b9" }}
     >
       {/* Logo & Toggle */}
       <div className="px-4 py-3">
@@ -142,8 +142,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                       : "mx-auto px-4 py-3 rounded-full"
                   } gap-4 transition-colors duration-200 cursor-pointer ${
                     isActive
-                      ? "bg-teal-500 text-white shadow"
-                      : "text-gray-200 hover:bg-teal-100 hover:text-gray-800"
+                      ? "bg-teal-500 text-neutral-900"
+                      : "text-gray-300 hover:bg-teal-200 hover:text-teal-900"
                   }`}
                 >
                   <span

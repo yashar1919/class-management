@@ -64,7 +64,7 @@ const InputField: React.FC<InputFieldProps> = ({
         dir={inputDir}
         style={{
           borderRadius: "10px",
-          borderColor: error ? "#ef4444" : focused ? "#14b8a6" : undefined,
+          borderColor: error ? "#ef4444" : focused ? "#00bba7" : undefined,
           textAlign: inputTextAlign,
         }}
         size="large"

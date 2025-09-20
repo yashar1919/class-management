@@ -151,7 +151,7 @@ export default function CalendarTable({ student }: CalendarTableProps) {
           algorithm: theme.darkAlgorithm,
           components: {
             Table: {
-              colorPrimary: "#008080",
+              colorPrimary: "#00bba7",
               algorithm: true,
             },
           },

@@ -141,11 +141,12 @@ export default function StudentsInfo() {
             algorithm: theme.darkAlgorithm,
             components: {
               Input: {
-                colorPrimary: "#008080",
+                colorPrimary: "#00bba7",
                 algorithm: true,
               },
               Button: {
-                colorPrimary: "#008080",
+                colorPrimary: "#00bba7",
+                algorithm: true,
               },
             },
           }}
@@ -169,7 +170,8 @@ export default function StudentsInfo() {
             algorithm: theme.darkAlgorithm,
             components: {
               Button: {
-                colorPrimary: "#008080",
+                colorPrimary: "#00bba7",
+                algorithm: true,
               },
             },
           }}
@@ -191,19 +193,35 @@ export default function StudentsInfo() {
           algorithm: theme.darkAlgorithm,
           components: {
             Drawer: {
-              colorPrimary: "#008080",
+              colorPrimary: "#00bba7",
+              algorithm: true,
             },
             Radio: {
-              colorPrimary: "#008080",
+              colorPrimary: "#00bba7",
+              buttonSolidCheckedActiveBg: "#00bba7",
+              buttonSolidCheckedHoverBg: "#00bba7",
+              algorithm: true,
             },
             Select: {
-              colorPrimary: "#008080",
+              colorPrimary: "#00bba7",
+              hoverBorderColor: "#00bba7",
+              optionSelectedBg: "#00675c",
+              algorithm: true,
             },
             Slider: {
-              colorPrimary: "#008080",
+              colorPrimary: "#00bba7",
+              colorBgElevated: "#00bba7",
+              trackHoverBg: "#00675c",
+              trackBg: "#00bba7",
+              algorithm: true,
             },
             Button: {
-              colorPrimary: "#008080",
+              colorPrimary: "#00bba7",
+              defaultHoverBorderColor: "#00bba7",
+              colorPrimaryHover: "#00bba7",
+              defaultActiveBorderColor: "#00675c",
+              defaultActiveColor: "#00675c",
+              algorithm: true,
             },
           },
         }}
@@ -311,9 +329,14 @@ export default function StudentsInfo() {
       {filteredStudents.map((student) => (
         <div
           key={student.id}
-          className="bg-neutral-900 rounded-full px-3 py-3 flex items-center relative overflow-hidden mb-5 shadow-md"
+          className={`bg-neutral-900 px-3 py-2 flex items-center relative overflow-hidden mb-5 shadow-md ${
+            i18n.language !== "fa"
+              ? "rounded-bl-[50px] rounded-r-2xl rounded-tl-[50px]"
+              : "rounded-br-[50px] rounded-l-2xl rounded-tr-[50px]"
+          }`}
           style={{
             boxShadow: "0px 0px 7px #989898",
+
             flexDirection: i18n.language === "fa" ? "row-reverse" : "row",
           }}
           dir={i18n.language === "fa" ? "rtl" : "ltr"}
@@ -321,7 +344,7 @@ export default function StudentsInfo() {
           {/* دکمه فلش فارسی */}
           {i18n.language === "fa" && (
             <button
-              className="absolute left-0 top-0 bottom-0 w-[50px] bg-[#E98C00] flex items-center justify-center border-none outline-none cursor-pointer transition-all rounded-l-full hover:bg-orange-500"
+              className="absolute left-0 top-0 bottom-0 w-[50px] bg-teal-600 flex items-center justify-center border-none outline-none cursor-pointer transition-all hover:bg-teal-700 active:bg-teal-800"
               style={{
                 height: "100%",
                 boxShadow: "none",
@@ -343,16 +366,17 @@ export default function StudentsInfo() {
             {/* آواتار */}
             <Avatar
               style={{
-                backgroundColor: "whitesmoke",
-                color: "#E98C00",
-                fontSize: "45px",
-                boxShadow: "0px 0px 20px #989898",
+                backgroundColor: "oklch(98.4% 0.014 180.72)",
+                color: "oklch(77.7% 0.152 181.912)",
+                fontSize: "35px",
+                fontWeight: 600,
+                boxShadow: "0px 0px 10px #00bba7",
                 display: "flex",
                 alignItems: "center",
                 marginLeft: i18n.language === "fa" ? "20px" : undefined,
                 marginRight: i18n.language === "en" ? "20px" : undefined,
               }}
-              size={70}
+              size={60}
               //className={i18n.language === "fa" ? "ml-4" : "mr-4"}
             >
               {student.name?.[0]?.toUpperCase() || "Y"}
@@ -364,7 +388,7 @@ export default function StudentsInfo() {
               }`}
             >
               <div
-                className={`font-bold text-xl mb-2 text-[#FF9900] break-words ${
+                className={`font-bold text-2xl mb-2 text-teal-200 break-words ${
                   i18n.language === "fa" ? "text-right" : "text-left"
                 }`}
               >
@@ -375,7 +399,7 @@ export default function StudentsInfo() {
                 dir={i18n.language === "fa" ? "rtl" : "ltr"}
               >
                 <div className="w-full sm:w-auto">
-                  <span className="text-[#E98C00] text-xs">
+                  <span className="text-teal-400 text-[16px]">
                     {t("studentForm.phone") || "Phone"}:
                   </span>
                   <span
@@ -387,7 +411,7 @@ export default function StudentsInfo() {
                   </span>
                 </div>
                 <div className="w-full sm:w-auto">
-                  <span className="text-[#E98C00] text-xs">
+                  <span className="text-teal-400 text-[16px]">
                     {t("studentForm.classType") || "Class type"}:
                   </span>
                   <span
@@ -403,7 +427,7 @@ export default function StudentsInfo() {
                   </span>
                 </div>
                 <div className="w-full sm:w-auto">
-                  <span className="text-[#E98C00] text-xs">
+                  <span className="text-teal-400 text-[16px]">
                     {t("studentInfo.time") || "Time"}:
                   </span>
                   <span
@@ -417,7 +441,7 @@ export default function StudentsInfo() {
                   </span>
                 </div>
                 <div className="w-full sm:w-auto">
-                  <span className="text-[#E98C00] text-xs">
+                  <span className="text-teal-400 text-[16px]">
                     {t("studentForm.durationHours") || "Duration"}:
                   </span>
                   <span
@@ -435,7 +459,7 @@ export default function StudentsInfo() {
           {/* دکمه فلش انگلیسی */}
           {i18n.language !== "fa" && (
             <button
-              className="absolute right-0 top-0 bottom-0 w-[50px] bg-[#E98C00] flex items-center justify-center border-none outline-none cursor-pointer transition-all rounded-r-full hover:bg-orange-500"
+              className="absolute right-0 top-0 bottom-0 w-[50px] bg-teal-600 flex items-center justify-center border-none outline-none cursor-pointer transition-all hover:bg-teal-700 active:bg-teal-800"
               style={{
                 height: "100%",
                 boxShadow: "none",
