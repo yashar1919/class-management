@@ -33,6 +33,7 @@ type StudentStore = {
   addStudent: (student: NewStudent) => void;
   removeStudent: (id: string) => void;
   toggleAttendance: (studentId: string, sessionIdx: number) => void;
+  updateStudent: (student: Student) => void;
 };
 
 type NewStudent = Omit<Student, "id" | "sessions">;
@@ -91,6 +92,15 @@ export const useStudentStore = create<StudentStore>()(
               : student
           ),
         })),
+      updateStudent: (student: Student) =>
+        set((state) => {
+          const students = state.students.map((s) =>
+            s.id === student.id ? { ...student } : s
+          );
+          // ذخیره در localStorage
+          localStorage.setItem("students", JSON.stringify(students));
+          return { students };
+        }),
     }),
     {
       name: "students-storage", // نام کلید در localStorage

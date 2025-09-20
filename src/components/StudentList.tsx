@@ -1,13 +1,21 @@
 "use client";
 import React from "react";
-import { CaretRightOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  CaretRightOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import type { CollapseProps } from "antd";
 import { Collapse } from "antd";
 import { useStudentStore } from "../store/studentStore";
 import CalendarTable from "./CalendarTable";
 import { useTranslation } from "react-i18next";
 
-export default function StudentList() {
+type StudentListProps = {
+  onEditStudent: (student: Student) => void;
+};
+
+export default function StudentList({ onEditStudent }: StudentListProps) {
   const students = useStudentStore((s) => s.students);
   const removeStudent = useStudentStore((s) => s.removeStudent);
   const { t } = useTranslation();
@@ -67,6 +75,16 @@ export default function StudentList() {
           {t("studentList.classDuration")}: {student.duration}{" "}
           {t("studentList.hour")}
         </span>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            // تابع ادیت را اینجا صدا بزن
+            onEditStudent(student);
+          }}
+          className="bg-yellow-500 text-white px-2 py-2 rounded-lg flex justify-center items-center cursor-pointer hover:bg-yellow-600 ml-2"
+        >
+          <EditOutlined style={{ fontSize: "20px" }} />
+        </button>
         <button
           onClick={(e) => {
             e.stopPropagation();

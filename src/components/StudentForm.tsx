@@ -21,7 +21,7 @@ import TimePickerCustom from "./UI/TimePickerCustom";
 import InputNumberField from "./UI/InputNumberField";
 import dayjs from "dayjs";
 import PersianCalendarPicker from "./UI/PersianCalendarPicker";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DateObject } from "react-multi-date-picker";
 import { useTranslation } from "react-i18next";
 
@@ -103,9 +103,18 @@ const defaultValues: FormValues = {
   onlineLink: "",
 };
 
-export default function StudentForm() {
+type StudentFormProps = {
+  editStudent: Student | null;
+  onEditDone: () => void;
+};
+
+export default function StudentForm({
+  editStudent,
+  onEditDone,
+}: StudentFormProps) {
   const { t, i18n } = useTranslation();
   const addStudent = useStudentStore((s) => s.addStudent);
+  const updateStudent = useStudentStore((s) => s.updateStudent);
 
   const classTypeItems: MenuProps["items"] = [
     {
@@ -159,7 +168,32 @@ export default function StudentForm() {
 
   const endTime = calcEndTime(startTime, duration);
 
+  useEffect(() => {
+    if (editStudent) {
+      reset({
+        ...editStudent,
+        sessionPrice: Number(editStudent.price),
+        selectedDates: editStudent.firstSessionDates.map(
+          (d) => new DateObject(d)
+        ),
+      });
+    }
+  }, [editStudent, reset]);
+
   const onSubmit: SubmitHandler<FormValues> = (data) => {
+    // اگر در حالت ویرایش هستیم، ویرایش کن
+    if (editStudent) {
+      updateStudent({
+        ...editStudent,
+        ...data,
+        price: data.sessionPrice.toString(),
+        firstSessionDates: data.selectedDates.map((d) => new Date(d.toDate())),
+      });
+      onEditDone();
+      reset(defaultValues);
+      return;
+    }
+    // حالت افزودن جدید
     if (!data.selectedDates || data.selectedDates.length === 0) {
       setCalendarError("Date is required");
       return;
