@@ -13,8 +13,10 @@
     "fullName": "نام کامل",
     "phone": "شماره تماس",
     "address": "آدرس",
+    "age": "سن",
     "classType": "نوع کلاس",
     "online": "آنلاین",
+    "onlineLink": "لینک گوگل میت",
     "inPerson": "حضوری",
     "durationHours": "مدت زمان (ساعت)",
     "startTime": "زمان شروع",
@@ -69,7 +71,12 @@
     "firstSessionDates": "تاریخ اولین جلسات",
     "toman": "تومان",
     "time": "زمان",
-    "until":"تا"
+    "until": "تا",
+    "classDaysPerWeek": "تعداد روزهای کلاس در هفته",
+    "fullInfo": "اطلاعات دانش‌آموز",
+    "classDays": "روز های کلاس",
+    "monthly": "ماهانه",
+    "close": "بستن"
   },
   "settings": {
     "languageTitle": "زبان",

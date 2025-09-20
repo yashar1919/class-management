@@ -170,3 +170,11 @@ body {
   background-color: #00bba7;
   opacity: 0.8;
 }
+
+:where(.css-dev-only-do-not-override-1ueqz1t).ant-btn-variant-outlined:not(:disabled):not(.ant-btn-disabled):hover, :where(.css-dev-only-do-not-override-1ueqz1t).ant-btn-variant-dashed:not(:disabled):not(.ant-btn-disabled):hover{
+  border: 1px solid #00bba7;
+}
+
+:where(.css-dev-only-do-not-override-1ueqz1t).ant-btn-variant-outlined:not(:disabled):not(.ant-btn-disabled):hover, :where(.css-dev-only-do-not-override-1ueqz1t).ant-btn-variant-dashed:not(:disabled):not(.ant-btn-disabled):hover{
+  color: #00bba7;
+}

@@ -13,8 +13,10 @@
     "fullName": "Full Name",
     "phone": "Phone",
     "address": "Address",
+    "age":"Age",
     "classType": "Class Type",
     "online": "Online",
+    "onlineLink":"Google Meet Link",
     "inPerson": "In-Person",
     "durationHours": "Duration (hours)",
     "startTime": "Start Time",
@@ -69,7 +71,12 @@
     "firstSessionDates": "First session dates",
     "toman": "Toman",
     "time":"Time",
-    "until":"until"
+    "until":"until",
+    "classDaysPerWeek":"Number of class days per week",
+    "fullInfo":"Student Information",
+    "classDays":"Class days",
+    "monthly":"Monthly",
+    "close":"Close"
   },
   "settings": {
     "languageTitle": "Language",

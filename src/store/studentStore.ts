@@ -15,7 +15,9 @@ export type Student = {
   name: string;
   phone: string;
   address: string;
+  age: number;
   classType: string;
+  onlineLink: string;
   startTime: string;
   endTime: string;
   duration: number;

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useStudentStore } from "../store/studentStore";
 import {
   ConfigProvider,
@@ -16,8 +16,20 @@ import {
   FilterOutlined,
   ArrowRightOutlined,
   ArrowLeftOutlined,
+  UserOutlined,
+  PhoneOutlined,
+  HomeOutlined,
+  NumberOutlined,
+  LaptopOutlined,
+  ClockCircleOutlined,
+  FieldTimeOutlined,
+  DollarOutlined,
+  CalendarOutlined,
+  ScheduleOutlined,
+  BarsOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import ModalCustom from "../components/UI/ModalCustom";
 const { Search } = Input;
 
 export default function StudentsInfo() {
@@ -25,6 +37,10 @@ export default function StudentsInfo() {
   const students = useStudentStore((s) => s.students);
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  //eslint-disable-next-line
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [closeBtnHover, setCloseBtnHover] = useState(false); //hover for close btn modal
 
   // فیلترها
   const [typeFilter, setTypeFilter] = useState<"all" | "online" | "in-person">(
@@ -349,7 +365,10 @@ export default function StudentsInfo() {
                 height: "100%",
                 boxShadow: "none",
               }}
-              // onClick={() => ...}
+              onClick={() => {
+                setSelectedStudent(student);
+                setModalOpen(true);
+              }}
             >
               <span className="text-white text-2xl flex items-center justify-center">
                 <ArrowLeftOutlined />
@@ -398,60 +417,89 @@ export default function StudentsInfo() {
                 className={`flex w-full justify-between items-center mt-1 flex-wrap gap-y-2`}
                 dir={i18n.language === "fa" ? "rtl" : "ltr"}
               >
-                <div className="w-full sm:w-auto">
-                  <span className="text-teal-400 text-[16px]">
-                    {t("studentForm.phone") || "Phone"}:
-                  </span>
-                  <span
-                    className={`text-sm break-all ${
-                      i18n.language === "fa" ? "mr-1" : "ml-1"
-                    }`}
-                  >
-                    {student.phone || "-"}
-                  </span>
-                </div>
-                <div className="w-full sm:w-auto">
-                  <span className="text-teal-400 text-[16px]">
-                    {t("studentForm.classType") || "Class type"}:
-                  </span>
-                  <span
-                    className={`text-sm ${
-                      i18n.language === "fa" ? "mr-1" : "ml-1"
-                    }`}
-                  >
-                    {student.classType === "online"
-                      ? t("studentForm.online")
-                      : student.classType === "in-person"
-                      ? t("studentForm.inPerson")
-                      : student.classType}
-                  </span>
-                </div>
-                <div className="w-full sm:w-auto">
-                  <span className="text-teal-400 text-[16px]">
-                    {t("studentInfo.time") || "Time"}:
-                  </span>
-                  <span
-                    className={`text-sm ${
-                      i18n.language === "fa" ? "mr-1" : "ml-1"
-                    }`}
-                  >
-                    {student.startTime}{" "}
-                    <span className="text-xs">{t("studentInfo.until")}</span>{" "}
-                    {student.endTime}
-                  </span>
-                </div>
-                <div className="w-full sm:w-auto">
-                  <span className="text-teal-400 text-[16px]">
-                    {t("studentForm.durationHours") || "Duration"}:
-                  </span>
-                  <span
-                    className={`text-sm ${
-                      i18n.language === "fa" ? "mr-1" : "ml-1"
-                    }`}
-                  >
-                    {student.duration} {t("studentList.hour") || "hour(s)"}
-                  </span>
-                </div>
+                {[
+                  <div className="w-full sm:w-auto" key="phone">
+                    <span className="text-teal-400 text-[16px]">
+                      {t("studentForm.phone") || "Phone"}:
+                    </span>
+                    <span
+                      className={`text-sm break-all ${
+                        i18n.language === "fa" ? "mr-1" : "ml-1"
+                      }`}
+                    >
+                      {student.phone
+                        ? student.phone.split("").map((char, idx) =>
+                            /\d/.test(char) ? (
+                              <span
+                                key={idx}
+                                className="inline-block mx-[0.5px]"
+                              >
+                                {char}
+                              </span>
+                            ) : (
+                              <span key={idx}>{char}</span>
+                            )
+                          )
+                        : "-"}
+                    </span>
+                  </div>,
+                  <div className="w-full sm:w-auto" key="classType">
+                    <span className="text-teal-400 text-[16px]">
+                      {t("studentForm.classType") || "Class type"}:
+                    </span>
+                    <span
+                      className={`text-sm ${
+                        i18n.language === "fa" ? "mr-1" : "ml-1"
+                      }`}
+                    >
+                      {student.classType === "online"
+                        ? t("studentForm.online")
+                        : student.classType === "in-person"
+                        ? t("studentForm.inPerson")
+                        : student.classType}
+                    </span>
+                  </div>,
+                  <div className="w-full sm:w-auto" key="time">
+                    <span className="text-teal-400 text-[16px]">
+                      {t("studentInfo.time") || "Time"}:
+                    </span>
+                    <span
+                      className={`text-sm ${
+                        i18n.language === "fa" ? "mr-1" : "ml-1"
+                      }`}
+                    >
+                      {student.startTime}{" "}
+                      <span className="text-xs">{t("studentInfo.until")}</span>{" "}
+                      {student.endTime}
+                    </span>
+                  </div>,
+                  <div className="w-full sm:w-auto" key="duration">
+                    <span className="text-teal-400 text-[16px]">
+                      {t("studentForm.durationHours") || "Duration"}:
+                    </span>
+                    <span
+                      className={`text-sm ${
+                        i18n.language === "fa" ? "mr-1" : "ml-1"
+                      }`}
+                    >
+                      {student.duration} {t("studentList.hour") || "hour(s)"}
+                    </span>
+                  </div>,
+                ].reduce((acc: React.ReactNode[], curr, idx, arr) => {
+                  acc.push(curr);
+                  if (idx < arr.length - 1) {
+                    acc.push(
+                      <div
+                        key={`divider-${idx}`}
+                        className="hidden sm:flex h-7 items-center"
+                        aria-hidden
+                      >
+                        <div className="border-l border-gray-500 opacity-30 h-full mx-3" />
+                      </div>
+                    );
+                  }
+                  return acc;
+                }, [])}
               </div>
             </div>
           </div>
@@ -464,7 +512,10 @@ export default function StudentsInfo() {
                 height: "100%",
                 boxShadow: "none",
               }}
-              // onClick={() => ...}
+              onClick={() => {
+                setSelectedStudent(student);
+                setModalOpen(true);
+              }}
             >
               <span className="text-white text-2xl flex items-center justify-center">
                 <ArrowRightOutlined />
@@ -473,6 +524,320 @@ export default function StudentsInfo() {
           )}
         </div>
       ))}
+
+      <ConfigProvider
+        theme={{
+          algorithm: theme.darkAlgorithm,
+          components: {
+            Button: {
+              colorPrimary: "#00bba7",
+              algorithm: true,
+            },
+          },
+        }}
+      >
+        {/* مودال نمایش اطلاعات دانش‌آموز */}
+        <ModalCustom
+          open={modalOpen}
+          onCancel={() => setModalOpen(false)}
+          title=""
+          footer={
+            <Button
+              block
+              onClick={() => setModalOpen(false)}
+              style={{
+                marginTop: 10,
+                height: 35,
+                border: closeBtnHover
+                  ? "1px solid #d32626"
+                  : "1px solid #ad1616",
+                color: closeBtnHover ? "#d32626" : "#ad1616",
+                transition: " color 0.3s",
+                fontSize: "16px",
+              }}
+              onMouseEnter={() => setCloseBtnHover(true)}
+              onMouseLeave={() => setCloseBtnHover(false)}
+            >
+              {t("studentInfo.close")}
+            </Button>
+          }
+        >
+          {selectedStudent && (
+            <div>
+              <p className="mb-3 text-center text-2xl text-teal-300 font-semibold">
+                {t("studentInfo.fullInfo")}
+              </p>
+              <div className="space-y-0 text-base">
+                {/* نام */}
+                <div className="flex items-center gap-2 flex-nowrap">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <UserOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                    {t("studentForm.fullName") || "Full Name"}:
+                  </span>
+                  <span className="font-light text-sm break-all">
+                    {selectedStudent.name}
+                  </span>
+                </div>
+                <div className="border-t border-gray-700 opacity-40 my-2" />
+
+                {/* تلفن */}
+                <div className="flex items-center gap-2 flex-nowrap">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <PhoneOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                    {t("studentForm.phone") || "Phone"}:
+                  </span>
+                  <span className="font-light text-white text-[15px] break-all">
+                    {selectedStudent.phone}
+                  </span>
+                </div>
+                <div className="border-t border-gray-700 opacity-40 my-2" />
+
+                {/* آدرس */}
+                <div className="flex items-center gap-2 flex-nowrap">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <HomeOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                    {t("studentForm.address") || "Address"}:
+                  </span>
+                  <span className="font-light text-white text-[15px] break-all">
+                    {selectedStudent.address}
+                  </span>
+                </div>
+                <div className="border-t border-gray-700 opacity-40 my-2" />
+
+                {/* سن */}
+                <div className="flex items-center gap-2 flex-nowrap">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <NumberOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                    {t("studentForm.age") || "Age"}:
+                  </span>
+                  <span className="font-light text-white text-[15px] break-all">
+                    {selectedStudent.age}
+                  </span>
+                </div>
+                <div className="border-t border-gray-700 opacity-40 my-2" />
+
+                {/* نوع کلاس */}
+                <div className="flex items-center gap-2 flex-nowrap">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <LaptopOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                    {t("studentForm.classType") || "Class Type"}:
+                  </span>
+                  <span className="font-light text-white text-[15px] break-all">
+                    {selectedStudent.classType === "online"
+                      ? t("studentForm.online")
+                      : selectedStudent.classType === "in-person"
+                      ? t("studentForm.inPerson")
+                      : selectedStudent.classType}
+                  </span>
+                </div>
+                <div className="border-t border-gray-700 opacity-40 my-2" />
+                {/* لینک جلسه آنلاین */}
+                <div className="flex items-center gap-2 flex-nowrap">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <LaptopOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                    {t("studentForm.onlineLink") || "Online Link"}:
+                  </span>
+                  {selectedStudent.onlineLink ? (
+                    <span className="break-all">
+                      <a
+                        href={selectedStudent.onlineLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-light break-all"
+                      >
+                        {selectedStudent.onlineLink}
+                      </a>
+                    </span>
+                  ) : (
+                    <span className="font-light text-white text-[15px]">-</span>
+                  )}
+                </div>
+                <div className="border-t border-gray-700 opacity-40 my-2" />
+
+                {/* زمان */}
+                <div className="flex items-center gap-2 flex-nowrap">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <ClockCircleOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                    {t("studentInfo.time") || "Time"}:
+                  </span>
+                  <span className="font-light text-white text-[15px] break-all">
+                    {selectedStudent.startTime} {t("studentInfo.until")}{" "}
+                    {selectedStudent.endTime}
+                  </span>
+                </div>
+                <div className="border-t border-gray-700 opacity-40 my-2" />
+
+                {/* مدت زمان */}
+                <div className="flex items-center gap-2 flex-nowrap">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <FieldTimeOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                    {t("studentForm.durationHours") || "Duration"}:
+                  </span>
+                  <span className="font-light text-white text-[15px] break-all">
+                    {selectedStudent.duration}{" "}
+                    {t("studentList.hour") || "hour(s)"}
+                  </span>
+                </div>
+                <div className="border-t border-gray-700 opacity-40 my-2" />
+
+                {/* قیمت */}
+                <div className="flex items-center gap-2 flex-nowrap">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <DollarOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                    {t("studentForm.sessionPrice") || "Price"}:
+                  </span>
+                  <span className="font-light text-white text-[15px] break-all">
+                    {selectedStudent.price} {t("studentInfo.toman") || "Toman"}
+                  </span>
+                  {i18n.language === "fa" ? (
+                    <ArrowLeftOutlined style={{ color: "gray" }} />
+                  ) : (
+                    <ArrowRightOutlined style={{ color: "gray" }} />
+                  )}
+                  <span className="font-bold text-green-500 text-sm">
+                    {(() => {
+                      const sessionPrice = Number(selectedStudent.price) || 0;
+                      const daysPerWeek =
+                        Number(selectedStudent.daysPerWeek) || 0;
+                      const total = sessionPrice * daysPerWeek * 4;
+                      return `${total.toLocaleString()} ${
+                        t("studentInfo.toman") || "Toman"
+                      }`;
+                    })()}
+                  </span>
+                  <div>
+                    <span className="text-[11px] text-gray-400">
+                      {t("studentInfo.monthly")}
+                    </span>
+                  </div>
+                </div>
+                <div className="border-t border-gray-700 opacity-40 my-2" />
+
+                {/* تعداد روز در هفته */}
+                <div className="flex items-center gap-2 flex-nowrap">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <BarsOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                    {t("studentInfo.classDaysPerWeek") || "Days/Week"}:
+                  </span>
+                  <span className="font-light text-white text-[15px] break-all">
+                    {selectedStudent.daysPerWeek}
+                  </span>
+                </div>
+                <div className="border-t border-gray-700 opacity-40 my-2" />
+
+                <div className="flex items-center gap-2 flex-nowrap">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <CalendarOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                    {t("studentInfo.firstSessionDates") || "First Session(s)"}:
+                  </span>
+                  <span className="font-light text-white text-[13px] break-all">
+                    {selectedStudent.firstSessionDates &&
+                    selectedStudent.firstSessionDates.length > 0
+                      ? selectedStudent.firstSessionDates
+                          .map((d: Date) => {
+                            const dateObj = new Date(d);
+                            const dateStr = dateObj.toLocaleDateString(
+                              i18n.language === "fa" ? "fa-IR" : "en-US"
+                            );
+                            const weekday = dateObj.toLocaleDateString(
+                              i18n.language === "fa" ? "fa-IR" : "en-US",
+                              { weekday: "long" }
+                            );
+                            return `${weekday} (${dateStr})`;
+                          })
+                          .join("، ")
+                      : "-"}
+                  </span>
+                </div>
+                <div className="border-t border-gray-700 opacity-40 my-2" />
+
+                {/* روزهای کلاس */}
+                <div className="flex items-center gap-2 flex-nowrap">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <ScheduleOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                    {t("studentInfo.classDays") || "Class Days"}:
+                  </span>
+                  <span className="font-light text-white text-[15px] break-all">
+                    {selectedStudent.firstSessionDates &&
+                    selectedStudent.firstSessionDates.length > 0
+                      ? Array.from(
+                          new Set(
+                            selectedStudent.firstSessionDates.map((d: Date) =>
+                              new Date(d).toLocaleDateString(
+                                i18n.language === "fa" ? "fa-IR" : "en-US",
+                                { weekday: "long" }
+                              )
+                            )
+                          )
+                        ).join("، ")
+                      : "-"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </ModalCustom>
+      </ConfigProvider>
     </div>
   );
 }

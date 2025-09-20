@@ -13,6 +13,7 @@ import {
   SwapRightOutlined,
   DollarOutlined,
   SwapLeftOutlined,
+  CalculatorOutlined,
 } from "@ant-design/icons";
 import { Checkbox, ConfigProvider, Button, theme, type MenuProps } from "antd";
 import DropdownField from "./UI/DropdownField";
@@ -32,7 +33,14 @@ const schema = yup.object({
     .nullable()
     .notRequired(),
   address: yup.string().required("Address is required"),
+  age: yup
+    .number()
+    .typeError("سن باید عدد باشد")
+    .required("وارد کردن سن الزامی است")
+    .min(1, "سن باید بیشتر از ۰ باشد")
+    .max(120, "سن معتبر وارد کنید"),
   classType: yup.string().required("Class type is required"),
+  onlineLink: yup.string().url("لینک معتبر وارد کنید").notRequired(),
   duration: yup
     .number()
     .typeError("Duration must be a number")
@@ -69,6 +77,7 @@ type FormValues = {
   name: string;
   phone?: string;
   address: string;
+  age: number;
   classType: string;
   duration: number;
   startTime: string;
@@ -76,12 +85,14 @@ type FormValues = {
   daysPerWeek: number;
   sessionPrice: number;
   selectedDates: DateObject[];
+  onlineLink?: string;
 };
 
 const defaultValues: FormValues = {
   name: "",
   phone: "",
   address: "",
+  age: 1,
   classType: "",
   duration: 1,
   startTime: "",
@@ -89,24 +100,12 @@ const defaultValues: FormValues = {
   daysPerWeek: 2,
   sessionPrice: 1,
   selectedDates: [],
+  onlineLink: "",
 };
 
 export default function StudentForm() {
   const { t, i18n } = useTranslation();
   const addStudent = useStudentStore((s) => s.addStudent);
-
-  /* const classTypeItems: MenuProps["items"] = [
-    {
-      label: t("studentForm.inPerson"),
-      key: "inPerson",
-      icon: <ClusterOutlined />,
-    },
-    {
-      label: t("studentForm.online"),
-      key: "Online",
-      icon: <ClusterOutlined />,
-    },
-  ]; */
 
   const classTypeItems: MenuProps["items"] = [
     {
@@ -134,19 +133,6 @@ export default function StudentForm() {
     mode: "onTouched",
   });
 
-  /* const {
-    control,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      // ... سایر فیلدها ...
-      selectedDates: [],
-    },
-    resolver: yupResolver(schema),
-  }); */
-
   const multiDay = watch("multiDay");
   //const daysPerWeek = watch("daysPerWeek");
 
@@ -155,6 +141,8 @@ export default function StudentForm() {
 
   const startTime = watch("startTime"); // رشته مثل "03:05"
   const duration = watch("duration"); // عدد
+
+  const classTypeValue = watch("classType");
 
   function calcEndTime(start: string, duration: number) {
     if (!start) return "--:--";
@@ -177,7 +165,6 @@ export default function StudentForm() {
       return;
     }
     setCalendarError(false);
-    console.log("calendarError set:", false);
 
     // تبدیل selectedDates به firstSessionDates
     const firstSessionDates = data.selectedDates.map(
@@ -191,6 +178,7 @@ export default function StudentForm() {
       name: data.name,
       phone: data.phone || "",
       address: data.address,
+      age: data.age,
       classType: data.classType,
       startTime: data.startTime,
       endTime: calcEndTime(data.startTime, data.duration),
@@ -199,12 +187,12 @@ export default function StudentForm() {
       firstSessionDates,
       daysPerWeek: actualDaysPerWeek,
       multiDay: data.multiDay,
+      onlineLink: data.onlineLink || "",
     });
     reset();
     //setSelectedDates([]);
   };
 
-  //const [selectedDates, setSelectedDates] = useState<DateObject[]>([]);
   const [calendarError, setCalendarError] = useState<string | boolean>(false);
 
   return (
@@ -281,78 +269,178 @@ export default function StudentForm() {
             <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
           )}
         </div>
-        <div className="md:col-span-2">
-          <Controller
-            name="address"
-            control={control}
-            render={({ field }) => (
-              <ConfigProvider
-                theme={{
-                  algorithm: theme.darkAlgorithm,
-                  components: {
-                    Input: {
-                      colorPrimary: "#00bba7",
-                      algorithm: true,
+        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-7">
+          <div>
+            <Controller
+              name="address"
+              control={control}
+              render={({ field }) => (
+                <ConfigProvider
+                  theme={{
+                    algorithm: theme.darkAlgorithm,
+                    components: {
+                      Input: {
+                        colorPrimary: "#00bba7",
+                        algorithm: true,
+                      },
                     },
-                  },
-                }}
-              >
-                <InputField
-                  placeholder={t("studentForm.address")}
-                  prefix={<HomeOutlined />}
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={!!errors.address}
-                />
-              </ConfigProvider>
+                  }}
+                >
+                  <InputField
+                    placeholder={t("studentForm.address")}
+                    prefix={<HomeOutlined />}
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={!!errors.address}
+                  />
+                </ConfigProvider>
+              )}
+            />
+            {errors.address && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.address.message}
+              </p>
             )}
-          />
-          {errors.address && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.address.message}
-            </p>
-          )}
-        </div>
-        <div className="md:col-span-2">
-          <Controller
-            name="classType"
-            control={control}
-            render={({ field }) => (
-              <ConfigProvider
-                theme={{
-                  algorithm: theme.darkAlgorithm,
-                  components: {
-                    Dropdown: {
-                      colorPrimary: "#fff",
-                      algorithm: true,
+          </div>
+          <div>
+            <Controller
+              name="age"
+              control={control}
+              render={({ field }) => (
+                <ConfigProvider
+                  theme={{
+                    algorithm: theme.darkAlgorithm,
+                    components: {
+                      InputNumber: {
+                        colorPrimary: "#00bba7",
+                        algorithm: true,
+                      },
                     },
-                  },
-                }}
-              >
-                <DropdownField
-                  label={t("studentForm.classType")}
-                  icon={<ClusterOutlined />}
-                  items={classTypeItems}
-                  value={field.value}
-                  /* onChange={(val) =>
-                    field.onChange(
-                      val === t("studentForm.inPerson")
-                        ? t("studentForm.inPerson")
-                        : t("studentForm.online")
-                    )
-                  } */
-                  onChange={(val) => field.onChange(val)}
-                  error={!!errors.classType}
-                />
-              </ConfigProvider>
+                  }}
+                >
+                  <InputNumberField
+                    placeholder={t("studentForm.age")}
+                    addonBefore={<CalculatorOutlined />}
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={!!errors.age}
+                    min={1}
+                    max={120}
+                  />
+                </ConfigProvider>
+              )}
+            />
+            {errors.age && (
+              <p className="text-red-500 text-xs mt-1">{errors.age.message}</p>
             )}
-          />
-          {errors.classType && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.classType.message}
-            </p>
-          )}
+          </div>
         </div>
+        {classTypeValue === "online" ? (
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-7">
+            <div>
+              <Controller
+                name="classType"
+                control={control}
+                render={({ field }) => (
+                  <ConfigProvider
+                    theme={{
+                      algorithm: theme.darkAlgorithm,
+                      components: {
+                        Dropdown: {
+                          colorPrimary: "#fff",
+                          algorithm: true,
+                        },
+                      },
+                    }}
+                  >
+                    <DropdownField
+                      label={t("studentForm.classType")}
+                      icon={<ClusterOutlined />}
+                      items={classTypeItems}
+                      value={field.value}
+                      onChange={(val) => field.onChange(val)}
+                      error={!!errors.classType}
+                    />
+                  </ConfigProvider>
+                )}
+              />
+              {errors.classType && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.classType.message}
+                </p>
+              )}
+            </div>
+            <div>
+              <Controller
+                name="onlineLink"
+                control={control}
+                render={({ field }) => (
+                  <ConfigProvider
+                    theme={{
+                      algorithm: theme.darkAlgorithm,
+                      components: {
+                        Input: {
+                          colorPrimary: "#00bba7",
+                          algorithm: true,
+                        },
+                      },
+                    }}
+                  >
+                    <InputField
+                      placeholder={
+                        t("studentForm.onlineLink") || "Google Meet Link"
+                      }
+                      prefix={<ClusterOutlined />}
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors.onlineLink}
+                      type="url"
+                    />
+                  </ConfigProvider>
+                )}
+              />
+              {errors.onlineLink && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.onlineLink.message}
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="md:col-span-2">
+            <Controller
+              name="classType"
+              control={control}
+              render={({ field }) => (
+                <ConfigProvider
+                  theme={{
+                    algorithm: theme.darkAlgorithm,
+                    components: {
+                      Dropdown: {
+                        colorPrimary: "#fff",
+                        algorithm: true,
+                      },
+                    },
+                  }}
+                >
+                  <DropdownField
+                    label={t("studentForm.classType")}
+                    icon={<ClusterOutlined />}
+                    items={classTypeItems}
+                    value={field.value}
+                    onChange={(val) => field.onChange(val)}
+                    error={!!errors.classType}
+                  />
+                </ConfigProvider>
+              )}
+            />
+            {errors.classType && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.classType.message}
+              </p>
+            )}
+          </div>
+        )}
         <div className="md:col-span-2">
           <Controller
             name="duration"
@@ -502,19 +590,6 @@ export default function StudentForm() {
         </div>
         <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
           <div className="w-6/7">
-            {/* <Controller
-              name="selectedDates"
-              control={control}
-              render={({ field }) => (
-                <PersianCalendarPicker
-                  value={field.value}
-                  onChange={field.onChange}
-                  multiple={multiDay}
-                  error={errors.selectedDates?.message}
-                />
-              )}
-            /> */}
-
             <Controller
               name="selectedDates"
               control={control}
@@ -556,14 +631,6 @@ export default function StudentForm() {
                   },
                 }}
               >
-                {/* <InputNumberField
-                  placeholder="Session Price"
-                  addonBefore={<DollarOutlined />}
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={!!errors.sessionPrice}
-                /> */}
-
                 <InputNumberField
                   placeholder={t("studentForm.sessionPrice")}
                   addonBefore={<DollarOutlined />}
