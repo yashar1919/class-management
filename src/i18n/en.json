@@ -39,7 +39,8 @@
     "saturday": "Saturday"
   },
   "table": {
-    "attendance": "Attendance",
+    "attendance": "Present",
+    "absent":"Absent",
     "session": "Session",
     "date": "Date",
     "weekday": "Weekday",

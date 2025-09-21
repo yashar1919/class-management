@@ -7,7 +7,10 @@ export type Session = {
   startTime: string;
   endTime: string;
   attended: boolean;
+  absent: boolean;
   price: string;
+  //eslint-disable-next-line
+  id: any;
 };
 
 export type Student = {
@@ -32,7 +35,10 @@ type StudentStore = {
   students: Student[];
   addStudent: (student: NewStudent) => void;
   removeStudent: (id: string) => void;
-  toggleAttendance: (studentId: string, sessionIdx: number) => void;
+  /* toggleAttendance: (studentId: string, sessionIdx: number) => void;
+  toggleAbsent: (studentId: string, sessionKey: number) => void; */
+  toggleAttendance: (studentId: string, sessionId: string) => void;
+  toggleAbsent: (studentId: string, sessionId: string) => void;
   editingStudent: Student | null;
   setEditingStudent: (student: Student | null) => void;
   updateStudent: (id: string, data: NewStudent) => void; // اضافه شد
@@ -52,10 +58,12 @@ export const useStudentStore = create<StudentStore>()(
               // تغییر از 4 به 5
               const sessionDate = addWeeks(new Date(firstDate), i);
               sessions.push({
+                id: Date.now().toString() + Math.random(), // id یکتا
                 date: sessionDate,
                 startTime: student.startTime,
                 endTime: student.endTime,
                 attended: false,
+                absent: false,
                 price: student.price,
               });
             }
@@ -79,15 +87,30 @@ export const useStudentStore = create<StudentStore>()(
         set((state) => ({
           students: state.students.filter((s) => s.id !== id),
         })),
-      toggleAttendance: (studentId, sessionIdx) =>
+      toggleAttendance: (studentId, sessionId) =>
         set((state) => ({
           students: state.students.map((student) =>
             student.id === studentId
               ? {
                   ...student,
-                  sessions: student.sessions.map((session, idx) =>
-                    idx === sessionIdx
+                  sessions: student.sessions.map((session) =>
+                    session.id === sessionId
                       ? { ...session, attended: !session.attended }
+                      : session
+                  ),
+                }
+              : student
+          ),
+        })),
+      toggleAbsent: (studentId: string, sessionId: string) =>
+        set((state) => ({
+          students: state.students.map((student) =>
+            student.id === studentId
+              ? {
+                  ...student,
+                  sessions: student.sessions.map((session) =>
+                    session.id === sessionId
+                      ? { ...session, absent: !session.absent }
                       : session
                   ),
                 }
@@ -104,10 +127,12 @@ export const useStudentStore = create<StudentStore>()(
             for (let i = 0; i < 5; i++) {
               const sessionDate = addWeeks(new Date(firstDate), i);
               sessions.push({
+                id: Date.now().toString() + Math.random(), // id یکتا
                 date: sessionDate,
                 startTime: data.startTime,
                 endTime: data.endTime,
                 attended: false,
+                absent: false,
                 price: data.price,
               });
             }

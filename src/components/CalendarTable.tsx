@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Table, Tag, ConfigProvider, theme } from "antd";
+import { CloseCircleFilled } from "@ant-design/icons";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { Student, useStudentStore } from "../store/studentStore";
 import { useTranslation } from "react-i18next";
@@ -28,23 +29,25 @@ type CalendarTableProps = {
 };
 
 interface SessionRow {
-  key: number;
+  key: string;
   session: number;
   date: string;
   weekday: string;
   startTime: string;
   endTime: string;
   attended: boolean;
+  absent?: boolean;
   price: string | number;
   deposit: React.ReactNode;
 }
 
 export default function CalendarTable({ student }: CalendarTableProps) {
   const toggleAttendance = useStudentStore((s) => s.toggleAttendance);
+  const toggleAbsent = useStudentStore((s) => s.toggleAbsent);
   const { t, i18n } = useTranslation();
 
   const data: SessionRow[] = (student?.sessions ?? []).map((session, idx) => ({
-    key: idx,
+    key: session.id, // کلید یکتا
     session: idx + 1,
     date: new Date(session.date).toLocaleDateString(
       i18n.language === "fa" ? "fa-IR" : "en-US"
@@ -56,6 +59,7 @@ export default function CalendarTable({ student }: CalendarTableProps) {
     startTime: session.startTime,
     endTime: session.endTime,
     attended: session.attended,
+    absent: session.absent,
     price: session.price,
     deposit:
       idx + 1 > student.daysPerWeek * 4 ? (
@@ -65,6 +69,10 @@ export default function CalendarTable({ student }: CalendarTableProps) {
       ),
   }));
 
+  /* const selectedRowKeys = useMemo(
+    () => data.filter((row) => row.attended).map((row) => row.key),
+    [data]
+  ); */
   const selectedRowKeys = useMemo(
     () => data.filter((row) => row.attended).map((row) => row.key),
     [data]
@@ -75,6 +83,58 @@ export default function CalendarTable({ student }: CalendarTableProps) {
   }
 
   const columns: ColumnsType<SessionRow> = [
+    {
+      title: t("table.absent") || "Absent",
+      dataIndex: "absent",
+      key: "absent",
+      align: "center",
+      width: 50,
+      //eslint-disable-next-line
+      render: (_: any, record: SessionRow) => (
+        <span
+          className="flex items-center justify-center"
+          style={{ minHeight: 24 }}
+        >
+          <input
+            type="checkbox"
+            checked={!!record.absent}
+            onChange={() => {
+              if (!record.absent) {
+                if (record.attended) toggleAttendance(student.id, record.key); // حالا key همان id است
+              }
+              toggleAbsent(student.id, record.key);
+            }}
+            className="accent-red-500 w-5 h-5"
+            style={{ display: "none" }}
+            id={`absent-checkbox-${record.key}`}
+          />
+          <label htmlFor={`absent-checkbox-${record.key}`}>
+            {!!record.absent ? (
+              <CloseCircleFilled
+                style={{
+                  color: "oklch(71.2% 0.194 13.428)",
+                  fontSize: 20,
+                  verticalAlign: "middle",
+                  cursor: "pointer",
+                }}
+              />
+            ) : (
+              <span
+                style={{
+                  display: "inline-block",
+                  width: 20,
+                  height: 20,
+                  border: "2px solid oklch(57.7% 0.245 27.325)",
+                  borderRadius: "50%",
+                  verticalAlign: "middle",
+                  cursor: "pointer",
+                }}
+              />
+            )}
+          </label>
+        </span>
+      ),
+    },
     {
       title: t("table.session"),
       dataIndex: "session",
@@ -122,24 +182,46 @@ export default function CalendarTable({ student }: CalendarTableProps) {
       dataIndex: "deposit",
       key: "deposit",
       align: "center",
-      width: 190,
+      width: 130,
     },
   ];
 
-  const rowSelection: TableProps<SessionRow>["rowSelection"] = {
+  /* const rowSelection: TableProps<SessionRow>["rowSelection"] = {
     selectedRowKeys,
     onChange: (selectedKeys: React.Key[]) => {
-      // هر بار که چک‌باکس تغییر کند، toggleAttendance را صدا بزن
       data.forEach((row) => {
         const shouldBeAttended = selectedKeys.includes(row.key);
         if (row.attended !== shouldBeAttended) {
+          // اگر present فعال شد، absent را بردار
+          if (shouldBeAttended && row.absent) {
+            toggleAbsent(student.id, row.key);
+          }
           toggleAttendance(student.id, row.key);
         }
       });
     },
     columnTitle: t("table.attendance"),
-    columnWidth: 70,
+    columnWidth: 50,
+  }; */
+  const rowSelection: TableProps<SessionRow>["rowSelection"] = {
+    selectedRowKeys,
+    onChange: (selectedKeys: React.Key[]) => {
+      data.forEach((row) => {
+        const shouldBeAttended = selectedKeys.includes(row.key);
+        if (row.attended !== shouldBeAttended) {
+          if (shouldBeAttended && row.absent) {
+            toggleAbsent(student.id, row.key);
+          }
+          toggleAttendance(student.id, row.key);
+        }
+      });
+    },
   };
+
+  function rowClassName(record: SessionRow) {
+    if (record.absent) return "row-absent";
+    return "text-white";
+  }
 
   return (
     <div
@@ -165,9 +247,7 @@ export default function CalendarTable({ student }: CalendarTableProps) {
           bordered
           scroll={{ y: 250 }}
           rowSelection={rowSelection}
-          rowClassName={(record) =>
-            record.attended ? "bg-green-100 text-gray-400" : "text-white"
-          }
+          rowClassName={rowClassName}
         />
       </ConfigProvider>
     </div>

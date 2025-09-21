@@ -206,10 +206,6 @@ export default function StudentForm() {
   };
 
   useEffect(() => {
-    console.log("StudentForm rendered. editingStudent:", editingStudent);
-  });
-
-  useEffect(() => {
     if (editingStudent) {
       console.log("reset called with editingStudent:", editingStudent);
       reset({

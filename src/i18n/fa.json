@@ -39,7 +39,8 @@
     "saturday": "شنبه"
   },
   "table": {
-    "attendance": "حضور/غیاب",
+    "attendance": "حاضر",
+    "absent":"غائب",
     "session": "جلسه",
     "date": "تاریخ",
     "weekday": "روز هفته",
