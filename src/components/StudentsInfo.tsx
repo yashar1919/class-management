@@ -151,7 +151,7 @@ export default function StudentsInfo() {
 
   return (
     <div className="space-y-4">
-      <div className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
+      <div className="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
         <ConfigProvider
           theme={{
             algorithm: theme.darkAlgorithm,
@@ -204,328 +204,342 @@ export default function StudentsInfo() {
         </ConfigProvider>
       </div>
 
-      {/* Drawer فیلتر */}
-      <ConfigProvider
-        theme={{
-          algorithm: theme.darkAlgorithm,
-          components: {
-            Drawer: {
-              colorPrimary: "#00bba7",
-              algorithm: true,
-            },
-            Radio: {
-              colorPrimary: "#00bba7",
-              buttonSolidCheckedActiveBg: "#00bba7",
-              buttonSolidCheckedHoverBg: "#00bba7",
-              algorithm: true,
-            },
-            Select: {
-              colorPrimary: "#00bba7",
-              hoverBorderColor: "#00bba7",
-              optionSelectedBg: "#00675c",
-              algorithm: true,
-            },
-            Slider: {
-              colorPrimary: "#00bba7",
-              colorBgElevated: "#00bba7",
-              trackHoverBg: "#00675c",
-              trackBg: "#00bba7",
-              algorithm: true,
-            },
-            Button: {
-              colorPrimary: "#00bba7",
-              defaultHoverBorderColor: "#00bba7",
-              colorPrimaryHover: "#00bba7",
-              defaultActiveBorderColor: "#00675c",
-              defaultActiveColor: "#00675c",
-              algorithm: true,
-            },
-          },
-        }}
+      <div
+        className={`overflow-y-auto max-h-[90vh] pt-5 ${
+          i18n.language === "fa" ? "pl-5 pr-2" : "pr-5 pl-2"
+        } [&::-webkit-scrollbar]:w-1
+                [&::-webkit-scrollbar-track]:rounded-full
+                [&::-webkit-scrollbar-track]:bg-gray-100
+                [&::-webkit-scrollbar-thumb]:rounded-full
+                [&::-webkit-scrollbar-thumb]:bg-gray-300
+                dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+                dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500`}
       >
-        <Drawer
-          title={t("studentInfo.filterTitle") || "Filter Students"}
-          placement={i18n.language === "fa" ? "left" : "right"}
-          open={filterOpen}
-          onClose={() => setFilterOpen(false)}
-          width={340}
-        >
-          <div className="space-y-6">
-            {/* نوع کلاس */}
-            <div>
-              <div className="font-semibold mb-2">
-                {t("studentInfo.classType") || "Class Type"}
-              </div>
-              <Radio.Group
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                optionType="button"
-                buttonStyle="solid"
-              >
-                <Radio.Button value="all">
-                  {t("studentInfo.all") || "All"}
-                </Radio.Button>
-                <Radio.Button value="online">
-                  {t("studentForm.online") || "Online"}
-                </Radio.Button>
-                <Radio.Button value="in-person">
-                  {t("studentForm.inPerson") || "In-Person"}
-                </Radio.Button>
-              </Radio.Group>
-            </div>
-            {/* زمان شروع */}
-            <div>
-              <div className="font-semibold mb-2">
-                {t("studentInfo.startTime") || "Start Time"}
-              </div>
-              <Select
-                value={timeFilter}
-                onChange={setTimeFilter}
-                style={{ width: "100%" }}
-                options={TIME_FILTERS}
-              />
-            </div>
-            {/* مدت زمان */}
-            <div>
-              <div className="font-semibold mb-2">
-                {t("studentInfo.duration") || "Duration"}
-              </div>
-              <Select
-                value={durationFilter}
-                onChange={setDurationFilter}
-                style={{ width: "100%" }}
-                options={DURATION_OPTIONS}
-              />
-            </div>
-            {/* قیمت */}
-            <div>
-              <div className="font-semibold mb-2">
-                {t("studentInfo.priceRange") || "Price Range"}
-              </div>
-              <Slider
-                range
-                min={0}
-                max={maxPrice}
-                value={priceRange}
-                onChange={(v) => setPriceRange(v as [number, number])}
-                tooltip={{
-                  formatter: (v) => `${v} ${t("studentInfo.toman") || "تومان"}`,
-                }}
-                step={1000}
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>
-                  {priceRange[0]} {t("studentInfo.toman") || "تومان"}
-                </span>
-                <span>
-                  {priceRange[1]} {t("studentInfo.toman") || "تومان"}
-                </span>
-              </div>
-            </div>
-            <Button
-              block
-              onClick={() => {
-                setTypeFilter("all");
-                setTimeFilter("all");
-                setDurationFilter("all");
-                setPriceRange([0, maxPrice]);
-              }}
-            >
-              {t("studentInfo.resetFilters") || "Reset Filters"}
-            </Button>
-          </div>
-        </Drawer>
-      </ConfigProvider>
-
-      {filteredStudents.length === 0 && (
-        <div className="text-gray-400">
-          {t("studentInfo.noResults") || "No results found."}
-        </div>
-      )}
-
-      {filteredStudents.map((student) => (
-        <div
-          key={student.id}
-          className={`bg-neutral-900 px-3 py-2 flex items-center relative overflow-hidden mb-5 shadow-md ${
-            i18n.language !== "fa"
-              ? "rounded-bl-[50px] rounded-r-2xl rounded-tl-[50px]"
-              : "rounded-br-[50px] rounded-l-2xl rounded-tr-[50px]"
-          }`}
-          style={{
-            boxShadow: "0px 0px 7px #989898",
-
-            flexDirection: i18n.language === "fa" ? "row-reverse" : "row",
+        {/* Drawer فیلتر */}
+        <ConfigProvider
+          theme={{
+            algorithm: theme.darkAlgorithm,
+            components: {
+              Drawer: {
+                colorPrimary: "#00bba7",
+                algorithm: true,
+              },
+              Radio: {
+                colorPrimary: "#00bba7",
+                buttonSolidCheckedActiveBg: "#00bba7",
+                buttonSolidCheckedHoverBg: "#00bba7",
+                algorithm: true,
+              },
+              Select: {
+                colorPrimary: "#00bba7",
+                hoverBorderColor: "#00bba7",
+                optionSelectedBg: "#00675c",
+                algorithm: true,
+              },
+              Slider: {
+                colorPrimary: "#00bba7",
+                colorBgElevated: "#00bba7",
+                trackHoverBg: "#00675c",
+                trackBg: "#00bba7",
+                algorithm: true,
+              },
+              Button: {
+                colorPrimary: "#00bba7",
+                defaultHoverBorderColor: "#00bba7",
+                colorPrimaryHover: "#00bba7",
+                defaultActiveBorderColor: "#00675c",
+                defaultActiveColor: "#00675c",
+                algorithm: true,
+              },
+            },
           }}
-          dir={i18n.language === "fa" ? "rtl" : "ltr"}
         >
-          {/* دکمه فلش فارسی */}
-          {i18n.language === "fa" && (
-            <button
-              className="absolute left-0 top-0 bottom-0 w-[50px] bg-teal-600 flex items-center justify-center border-none outline-none cursor-pointer transition-all hover:bg-teal-700 active:bg-teal-800"
-              style={{
-                height: "100%",
-                boxShadow: "none",
-              }}
-              onClick={() => {
-                setSelectedStudent(student);
-                setModalOpen(true);
-              }}
-            >
-              <span className="text-white text-2xl flex items-center justify-center">
-                <ArrowLeftOutlined />
-              </span>
-            </button>
-          )}
-
-          {/* آواتار و اطلاعات */}
-          <div
-            className={`flex flex-1 items-center ${
-              i18n.language === "fa" ? "justify-end" : "justify-start"
-            }`}
+          <Drawer
+            title={t("studentInfo.filterTitle") || "Filter Students"}
+            placement={i18n.language === "fa" ? "left" : "right"}
+            open={filterOpen}
+            onClose={() => setFilterOpen(false)}
+            width={340}
           >
-            {/* آواتار */}
-            <Avatar
-              style={{
-                backgroundColor: "oklch(98.4% 0.014 180.72)",
-                color: "oklch(77.7% 0.152 181.912)",
-                fontSize: "35px",
-                fontWeight: 600,
-                boxShadow: "0px 0px 10px #00bba7",
-                display: "flex",
-                alignItems: "center",
-                marginLeft: i18n.language === "fa" ? "20px" : undefined,
-                marginRight: i18n.language === "en" ? "20px" : undefined,
-              }}
-              size={60}
-              //className={i18n.language === "fa" ? "ml-4" : "mr-4"}
-            >
-              {student.name?.[0]?.toUpperCase() || "Y"}
-            </Avatar>
-            {/* اسم و اطلاعات */}
+            <div className="space-y-6">
+              {/* نوع کلاس */}
+              <div>
+                <div className="font-semibold mb-2">
+                  {t("studentInfo.classType") || "Class Type"}
+                </div>
+                <Radio.Group
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  optionType="button"
+                  buttonStyle="solid"
+                >
+                  <Radio.Button value="all">
+                    {t("studentInfo.all") || "All"}
+                  </Radio.Button>
+                  <Radio.Button value="online">
+                    {t("studentForm.online") || "Online"}
+                  </Radio.Button>
+                  <Radio.Button value="in-person">
+                    {t("studentForm.inPerson") || "In-Person"}
+                  </Radio.Button>
+                </Radio.Group>
+              </div>
+              {/* زمان شروع */}
+              <div>
+                <div className="font-semibold mb-2">
+                  {t("studentInfo.startTime") || "Start Time"}
+                </div>
+                <Select
+                  value={timeFilter}
+                  onChange={setTimeFilter}
+                  style={{ width: "100%" }}
+                  options={TIME_FILTERS}
+                />
+              </div>
+              {/* مدت زمان */}
+              <div>
+                <div className="font-semibold mb-2">
+                  {t("studentInfo.duration") || "Duration"}
+                </div>
+                <Select
+                  value={durationFilter}
+                  onChange={setDurationFilter}
+                  style={{ width: "100%" }}
+                  options={DURATION_OPTIONS}
+                />
+              </div>
+              {/* قیمت */}
+              <div>
+                <div className="font-semibold mb-2">
+                  {t("studentInfo.priceRange") || "Price Range"}
+                </div>
+                <Slider
+                  range
+                  min={0}
+                  max={maxPrice}
+                  value={priceRange}
+                  onChange={(v) => setPriceRange(v as [number, number])}
+                  tooltip={{
+                    formatter: (v) =>
+                      `${v} ${t("studentInfo.toman") || "تومان"}`,
+                  }}
+                  step={1000}
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>
+                    {priceRange[0]} {t("studentInfo.toman") || "تومان"}
+                  </span>
+                  <span>
+                    {priceRange[1]} {t("studentInfo.toman") || "تومان"}
+                  </span>
+                </div>
+              </div>
+              <Button
+                block
+                onClick={() => {
+                  setTypeFilter("all");
+                  setTimeFilter("all");
+                  setDurationFilter("all");
+                  setPriceRange([0, maxPrice]);
+                }}
+              >
+                {t("studentInfo.resetFilters") || "Reset Filters"}
+              </Button>
+            </div>
+          </Drawer>
+        </ConfigProvider>
+
+        {filteredStudents.length === 0 && (
+          <div className="text-gray-400">
+            {t("studentInfo.noResults") || "No results found."}
+          </div>
+        )}
+
+        {filteredStudents.map((student) => (
+          <div
+            key={student.id}
+            className={`bg-neutral-900 px-3 py-2 flex items-center relative overflow-hidden mb-5 shadow-md ${
+              i18n.language !== "fa"
+                ? "rounded-bl-[50px] rounded-r-2xl rounded-tl-[50px]"
+                : "rounded-br-[50px] rounded-l-2xl rounded-tr-[50px]"
+            }`}
+            style={{
+              boxShadow: "0px 0px 7px #989898",
+
+              flexDirection: i18n.language === "fa" ? "row-reverse" : "row",
+            }}
+            dir={i18n.language === "fa" ? "rtl" : "ltr"}
+          >
+            {/* دکمه فلش فارسی */}
+            {i18n.language === "fa" && (
+              <button
+                className="absolute left-0 top-0 bottom-0 w-[50px] bg-teal-600 flex items-center justify-center border-none outline-none cursor-pointer transition-all hover:bg-teal-700 active:bg-teal-800"
+                style={{
+                  height: "100%",
+                  boxShadow: "none",
+                }}
+                onClick={() => {
+                  setSelectedStudent(student);
+                  setModalOpen(true);
+                }}
+              >
+                <span className="text-white text-2xl flex items-center justify-center">
+                  <ArrowLeftOutlined />
+                </span>
+              </button>
+            )}
+
+            {/* آواتار و اطلاعات */}
             <div
-              className={`flex flex-col flex-1 ${
-                i18n.language === "fa" ? "pl-[60px]" : "pr-[60px]"
+              className={`flex flex-1 items-center ${
+                i18n.language === "fa" ? "justify-end" : "justify-start"
               }`}
             >
+              {/* آواتار */}
+              <Avatar
+                style={{
+                  backgroundColor: "oklch(98.4% 0.014 180.72)",
+                  color: "oklch(77.7% 0.152 181.912)",
+                  fontSize: "35px",
+                  fontWeight: 600,
+                  boxShadow: "0px 0px 10px #00bba7",
+                  display: "flex",
+                  alignItems: "center",
+                  marginLeft: i18n.language === "fa" ? "20px" : undefined,
+                  marginRight: i18n.language === "en" ? "20px" : undefined,
+                }}
+                size={60}
+                //className={i18n.language === "fa" ? "ml-4" : "mr-4"}
+              >
+                {student.name?.[0]?.toUpperCase() || "Y"}
+              </Avatar>
+              {/* اسم و اطلاعات */}
               <div
-                className={`font-bold text-2xl mb-2 text-teal-200 break-words ${
-                  i18n.language === "fa" ? "text-right" : "text-left"
+                className={`flex flex-col flex-1 ${
+                  i18n.language === "fa" ? "pl-[60px]" : "pr-[60px]"
                 }`}
               >
-                {student.name}
-              </div>
-              <div
-                className={`flex w-full justify-between items-center mt-1 flex-wrap gap-y-2`}
-                dir={i18n.language === "fa" ? "rtl" : "ltr"}
-              >
-                {[
-                  <div className="w-full sm:w-auto" key="phone">
-                    <span className="text-teal-400 text-[16px]">
-                      {t("studentForm.phone") || "Phone"}:
-                    </span>
-                    <span
-                      className={`text-sm break-all ${
-                        i18n.language === "fa" ? "mr-1" : "ml-1"
-                      }`}
-                    >
-                      {student.phone
-                        ? student.phone.split("").map((char, idx) =>
-                            /\d/.test(char) ? (
-                              <span
-                                key={idx}
-                                className="inline-block mx-[0.5px]"
-                              >
-                                {char}
-                              </span>
-                            ) : (
-                              <span key={idx}>{char}</span>
-                            )
-                          )
-                        : "-"}
-                    </span>
-                  </div>,
-                  <div className="w-full sm:w-auto" key="classType">
-                    <span className="text-teal-400 text-[16px]">
-                      {t("studentForm.classType") || "Class type"}:
-                    </span>
-                    <span
-                      className={`text-sm ${
-                        i18n.language === "fa" ? "mr-1" : "ml-1"
-                      }`}
-                    >
-                      {student.classType === "online"
-                        ? t("studentForm.online")
-                        : student.classType === "in-person"
-                        ? t("studentForm.inPerson")
-                        : student.classType}
-                    </span>
-                  </div>,
-                  <div className="w-full sm:w-auto" key="time">
-                    <span className="text-teal-400 text-[16px]">
-                      {t("studentInfo.time") || "Time"}:
-                    </span>
-                    <span
-                      className={`text-sm ${
-                        i18n.language === "fa" ? "mr-1" : "ml-1"
-                      }`}
-                    >
-                      {student.startTime}{" "}
-                      <span className="text-xs">{t("studentInfo.until")}</span>{" "}
-                      {student.endTime}
-                    </span>
-                  </div>,
-                  <div className="w-full sm:w-auto" key="duration">
-                    <span className="text-teal-400 text-[16px]">
-                      {t("studentForm.durationHours") || "Duration"}:
-                    </span>
-                    <span
-                      className={`text-sm ${
-                        i18n.language === "fa" ? "mr-1" : "ml-1"
-                      }`}
-                    >
-                      {student.duration} {t("studentList.hour") || "hour(s)"}
-                    </span>
-                  </div>,
-                ].reduce((acc: React.ReactNode[], curr, idx, arr) => {
-                  acc.push(curr);
-                  if (idx < arr.length - 1) {
-                    acc.push(
-                      <div
-                        key={`divider-${idx}`}
-                        className="hidden sm:flex h-7 items-center"
-                        aria-hidden
+                <div
+                  className={`font-bold text-2xl mb-2 text-teal-200 break-words ${
+                    i18n.language === "fa" ? "text-right" : "text-left"
+                  }`}
+                >
+                  {student.name}
+                </div>
+                <div
+                  className={`flex w-full justify-between items-center mt-1 flex-wrap gap-y-2`}
+                  dir={i18n.language === "fa" ? "rtl" : "ltr"}
+                >
+                  {[
+                    <div className="w-full sm:w-auto" key="phone">
+                      <span className="text-teal-400 text-[16px]">
+                        {t("studentForm.phone") || "Phone"}:
+                      </span>
+                      <span
+                        className={`text-sm break-all ${
+                          i18n.language === "fa" ? "mr-1" : "ml-1"
+                        }`}
                       >
-                        <div className="border-l border-gray-500 opacity-30 h-full mx-3" />
-                      </div>
-                    );
-                  }
-                  return acc;
-                }, [])}
+                        {student.phone
+                          ? student.phone.split("").map((char, idx) =>
+                              /\d/.test(char) ? (
+                                <span
+                                  key={idx}
+                                  className="inline-block mx-[0.5px]"
+                                >
+                                  {char}
+                                </span>
+                              ) : (
+                                <span key={idx}>{char}</span>
+                              )
+                            )
+                          : "-"}
+                      </span>
+                    </div>,
+                    <div className="w-full sm:w-auto" key="classType">
+                      <span className="text-teal-400 text-[16px]">
+                        {t("studentForm.classType") || "Class type"}:
+                      </span>
+                      <span
+                        className={`text-sm ${
+                          i18n.language === "fa" ? "mr-1" : "ml-1"
+                        }`}
+                      >
+                        {student.classType === "online"
+                          ? t("studentForm.online")
+                          : student.classType === "in-person"
+                          ? t("studentForm.inPerson")
+                          : student.classType}
+                      </span>
+                    </div>,
+                    <div className="w-full sm:w-auto" key="time">
+                      <span className="text-teal-400 text-[16px]">
+                        {t("studentInfo.time") || "Time"}:
+                      </span>
+                      <span
+                        className={`text-sm ${
+                          i18n.language === "fa" ? "mr-1" : "ml-1"
+                        }`}
+                      >
+                        {student.startTime}{" "}
+                        <span className="text-xs">
+                          {t("studentInfo.until")}
+                        </span>{" "}
+                        {student.endTime}
+                      </span>
+                    </div>,
+                    <div className="w-full sm:w-auto" key="duration">
+                      <span className="text-teal-400 text-[16px]">
+                        {t("studentForm.durationHours") || "Duration"}:
+                      </span>
+                      <span
+                        className={`text-sm ${
+                          i18n.language === "fa" ? "mr-1" : "ml-1"
+                        }`}
+                      >
+                        {student.duration} {t("studentList.hour") || "hour(s)"}
+                      </span>
+                    </div>,
+                  ].reduce((acc: React.ReactNode[], curr, idx, arr) => {
+                    acc.push(curr);
+                    if (idx < arr.length - 1) {
+                      acc.push(
+                        <div
+                          key={`divider-${idx}`}
+                          className="hidden sm:flex h-7 items-center"
+                          aria-hidden
+                        >
+                          <div className="border-l border-gray-500 opacity-30 h-full mx-3" />
+                        </div>
+                      );
+                    }
+                    return acc;
+                  }, [])}
+                </div>
               </div>
             </div>
+
+            {/* دکمه فلش انگلیسی */}
+            {i18n.language !== "fa" && (
+              <button
+                className="absolute right-0 top-0 bottom-0 w-[50px] bg-teal-600 flex items-center justify-center border-none outline-none cursor-pointer transition-all hover:bg-teal-700 active:bg-teal-800"
+                style={{
+                  height: "100%",
+                  boxShadow: "none",
+                }}
+                onClick={() => {
+                  setSelectedStudent(student);
+                  setModalOpen(true);
+                }}
+              >
+                <span className="text-white text-2xl flex items-center justify-center">
+                  <ArrowRightOutlined />
+                </span>
+              </button>
+            )}
           </div>
-
-          {/* دکمه فلش انگلیسی */}
-          {i18n.language !== "fa" && (
-            <button
-              className="absolute right-0 top-0 bottom-0 w-[50px] bg-teal-600 flex items-center justify-center border-none outline-none cursor-pointer transition-all hover:bg-teal-700 active:bg-teal-800"
-              style={{
-                height: "100%",
-                boxShadow: "none",
-              }}
-              onClick={() => {
-                setSelectedStudent(student);
-                setModalOpen(true);
-              }}
-            >
-              <span className="text-white text-2xl flex items-center justify-center">
-                <ArrowRightOutlined />
-              </span>
-            </button>
-          )}
-        </div>
-      ))}
-
+        ))}
+      </div>
       <ConfigProvider
         theme={{
           algorithm: theme.darkAlgorithm,
@@ -569,7 +583,15 @@ export default function StudentsInfo() {
               <p className="mb-5 text-center text-2xl sm:text-3xl text-teal-300 font-semibold">
                 {t("studentInfo.fullInfo")}
               </p>
-              <div className="space-y-0 text-base">
+              <div
+                className="space-y-0 text-base overflow-y-auto max-h-[70vh] [&::-webkit-scrollbar]:w-1
+                [&::-webkit-scrollbar-track]:rounded-full
+                [&::-webkit-scrollbar-track]:bg-gray-100
+                [&::-webkit-scrollbar-thumb]:rounded-full
+                [&::-webkit-scrollbar-thumb]:bg-gray-300
+                dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+                dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500"
+              >
                 {/* نام */}
                 <div className="flex items-center gap-2 flex-nowrap">
                   <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
