@@ -181,6 +181,7 @@ export default function StudentsInfo() {
             //style={{ maxWidth: 700 }}
           />
         </ConfigProvider>
+
         <ConfigProvider
           theme={{
             algorithm: theme.darkAlgorithm,
@@ -540,6 +541,7 @@ export default function StudentsInfo() {
         <ModalCustom
           open={modalOpen}
           onCancel={() => setModalOpen(false)}
+          width={550}
           title=""
           footer={
             <Button
@@ -564,7 +566,7 @@ export default function StudentsInfo() {
         >
           {selectedStudent && (
             <div>
-              <p className="mb-3 text-center text-2xl text-teal-300 font-semibold">
+              <p className="mb-5 text-center text-2xl sm:text-3xl text-teal-300 font-semibold">
                 {t("studentInfo.fullInfo")}
               </p>
               <div className="space-y-0 text-base">
@@ -576,10 +578,10 @@ export default function StudentsInfo() {
                       style={{ color: "#54d1c4" }}
                     />
                   </div>
-                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md whitespace-nowrap">
                     {t("studentForm.fullName") || "Full Name"}:
                   </span>
-                  <span className="font-light text-sm break-all">
+                  <span className="font-light text-[15px] break-all">
                     {selectedStudent.name}
                   </span>
                 </div>
@@ -593,7 +595,7 @@ export default function StudentsInfo() {
                       style={{ color: "#54d1c4" }}
                     />
                   </div>
-                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md whitespace-nowrap">
                     {t("studentForm.phone") || "Phone"}:
                   </span>
                   <span className="font-light text-white text-[15px] break-all">
@@ -610,7 +612,7 @@ export default function StudentsInfo() {
                       style={{ color: "#54d1c4" }}
                     />
                   </div>
-                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md whitespace-nowrap">
                     {t("studentForm.address") || "Address"}:
                   </span>
                   <span className="font-light text-white text-[15px] break-all">
@@ -627,7 +629,7 @@ export default function StudentsInfo() {
                       style={{ color: "#54d1c4" }}
                     />
                   </div>
-                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md whitespace-nowrap">
                     {t("studentForm.age") || "Age"}:
                   </span>
                   <span className="font-light text-white text-[15px] break-all">
@@ -644,7 +646,7 @@ export default function StudentsInfo() {
                       style={{ color: "#54d1c4" }}
                     />
                   </div>
-                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md whitespace-nowrap">
                     {t("studentForm.classType") || "Class Type"}:
                   </span>
                   <span className="font-light text-white text-[15px] break-all">
@@ -664,11 +666,11 @@ export default function StudentsInfo() {
                       style={{ color: "#54d1c4" }}
                     />
                   </div>
-                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md whitespace-nowrap">
                     {t("studentForm.onlineLink") || "Online Link"}:
                   </span>
                   {selectedStudent.onlineLink ? (
-                    <span className="break-all">
+                    <span className="break-all text-sm">
                       <a
                         href={selectedStudent.onlineLink}
                         target="_blank"
@@ -692,7 +694,7 @@ export default function StudentsInfo() {
                       style={{ color: "#54d1c4" }}
                     />
                   </div>
-                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md whitespace-nowrap">
                     {t("studentInfo.time") || "Time"}:
                   </span>
                   <span className="font-light text-white text-[15px] break-all">
@@ -710,7 +712,7 @@ export default function StudentsInfo() {
                       style={{ color: "#54d1c4" }}
                     />
                   </div>
-                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md whitespace-nowrap">
                     {t("studentForm.durationHours") || "Duration"}:
                   </span>
                   <span className="font-light text-white text-[15px] break-all">
@@ -721,41 +723,54 @@ export default function StudentsInfo() {
                 <div className="border-t border-gray-700 opacity-40 my-2" />
 
                 {/* قیمت */}
-                <div className="flex items-center gap-2 flex-nowrap">
+                <div className="flex items-center gap-2">
                   <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
                     <DollarOutlined
                       className="text-lg"
                       style={{ color: "#54d1c4" }}
                     />
                   </div>
-                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md">
                     {t("studentForm.sessionPrice") || "Price"}:
                   </span>
-                  <span className="font-light text-white text-[15px] break-all">
-                    {selectedStudent.price} {t("studentInfo.toman") || "Toman"}
+                  <span className="font-light text-white text-[15px]">
+                    {selectedStudent.price}{" "}
+                    <span className="text-xs">
+                      {t("studentInfo.toman") || "Toman"}
+                    </span>
                   </span>
-                  {i18n.language === "fa" ? (
-                    <ArrowLeftOutlined style={{ color: "gray" }} />
-                  ) : (
-                    <ArrowRightOutlined style={{ color: "gray" }} />
-                  )}
-                  <span className="font-bold text-green-500 text-sm">
+                </div>
+                <div className="border-t border-gray-700 opacity-40 my-2" />
+
+                {/* درآمد ماهیانه */}
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="bg-teal-900 px-1.5 py-1.5 rounded-full flex items-center justify-center">
+                    <FieldTimeOutlined
+                      className="text-lg"
+                      style={{ color: "#54d1c4" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md">
+                    {t("studentInfo.monthlyIncome") || "Monthly Income"}:
+                  </span>
+                  <span className="font-bold text-green-500 text-[15px]">
                     {(() => {
                       const sessionPrice = Number(selectedStudent.price) || 0;
                       const daysPerWeek =
                         Number(selectedStudent.daysPerWeek) || 0;
                       const total = sessionPrice * daysPerWeek * 4;
-                      return `${total.toLocaleString()} ${
-                        t("studentInfo.toman") || "Toman"
-                      }`;
+                      return (
+                        <>
+                          {total.toLocaleString()}{" "}
+                          <span className="text-xs font-light text-green-500 font-sans">
+                            {t("studentInfo.toman") || "Toman"}
+                          </span>
+                        </>
+                      );
                     })()}
                   </span>
-                  <div>
-                    <span className="text-[11px] text-gray-400">
-                      {t("studentInfo.monthly")}
-                    </span>
-                  </div>
                 </div>
+
                 <div className="border-t border-gray-700 opacity-40 my-2" />
 
                 {/* تعداد روز در هفته */}
@@ -766,7 +781,7 @@ export default function StudentsInfo() {
                       style={{ color: "#54d1c4" }}
                     />
                   </div>
-                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md whitespace-nowrap">
                     {t("studentInfo.classDaysPerWeek") || "Days/Week"}:
                   </span>
                   <span className="font-light text-white text-[15px] break-all">
@@ -782,7 +797,7 @@ export default function StudentsInfo() {
                       style={{ color: "#54d1c4" }}
                     />
                   </div>
-                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md whitespace-nowrap">
                     {t("studentInfo.firstSessionDates") || "First Session(s)"}:
                   </span>
                   <span className="font-light text-white text-[13px] break-all">
@@ -814,7 +829,7 @@ export default function StudentsInfo() {
                       style={{ color: "#54d1c4" }}
                     />
                   </div>
-                  <span className="font-semibold text-teal-500 whitespace-nowrap">
+                  <span className="font-semibold text-teal-500 text-sm sm:text-md whitespace-nowrap">
                     {t("studentInfo.classDays") || "Class Days"}:
                   </span>
                   <span className="font-light text-white text-[15px] break-all">

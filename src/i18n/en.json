@@ -76,7 +76,7 @@
     "classDaysPerWeek":"Number of class days per week",
     "fullInfo":"Student Information",
     "classDays":"Class days",
-    "monthly":"Monthly",
+    "monthlyIncome":"Monthly Income",
     "close":"Close"
   },
   "settings": {
