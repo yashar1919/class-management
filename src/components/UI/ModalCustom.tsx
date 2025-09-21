@@ -50,7 +50,13 @@ const ModalCustom: React.FC<ModalCustomProps> = ({
       destroyOnHidden={destroyOnHidden}
       maskClosable={maskClosable}
       className={`custom-modal ${className}`}
-      styles={{ mask: { backgroundColor: "rgba(30, 41, 59, 0.7)" } }}
+      styles={{
+        mask: {
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+        },
+      }}
       closable={false}
       {...rest}
     >

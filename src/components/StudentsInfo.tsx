@@ -207,7 +207,7 @@ export default function StudentsInfo() {
       <div
         className={`overflow-y-auto max-h-[90vh] pt-5 ${
           i18n.language === "fa" ? "pl-5 pr-2" : "pr-5 pl-2"
-        } [&::-webkit-scrollbar]:w-1
+        } [&::-webkit-scrollbar]:w-0.75
                 [&::-webkit-scrollbar-track]:rounded-full
                 [&::-webkit-scrollbar-track]:bg-gray-100
                 [&::-webkit-scrollbar-thumb]:rounded-full
@@ -584,7 +584,7 @@ export default function StudentsInfo() {
                 {t("studentInfo.fullInfo")}
               </p>
               <div
-                className="space-y-0 text-base overflow-y-auto max-h-[70vh] [&::-webkit-scrollbar]:w-1
+                className="space-y-0 text-base overflow-y-auto max-h-[70vh] [&::-webkit-scrollbar]:w-0.5
                 [&::-webkit-scrollbar-track]:rounded-full
                 [&::-webkit-scrollbar-track]:bg-gray-100
                 [&::-webkit-scrollbar-thumb]:rounded-full
