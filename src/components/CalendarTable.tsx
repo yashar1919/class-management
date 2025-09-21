@@ -69,10 +69,6 @@ export default function CalendarTable({ student }: CalendarTableProps) {
       ),
   }));
 
-  /* const selectedRowKeys = useMemo(
-    () => data.filter((row) => row.attended).map((row) => row.key),
-    [data]
-  ); */
   const selectedRowKeys = useMemo(
     () => data.filter((row) => row.attended).map((row) => row.key),
     [data]
@@ -216,6 +212,8 @@ export default function CalendarTable({ student }: CalendarTableProps) {
         }
       });
     },
+    columnTitle: t("table.attendance"),
+    columnWidth: 50,
   };
 
   function rowClassName(record: SessionRow) {
