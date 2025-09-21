@@ -1,6 +1,10 @@
 "use client";
 import React from "react";
-import { CaretRightOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  CaretRightOutlined,
+  DeleteOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import type { CollapseProps } from "antd";
 import { Collapse } from "antd";
 import { useStudentStore } from "../store/studentStore";
@@ -10,6 +14,7 @@ import { useTranslation } from "react-i18next";
 export default function StudentList() {
   const students = useStudentStore((s) => s.students);
   const removeStudent = useStudentStore((s) => s.removeStudent);
+  const setEditingStudent = useStudentStore((s) => s.setEditingStudent);
   const { t } = useTranslation();
 
   const weekDaysFa: Record<string, string> = {
@@ -67,15 +72,26 @@ export default function StudentList() {
           {t("studentList.classDuration")}: {student.duration}{" "}
           {t("studentList.hour")}
         </span>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            removeStudent(student.id);
-          }}
-          className="bg-red-500 text-white px-2 py-2 rounded-lg flex justify-center items-center cursor-pointer hover:bg-red-600"
-        >
-          <DeleteOutlined style={{ fontSize: "20px" }} />
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditingStudent(student);
+            }}
+            className="bg-blue-500 text-white px-2 py-2 rounded-lg flex justify-center items-center cursor-pointer hover:bg-blue-600 ml-2"
+          >
+            <EditOutlined style={{ fontSize: "20px" }} />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              removeStudent(student.id);
+            }}
+            className="bg-red-500 text-white px-2 py-2 rounded-lg flex justify-center items-center cursor-pointer hover:bg-red-600"
+          >
+            <DeleteOutlined style={{ fontSize: "20px" }} />
+          </button>
+        </div>
       </div>
     ),
     children: (

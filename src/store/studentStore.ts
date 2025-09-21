@@ -33,6 +33,9 @@ type StudentStore = {
   addStudent: (student: NewStudent) => void;
   removeStudent: (id: string) => void;
   toggleAttendance: (studentId: string, sessionIdx: number) => void;
+  editingStudent: Student | null;
+  setEditingStudent: (student: Student | null) => void;
+  updateStudent: (id: string, data: NewStudent) => void; // اضافه شد
 };
 
 type NewStudent = Omit<Student, "id" | "sessions">;
@@ -91,6 +94,34 @@ export const useStudentStore = create<StudentStore>()(
               : student
           ),
         })),
+      editingStudent: null, // اضافه شد
+      setEditingStudent: (student) => set({ editingStudent: student }), // اضافه شد
+      updateStudent: (id, data) =>
+        set((state) => {
+          // ساخت مجدد sessions مثل addStudent
+          let sessions: Session[] = [];
+          data.firstSessionDates.forEach((firstDate: Date) => {
+            for (let i = 0; i < 5; i++) {
+              const sessionDate = addWeeks(new Date(firstDate), i);
+              sessions.push({
+                date: sessionDate,
+                startTime: data.startTime,
+                endTime: data.endTime,
+                attended: false,
+                price: data.price,
+              });
+            }
+          });
+          sessions = sessions.sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+          );
+          return {
+            students: state.students.map((student) =>
+              student.id === id ? { ...student, ...data, sessions } : student
+            ),
+            editingStudent: null, // بعد از ویرایش، فرم ریست شود
+          };
+        }),
     }),
     {
       name: "students-storage", // نام کلید در localStorage

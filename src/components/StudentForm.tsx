@@ -21,7 +21,7 @@ import TimePickerCustom from "./UI/TimePickerCustom";
 import InputNumberField from "./UI/InputNumberField";
 import dayjs from "dayjs";
 import PersianCalendarPicker from "./UI/PersianCalendarPicker";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DateObject } from "react-multi-date-picker";
 import { useTranslation } from "react-i18next";
 
@@ -106,6 +106,9 @@ const defaultValues: FormValues = {
 export default function StudentForm() {
   const { t, i18n } = useTranslation();
   const addStudent = useStudentStore((s) => s.addStudent);
+  const editingStudent = useStudentStore((s) => s.editingStudent);
+  const setEditingStudent = useStudentStore((s) => s.setEditingStudent);
+  const updateStudent = useStudentStore((s) => s.updateStudent);
 
   const classTypeItems: MenuProps["items"] = [
     {
@@ -124,6 +127,7 @@ export default function StudentForm() {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
     watch,
   } = useForm<FormValues>({
@@ -134,15 +138,21 @@ export default function StudentForm() {
   });
 
   const multiDay = watch("multiDay");
-  //const daysPerWeek = watch("daysPerWeek");
-
+  const selectedDates = watch("selectedDates");
   const startTimeValue = watch("startTime");
-  //console.log("startTime value:", startTimeValue);
-
-  const startTime = watch("startTime"); // رشته مثل "03:05"
-  const duration = watch("duration"); // عدد
-
+  const startTime = watch("startTime");
+  const duration = watch("duration");
   const classTypeValue = watch("classType");
+
+  useEffect(() => {
+    if (multiDay) {
+      setValue("daysPerWeek", selectedDates?.length || 1, {
+        shouldValidate: true,
+      });
+    } else {
+      setValue("daysPerWeek", 1, { shouldValidate: true });
+    }
+  }, [multiDay, selectedDates, setValue]);
 
   function calcEndTime(start: string, duration: number) {
     if (!start) return "--:--";
@@ -150,9 +160,7 @@ export default function StudentForm() {
     if (isNaN(h) || isNaN(m)) return "--:--";
     let endHour = h + Number(duration);
     const endMinute = m;
-    // اگر ساعت از 24 گذشت، به 0 برگردد
     if (endHour >= 24) endHour = endHour % 24;
-    // فرمت دو رقمی
     const pad = (n: number) => n.toString().padStart(2, "0");
     return `${pad(endHour)}:${pad(endMinute)}`;
   }
@@ -166,15 +174,12 @@ export default function StudentForm() {
     }
     setCalendarError(false);
 
-    // تبدیل selectedDates به firstSessionDates
     const firstSessionDates = data.selectedDates.map(
       (dateObj) => new Date(dateObj.toDate())
     );
-
-    // محاسبه daysPerWeek بر اساس تعداد روزهای انتخاب شده
     const actualDaysPerWeek = data.multiDay ? data.selectedDates.length : 1;
 
-    addStudent({
+    const studentData = {
       name: data.name,
       phone: data.phone || "",
       address: data.address,
@@ -188,10 +193,49 @@ export default function StudentForm() {
       daysPerWeek: actualDaysPerWeek,
       multiDay: data.multiDay,
       onlineLink: data.onlineLink || "",
-    });
-    reset();
-    //setSelectedDates([]);
+    };
+
+    if (editingStudent) {
+      updateStudent(editingStudent.id, studentData);
+      setEditingStudent(null);
+      reset(defaultValues); // فرم را بعد از ویرایش خالی کن
+    } else {
+      addStudent(studentData);
+      reset(defaultValues); // فرم را بعد از افزودن خالی کن
+    }
   };
+
+  useEffect(() => {
+    console.log("StudentForm rendered. editingStudent:", editingStudent);
+  });
+
+  useEffect(() => {
+    if (editingStudent) {
+      console.log("reset called with editingStudent:", editingStudent);
+      reset({
+        name: editingStudent.name,
+        phone: editingStudent.phone,
+        address: editingStudent.address,
+        age: editingStudent.age,
+        classType: editingStudent.classType,
+        duration: editingStudent.duration,
+        startTime: editingStudent.startTime,
+        multiDay: editingStudent.multiDay,
+        daysPerWeek: editingStudent.daysPerWeek,
+        sessionPrice: Number(editingStudent.price),
+        selectedDates: editingStudent.firstSessionDates.map(
+          (d) => new DateObject(new Date(d))
+        ),
+        onlineLink: editingStudent.onlineLink,
+      });
+    }
+  }, [editingStudent, reset]);
+
+  useEffect(() => {
+    setEditingStudent(null); // پاک کردن دانش‌آموز در حال ویرایش
+    reset(defaultValues); // ریست کردن فرم به حالت اولیه
+    //eslint-disable-next-line
+  }, []);
 
   const [calendarError, setCalendarError] = useState<string | boolean>(false);
 
@@ -199,7 +243,10 @@ export default function StudentForm() {
     <form
       className="w-full max-w-[950px] mx-auto bg-[#141414] p-8 rounded-2xl flex flex-col gap-7 mt-8 mb-8"
       style={{ boxShadow: "0px 0px 7px gray" }}
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={(e) => {
+        console.log("form onSubmit event fired");
+        handleSubmit(onSubmit)(e);
+      }}
       noValidate
     >
       <h2 className="text-4xl font-bold text-teal-300 mb-2 text-center">
@@ -530,14 +577,7 @@ export default function StudentForm() {
               />
             )}
           </div>
-          {/* <div className="text-start col-span-1">
-            <p className="text-gray-400 text-xs mb-1">End Time</p>
-            <p className="text-lg font-medium text-white">{endTime}</p>
-          </div> */}
           <div className="flex items-center col-span-2">
-            {/* <p className="text-gray-400 text-xs mb-1">End Time:</p>
-            <p className="text-lg font-bold text-white">{endTime}</p> */}
-
             <ConfigProvider
               theme={{
                 algorithm: theme.darkAlgorithm,
@@ -669,9 +709,17 @@ export default function StudentForm() {
           border: "none",
           marginTop: "30px",
         }}
+        onClick={() => {
+          console.log("Submit button clicked");
+        }}
       >
-        {t("studentForm.addStudent")}
+        {editingStudent
+          ? t("studentForm.editStudent") || "Edit Student"
+          : t("studentForm.addStudent")}
       </Button>
+      {/* <pre style={{ color: "yellow", background: "#222", marginTop: 16 }}>
+        {JSON.stringify({ errors, values: watch() }, null, 2)}
+      </pre> */}
     </form>
   );
 }

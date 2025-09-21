@@ -23,7 +23,8 @@
     "endTime": "زمان پایان",
     "isClassMoreThanOneDay": "آیا کلاس شما بیش از یک روز در هفته است؟",
     "chooseClassDate": "انتخاب تاریخ کلاس",
-    "sessionPrice": "هزینه هر جلسه"
+    "sessionPrice": "هزینه هر جلسه",
+    "editStudent":"بروزرسانی دانش‌آموز "
   },
   "studentList": {
     "classDays": "روز های کلاس",

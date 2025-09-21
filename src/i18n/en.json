@@ -23,7 +23,8 @@
     "endTime": "End Time",
     "isClassMoreThanOneDay": "Is the class more than one day a week?",
     "chooseClassDate": "Choose Class Date",
-    "sessionPrice": "Session Price"
+    "sessionPrice": "Session Price",
+    "editStudent":"Update Student"
   },
   "studentList": {
     "classDays": "Class Days",
