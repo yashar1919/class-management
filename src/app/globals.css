@@ -225,3 +225,17 @@ body {
     font-size: 10px !important;
   }
 }
+
+/* فایل استایل global یا ماژول */
+.custom-collapse .ant-collapse-header {
+  align-items: center !important;
+  display: flex !important;
+  min-height: 56px;
+  padding-top: 10 !important;
+  padding-bottom: 10 !important;
+}
+.custom-collapse .ant-collapse-expand-icon {
+  align-self: center !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}

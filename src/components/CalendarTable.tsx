@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { Table, Tag, ConfigProvider, theme } from "antd";
 import { CloseCircleFilled } from "@ant-design/icons";
 import type { ColumnsType, TableProps } from "antd/es/table";
@@ -46,6 +46,15 @@ export default function CalendarTable({ student }: CalendarTableProps) {
   const toggleAbsent = useStudentStore((s) => s.toggleAbsent);
   const { t, i18n } = useTranslation();
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const data: SessionRow[] = (student?.sessions ?? []).map((session, idx) => ({
     key: session.id, // کلید یکتا
     session: idx + 1,
@@ -78,131 +87,117 @@ export default function CalendarTable({ student }: CalendarTableProps) {
     [data]
   );
 
-  if (!student || !student.sessions) {
-    return <div className="text-gray-500">No session data available.</div>;
-  }
-
-  const columns: ColumnsType<SessionRow> = [
-    {
-      title: t("table.absent") || "Absent",
-      dataIndex: "absent",
-      key: "absent",
-      align: "center",
-      width: 50,
-      //eslint-disable-next-line
-      render: (_: any, record: SessionRow) => (
-        <span
-          className="flex items-center justify-center"
-          style={{ minHeight: 24 }}
-        >
-          <input
-            type="checkbox"
-            checked={!!record.absent}
-            onChange={() => {
-              if (!record.absent) {
-                if (record.attended) toggleAttendance(student.id, record.key); // حالا key همان id است
-              }
-              toggleAbsent(student.id, record.key);
-            }}
-            className="accent-red-500 w-5 h-5"
-            style={{ display: "none" }}
-            id={`absent-checkbox-${record.key}`}
-          />
-          <label htmlFor={`absent-checkbox-${record.key}`}>
-            {!!record.absent ? (
-              <CloseCircleFilled
-                style={{
-                  color: "oklch(71.2% 0.194 13.428)",
-                  fontSize: 20,
-                  verticalAlign: "middle",
-                  cursor: "pointer",
-                }}
-              />
-            ) : (
-              <span
-                style={{
-                  display: "inline-block",
-                  width: 20,
-                  height: 20,
-                  border: "2px solid oklch(57.7% 0.245 27.325)",
-                  borderRadius: "50%",
-                  verticalAlign: "middle",
-                  cursor: "pointer",
-                }}
-              />
-            )}
-          </label>
-        </span>
-      ),
-    },
-    {
-      title: t("table.session"),
-      dataIndex: "session",
-      key: "session",
-      align: "center",
-      width: 50,
-    },
-    {
-      title: t("table.date"),
-      dataIndex: "date",
-      key: "date",
-      align: "center",
-      width: 80,
-    },
-    {
-      title: t("table.weekday"),
-      dataIndex: "weekday",
-      key: "weekday",
-      align: "center",
-      width: 70,
-    },
-    {
-      title: t("table.start"),
-      dataIndex: "startTime",
-      key: "startTime",
-      align: "center",
-      width: 60,
-    },
-    {
-      title: t("table.end"),
-      dataIndex: "endTime",
-      key: "endTime",
-      align: "center",
-      width: 60,
-    },
-    {
-      title: t("table.price"),
-      dataIndex: "price",
-      key: "price",
-      align: "center",
-      width: 90,
-    },
-    {
+  const columns: ColumnsType<SessionRow> = useMemo(() => {
+    const baseColumns: ColumnsType<SessionRow> = [
+      {
+        title: t("table.absent") || "Absent",
+        dataIndex: "absent",
+        key: "absent",
+        align: "center",
+        width: 50,
+        //eslint-disable-next-line
+        render: (_: any, record: SessionRow) => (
+          <span
+            className="flex items-center justify-center"
+            style={{ minHeight: 24 }}
+          >
+            <input
+              type="checkbox"
+              checked={!!record.absent}
+              onChange={() => {
+                if (!record.absent) {
+                  if (record.attended) toggleAttendance(student.id, record.key); // حالا key همان id است
+                }
+                toggleAbsent(student.id, record.key);
+              }}
+              className="accent-red-500 w-5 h-5"
+              style={{ display: "none" }}
+              id={`absent-checkbox-${record.key}`}
+            />
+            <label htmlFor={`absent-checkbox-${record.key}`}>
+              {!!record.absent ? (
+                <CloseCircleFilled
+                  style={{
+                    color: "oklch(71.2% 0.194 13.428)",
+                    fontSize: 20,
+                    verticalAlign: "middle",
+                    cursor: "pointer",
+                  }}
+                />
+              ) : (
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: 20,
+                    height: 20,
+                    border: "2px solid oklch(57.7% 0.245 27.325)",
+                    borderRadius: "50%",
+                    verticalAlign: "middle",
+                    cursor: "pointer",
+                  }}
+                />
+              )}
+            </label>
+          </span>
+        ),
+      },
+      {
+        title: t("table.session"),
+        dataIndex: "session",
+        key: "session",
+        align: "center",
+        width: 50,
+      },
+      {
+        title: t("table.date"),
+        dataIndex: "date",
+        key: "date",
+        align: "center",
+        width: 80,
+      },
+      {
+        title: t("table.weekday"),
+        dataIndex: "weekday",
+        key: "weekday",
+        align: "center",
+        width: 70,
+      },
+      {
+        title: t("table.start"),
+        dataIndex: "startTime",
+        key: "startTime",
+        align: "center",
+        width: 60,
+      },
+      {
+        title: t("table.end"),
+        dataIndex: "endTime",
+        key: "endTime",
+        align: "center",
+        width: 60,
+      },
+    ];
+    // فقط اگر موبایل نیست ستون price را اضافه کن
+    if (!isMobile) {
+      baseColumns.push({
+        title: t("table.price"),
+        dataIndex: "price",
+        key: "price",
+        align: "center",
+        width: 90,
+      });
+    }
+    baseColumns.push({
       title: t("table.deposit"),
       dataIndex: "deposit",
       key: "deposit",
       align: "center",
       width: 130,
-    },
-  ];
+    });
+    return baseColumns;
+    //eslint-disable-next-line
+  }, [t, isMobile]);
 
-  /* const rowSelection: TableProps<SessionRow>["rowSelection"] = {
-    selectedRowKeys,
-    onChange: (selectedKeys: React.Key[]) => {
-      data.forEach((row) => {
-        const shouldBeAttended = selectedKeys.includes(row.key);
-        if (row.attended !== shouldBeAttended) {
-          // اگر present فعال شد، absent را بردار
-          if (shouldBeAttended && row.absent) {
-            toggleAbsent(student.id, row.key);
-          }
-          toggleAttendance(student.id, row.key);
-        }
-      });
-    },
-    columnTitle: t("table.attendance"),
-    columnWidth: 50,
-  }; */
   const rowSelection: TableProps<SessionRow>["rowSelection"] = {
     selectedRowKeys,
     onChange: (selectedKeys: React.Key[]) => {
@@ -223,6 +218,10 @@ export default function CalendarTable({ student }: CalendarTableProps) {
   function rowClassName(record: SessionRow) {
     if (record.absent) return "row-absent";
     return "text-white";
+  }
+
+  if (!student || !student.sessions) {
+    return <div className="text-gray-500">No session data available.</div>;
   }
 
   return (

@@ -163,7 +163,7 @@ export default function StudentList() {
       </div>
     ),
     children: (
-      <div className="px-3 pb-4 bg-[#141414] rounded-b-2xl">
+      <div className="px-1.5 pb-4 bg-[#141414] rounded-b-2xl">
         <CalendarTable student={student} />
       </div>
     ),
@@ -172,7 +172,7 @@ export default function StudentList() {
 
   return (
     <div className="max-w-[950px] mx-auto">
-      <Collapse
+      {/* <Collapse
         bordered={false}
         defaultActiveKey={[]}
         expandIcon={({ isActive }) => (
@@ -184,6 +184,26 @@ export default function StudentList() {
         style={{ background: "transparent" }}
         items={items}
         className=""
+      /> */}
+      <Collapse
+        bordered={false}
+        defaultActiveKey={[]}
+        expandIcon={({ isActive }) => (
+          <CaretRightOutlined
+            style={{
+              color: "#fff",
+              fontSize: 12,
+              marginRight: 0,
+              marginLeft: 0,
+              alignSelf: "center",
+            }}
+            rotate={isActive ? 90 : 0}
+          />
+        )}
+        expandIconPosition="start" // یا "end" بسته به نیازت
+        style={{ background: "transparent" }}
+        items={items}
+        className="custom-collapse"
       />
       {/* Modal for delete confirmation */}
       <ConfigProvider
