@@ -49,23 +49,56 @@ export default function StudentList() {
   const items: CollapseProps["items"] = students.map((student) => ({
     key: student.id,
     label: (
-      <div className="flex flex-col md:flex-row md:items-center gap-2 justify-between text-white">
-        {/* For Mobile */}
-        <span className="font-bold text-xl text-teal-300 text-center bg-teal-950 rounded-b-full pb-1 -mt-3 sm:hidden block">
-          {student.name}
-        </span>
+      <div className="flex flex-col md:flex-row md:items-center p-2 justify-between text-white sm:bg-none bg-gradient-to-br from-neutral-900 to-teal-950 rounded-lg">
+        <div className="flex justify-between items-center sm:hidden">
+          {/* For Mobile */}
+          <span className="font-bold text-[22px] text-teal-100 pt-1 -mt-3 sm:hidden block">
+            {student.name}
+          </span>
+          {/* For Mobile */}
+          <div className="flex gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditingStudent(student);
+              }}
+              className="bg-sky-700 text-white px-2 py-1.5 rounded-md flex justify-center items-center cursor-pointer sm:hidden"
+            >
+              <EditOutlined style={{ fontSize: "20px" }} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                removeStudent(student.id);
+              }}
+              className="bg-red-700 text-white px-2 py-1.5 rounded-md flex justify-center items-center cursor-pointer sm:hidden"
+            >
+              <DeleteOutlined style={{ fontSize: "20px" }} />
+            </button>
+          </div>
+        </div>
+
         {/* For Desktop */}
         <span className="font-bold text-lg text-teal-300 sm:block hidden">
           {student.name}
         </span>
+
         {/* For Mobile */}
-        <div className="flex justify-between items-center sm:hidden">
-          <span className="text-sm">
-            {student.classType === "online"
-              ? t("studentForm.online")
-              : t("studentForm.inPerson")}
+        <div className="sm:hidden flex flex-col gap-0.5 mt-2">
+          <span className="text-sm flex items-center justify-between bg-white/10 backdrop-blur rounded-md px-2 py-1">
+            <span>
+              {student.classType === "online"
+                ? t("studentForm.online")
+                : t("studentForm.inPerson")}
+            </span>
+            <span>
+              <span className="sm:block hidden">
+                {t("studentList.classDuration")}:{" "}
+              </span>
+              {student.duration} {t("studentList.hour")}
+            </span>
           </span>
-          <span className="text-sm flex gap-1">
+          <span className="text-[13px] flex gap-1 items-center bg-white/10 backdrop-blur rounded-md px-2 py-1">
             <span className="sm:block hidden">
               {t("studentList.classDays")}:{" "}
             </span>
@@ -74,13 +107,14 @@ export default function StudentList() {
               .filter((v, i, arr) => arr.indexOf(v) === i)
               .join("، ")}
           </span>
-          <span className="text-sm flex gap-1">
+          {/* <span className="text-sm flex gap-1 items-center bg-white/10 backdrop-blur rounded-md px-2 py-1">
             <span className="sm:block hidden">
               {t("studentList.classDuration")}:{" "}
             </span>
-            {student.duration} {t("studentList.hour")}
-          </span>
+            {student.duration} {i18n.language === "fa" ? "س" : "h"}
+          </span> */}
         </div>
+
         {/* For Desktop */}
         <span className="text-sm sm:flex hidden">
           {student.classType === "online"
@@ -104,26 +138,6 @@ export default function StudentList() {
         </span>
 
         <div className="flex gap-2">
-          {/* For Mobile */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditingStudent(student);
-            }}
-            className="bg-blue-500 w-full text-white px-2 py-1 rounded-lg flex justify-center items-center cursor-pointer hover:bg-blue-600 sm:hidden"
-          >
-            <EditOutlined style={{ fontSize: "20px" }} />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              removeStudent(student.id);
-            }}
-            className="bg-red-500 w-full text-white px-2 py-1 rounded-lg flex justify-center items-center cursor-pointer hover:bg-red-600 sm:hidden"
-          >
-            <DeleteOutlined style={{ fontSize: "20px" }} />
-          </button>
-
           {/* For Desktop */}
           <button
             onClick={(e) => {

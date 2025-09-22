@@ -191,3 +191,37 @@ body {
   background-color: #991b1b !important;
   color: #fff !important;
 }
+
+@media (max-width: 768px) {
+  .ant-table-small {
+    font-size: 12px !important;
+  }
+
+  .ant-table-small .ant-table-cell {
+    padding: 2px 4px !important;
+  }
+}
+
+/* :where(.css-dev-only-do-not-override-kbg4zp).ant-collapse>.ant-collapse-item>.ant-collapse-header .ant-collapse-expand-icon {
+  padding-inline-end: 0px !important
+}
+
+:where(.css-dev-only-do-not-override-kbg4zp).ant-collapse>.ant-collapse-item >.ant-collapse-header{
+  padding: 10px 10px 10px 5px;
+} */
+
+@media (max-width: 768px) {
+  :where(.css-dev-only-do-not-override-kbg4zp).ant-collapse>.ant-collapse-item>.ant-collapse-header .ant-collapse-expand-icon {
+    padding-inline-end: 0px !important;
+  }
+
+  :where(.css-dev-only-do-not-override-kbg4zp).ant-collapse>.ant-collapse-item>.ant-collapse-header {
+    padding: 15px 10px 15px 5px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tag-xs {
+    font-size: 11px !important;
+  }
+}

@@ -63,9 +63,13 @@ export default function CalendarTable({ student }: CalendarTableProps) {
     price: session.price,
     deposit:
       idx + 1 > student.daysPerWeek * 4 ? (
-        <Tag color="yellow">{t("table.tuitionRequired")}</Tag>
+        <Tag color="yellow" className="tag-xs">
+          {t("table.tuitionRequired")}
+        </Tag>
       ) : (
-        <Tag color="green">{t("table.tuitionDone")}</Tag>
+        <Tag color="green" className="tag-xs">
+          {t("table.tuitionDone")}
+        </Tag>
       ),
   }));
 
