@@ -66,6 +66,7 @@
     "classType": "Class Type",
     "startTime": "Start Time",
     "duration": "Duration",
+    "ageRange":"Age Range",
     "priceRange": "Price Range",
     "resetFilters": "Reset Filters",
     "noStudent": "No students added yet.",

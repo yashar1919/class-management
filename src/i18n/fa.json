@@ -66,6 +66,7 @@
     "classType": "نوع کلاس",
     "startTime": "زمان شروع",
     "duration": "مدت زمان",
+    "ageRange":"محدوده سنی",
     "priceRange": "محدوده هزینه",
     "resetFilters": "ریست فیلترها",
     "noStudent": "هنوز دانش‌آموزی اضافه نشده.",

@@ -54,6 +54,17 @@ export default function StudentsInfo() {
   );
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
 
+  // مقدار اولیه رنج سنی
+  const minAge = useMemo(() => {
+    if (students.length === 0) return 0;
+    return Math.min(...students.map((s) => Number(s.age) || 0));
+  }, [students]);
+  const maxAge = useMemo(() => {
+    if (students.length === 0) return 100;
+    return Math.max(...students.map((s) => Number(s.age) || 0));
+  }, [students]);
+  const [ageRange, setAgeRange] = useState<[number, number]>([minAge, maxAge]);
+
   // گزینه‌های فیلتر با ترجمه
   const TIME_FILTERS = [
     { label: t("studentInfo.all") || "All", value: "all" },
@@ -83,6 +94,11 @@ export default function StudentsInfo() {
   useMemo(() => {
     setPriceRange([0, maxPrice]);
   }, [maxPrice]);
+
+  // مقدار اولیه اسلایدر سن
+  useMemo(() => {
+    setAgeRange([minAge, maxAge]);
+  }, [minAge, maxAge]);
 
   // فیلتر نهایی
   const filteredStudents = useMemo(() => {
@@ -139,8 +155,22 @@ export default function StudentsInfo() {
       return price >= priceRange[0] && price <= priceRange[1];
     });
 
+    // فیلتر سن
+    result = result.filter((student) => {
+      const age = Number(student.age) || 0;
+      return age >= ageRange[0] && age <= ageRange[1];
+    });
+
     return result;
-  }, [students, search, typeFilter, timeFilter, durationFilter, priceRange]);
+  }, [
+    students,
+    search,
+    typeFilter,
+    timeFilter,
+    durationFilter,
+    priceRange,
+    ageRange,
+  ]);
 
   if (students.length === 0)
     return (
@@ -308,6 +338,31 @@ export default function StudentsInfo() {
                   options={DURATION_OPTIONS}
                 />
               </div>
+              {/* فیلتر سن */}
+              <div>
+                <div className="font-semibold mb-2">
+                  {t("studentInfo.ageRange") || "Age Range"}
+                </div>
+                <Slider
+                  range
+                  min={minAge}
+                  max={maxAge}
+                  value={ageRange}
+                  onChange={(v) => setAgeRange(v as [number, number])}
+                  tooltip={{
+                    formatter: (v) => `${v} ${t("studentForm.age") || "سال"}`,
+                  }}
+                  step={1}
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>
+                    {ageRange[0]} {t("studentForm.age") || "سال"}
+                  </span>
+                  <span>
+                    {ageRange[1]} {t("studentForm.age") || "سال"}
+                  </span>
+                </div>
+              </div>
               {/* قیمت */}
               <div>
                 <div className="font-semibold mb-2">
@@ -334,6 +389,7 @@ export default function StudentsInfo() {
                   </span>
                 </div>
               </div>
+
               <Button
                 block
                 onClick={() => {
@@ -341,6 +397,7 @@ export default function StudentsInfo() {
                   setTimeFilter("all");
                   setDurationFilter("all");
                   setPriceRange([0, maxPrice]);
+                  setAgeRange([minAge, maxAge]);
                 }}
               >
                 {t("studentInfo.resetFilters") || "Reset Filters"}
