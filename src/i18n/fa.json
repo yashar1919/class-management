@@ -24,7 +24,8 @@
     "isClassMoreThanOneDay": "آیا کلاس شما بیش از یک روز در هفته است؟",
     "chooseClassDate": "انتخاب تاریخ کلاس",
     "sessionPrice": "هزینه هر جلسه",
-    "editStudent":"بروزرسانی دانش‌آموز "
+    "editStudent": "بروزرسانی",
+    "cancel": "لغو"
   },
   "studentList": {
     "classDays": "روز های کلاس",
@@ -36,11 +37,13 @@
     "wednesday": "چهارشنبه",
     "thursday": "پنج‌شنبه",
     "friday": "جمعه",
-    "saturday": "شنبه"
+    "saturday": "شنبه",
+    "delete": "حذف",
+    "deleteTitle":"حذف دانش‌آموز"
   },
   "table": {
     "attendance": "حاضر",
-    "absent":"غائب",
+    "absent": "غائب",
     "session": "جلسه",
     "date": "تاریخ",
     "weekday": "روز هفته",
@@ -66,7 +69,7 @@
     "classType": "نوع کلاس",
     "startTime": "زمان شروع",
     "duration": "مدت زمان",
-    "ageRange":"محدوده سنی",
+    "ageRange": "محدوده سنی",
     "priceRange": "محدوده هزینه",
     "resetFilters": "ریست فیلترها",
     "noStudent": "هنوز دانش‌آموزی اضافه نشده.",
@@ -78,7 +81,7 @@
     "classDaysPerWeek": "تعداد روزهای کلاس در هفته",
     "fullInfo": "اطلاعات دانش‌آموز",
     "classDays": "روز های کلاس",
-    "monthlyIncome":"درآمد ماهیانه",
+    "monthlyIncome": "درآمد ماهیانه",
     "close": "بستن"
   },
   "settings": {

@@ -245,7 +245,7 @@ export default function StudentForm() {
       }}
       noValidate
     >
-      <h2 className="text-4xl font-bold text-teal-300 mb-2 text-center">
+      <h2 className="text-2xl sm:text-4xl font-bold text-teal-300 mb-2 text-center">
         {t("studentForm.addNewStudent")}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
@@ -692,30 +692,51 @@ export default function StudentForm() {
           )}
         </div>
       </div>
-      <Button
-        type="default"
-        htmlType="submit"
-        style={{
-          background: "#00aa98",
-          color: "#fff",
-          borderRadius: "10px",
-          fontSize: "16px",
-          fontWeight: 500,
-          padding: "19px 0px",
-          border: "none",
-          marginTop: "30px",
-        }}
-        onClick={() => {
-          console.log("Submit button clicked");
-        }}
-      >
-        {editingStudent
-          ? t("studentForm.editStudent") || "Edit Student"
-          : t("studentForm.addStudent")}
-      </Button>
-      {/* <pre style={{ color: "yellow", background: "#222", marginTop: 16 }}>
-        {JSON.stringify({ errors, values: watch() }, null, 2)}
-      </pre> */}
+      <div className="flex justify-center items-center gap-4 mt-5">
+        {/* دکمه لغو فقط در حالت ویرایش نمایش داده شود */}
+        {editingStudent && (
+          <Button
+            type="default"
+            style={{
+              backgroundColor: "transparent",
+              color: "#d32626",
+              borderRadius: "10px",
+              fontSize: "16px",
+              fontWeight: 500,
+              padding: "19px 0px",
+              border: "1px solid #d32626",
+              width: "100%",
+            }}
+            onClick={() => {
+              setEditingStudent(null);
+              reset(defaultValues);
+            }}
+          >
+            {t("studentForm.cancel") || "Cancel"}
+          </Button>
+        )}
+        <Button
+          type="default"
+          htmlType="submit"
+          style={{
+            background: "#00aa98",
+            color: "#fff",
+            borderRadius: "10px",
+            fontSize: "16px",
+            fontWeight: 500,
+            padding: "19px 0px",
+            border: "none",
+            width: "100%",
+          }}
+          onClick={() => {
+            console.log("Submit button clicked");
+          }}
+        >
+          {editingStudent
+            ? t("studentForm.editStudent") || "Edit Student"
+            : t("studentForm.addStudent")}
+        </Button>
+      </div>
     </form>
   );
 }

@@ -1,21 +1,27 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import {
   CaretRightOutlined,
   DeleteOutlined,
   EditOutlined,
 } from "@ant-design/icons";
 import type { CollapseProps } from "antd";
-import { Collapse } from "antd";
+import { Collapse, ConfigProvider, theme } from "antd";
 import { useStudentStore } from "../store/studentStore";
 import CalendarTable from "./CalendarTable";
 import { useTranslation } from "react-i18next";
+import ModalCustom from "./UI/ModalCustom";
+import i18n from "@/i18n";
 
 export default function StudentList() {
   const students = useStudentStore((s) => s.students);
   const removeStudent = useStudentStore((s) => s.removeStudent);
   const setEditingStudent = useStudentStore((s) => s.setEditingStudent);
   const { t } = useTranslation();
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  //eslint-disable-next-line
+  const [studentToDelete, setStudentToDelete] = useState<any>(null);
 
   const weekDaysFa: Record<string, string> = {
     Sunday: t("studentList.sunday"),
@@ -69,7 +75,8 @@ export default function StudentList() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                removeStudent(student.id);
+                setStudentToDelete(student);
+                setDeleteModalOpen(true);
               }}
               className="bg-red-700 text-white px-2 py-1.5 rounded-md flex justify-center items-center cursor-pointer sm:hidden"
             >
@@ -107,12 +114,6 @@ export default function StudentList() {
               .filter((v, i, arr) => arr.indexOf(v) === i)
               .join("، ")}
           </span>
-          {/* <span className="text-sm flex gap-1 items-center bg-white/10 backdrop-blur rounded-md px-2 py-1">
-            <span className="sm:block hidden">
-              {t("studentList.classDuration")}:{" "}
-            </span>
-            {student.duration} {i18n.language === "fa" ? "س" : "h"}
-          </span> */}
         </div>
 
         {/* For Desktop */}
@@ -151,7 +152,8 @@ export default function StudentList() {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              removeStudent(student.id);
+              setStudentToDelete(student);
+              setDeleteModalOpen(true);
             }}
             className="bg-red-500 w-full text-white px-2 py-2 rounded-lg sm:flex justify-center items-center cursor-pointer hover:bg-red-600 hidden"
           >
@@ -183,6 +185,94 @@ export default function StudentList() {
         items={items}
         className=""
       />
+      {/* Modal for delete confirmation */}
+      <ConfigProvider
+        theme={{
+          algorithm: theme.darkAlgorithm,
+          components: {
+            Button: {
+              colorPrimary: "#00bba7",
+              algorithm: true,
+            },
+          },
+        }}
+      >
+        <ModalCustom
+          open={deleteModalOpen}
+          onCancel={() => {
+            setDeleteModalOpen(false);
+            setStudentToDelete(null);
+          }}
+          onOk={() => {
+            if (studentToDelete) {
+              removeStudent(studentToDelete.id);
+            }
+            setDeleteModalOpen(false);
+            setStudentToDelete(null);
+          }}
+          title=""
+          okText={t("studentList.delete") || "حذف"}
+          cancelText={t("studentList.cancel") || "انصراف"}
+          footer={null}
+        >
+          <div className="text-center">
+            <div className="mb-5">
+              <DeleteOutlined
+                style={{
+                  fontSize: "40px",
+                  color: "#fb2c36",
+                  backgroundColor: "#460809",
+                  borderRadius: "100%",
+                  padding: "10px",
+                }}
+              />
+              <p className="text-white text-lg mt-1 font-semibold">
+                {t("studentList.deleteTitle")}
+              </p>
+            </div>
+            {i18n.language === "fa" ? (
+              <p className="text-[17px] font-light text-gray-400">
+                آیا از حذف کردن
+                <span className={`text-red-600 mx-1`}>
+                  {studentToDelete?.name}
+                </span>
+                مطمئن هستید؟
+              </p>
+            ) : (
+              <p className="text-[17px] font-light text-gray-400">
+                Are you sure you want to delete
+                <span className={`text-red-600 font-medium mx-1`}>
+                  {studentToDelete?.name}
+                </span>
+                ?
+              </p>
+            )}
+            <div className="flex justify-center gap-4 mt-7">
+              <button
+                className="border border-neutral-700 w-full text-gray-300 px-6 py-2 rounded-lg cursor-pointer"
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setStudentToDelete(null);
+                }}
+              >
+                {t("studentForm.cancel") || "Cancel"}
+              </button>
+              <button
+                className="bg-red-500 w-full text-white px-6 py-2 rounded-lg font-medium cursor-pointer"
+                onClick={() => {
+                  if (studentToDelete) {
+                    removeStudent(studentToDelete.id);
+                  }
+                  setDeleteModalOpen(false);
+                  setStudentToDelete(null);
+                }}
+              >
+                {t("studentList.delete") || "Delete"}
+              </button>
+            </div>
+          </div>
+        </ModalCustom>
+      </ConfigProvider>
     </div>
   );
 }

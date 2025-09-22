@@ -13,10 +13,10 @@
     "fullName": "Full Name",
     "phone": "Phone",
     "address": "Address",
-    "age":"Age",
+    "age": "Age",
     "classType": "Class Type",
     "online": "Online",
-    "onlineLink":"Google Meet Link",
+    "onlineLink": "Google Meet Link",
     "inPerson": "In-Person",
     "durationHours": "Duration (hours)",
     "startTime": "Start Time",
@@ -24,7 +24,8 @@
     "isClassMoreThanOneDay": "Is the class more than one day a week?",
     "chooseClassDate": "Choose Class Date",
     "sessionPrice": "Session Price",
-    "editStudent":"Update Student"
+    "editStudent": "Update",
+    "cancel": "Cancel"
   },
   "studentList": {
     "classDays": "Class Days",
@@ -36,11 +37,13 @@
     "wednesday": "Wednesday",
     "thursday": "Thursday",
     "friday": "Friday",
-    "saturday": "Saturday"
+    "saturday": "Saturday",
+    "delete": "Delete",
+    "deleteTitle":"Delete Student"
   },
   "table": {
     "attendance": "Present",
-    "absent":"Absent",
+    "absent": "Absent",
     "session": "Session",
     "date": "Date",
     "weekday": "Weekday",
@@ -66,20 +69,20 @@
     "classType": "Class Type",
     "startTime": "Start Time",
     "duration": "Duration",
-    "ageRange":"Age Range",
+    "ageRange": "Age Range",
     "priceRange": "Price Range",
     "resetFilters": "Reset Filters",
     "noStudent": "No students added yet.",
     "noResults": "No results found.",
     "firstSessionDates": "First session dates",
     "toman": "Toman",
-    "time":"Time",
-    "until":"until",
-    "classDaysPerWeek":"Number of class days per week",
-    "fullInfo":"Student Information",
-    "classDays":"Class days",
-    "monthlyIncome":"Monthly Income",
-    "close":"Close"
+    "time": "Time",
+    "until": "until",
+    "classDaysPerWeek": "Number of class days per week",
+    "fullInfo": "Student Information",
+    "classDays": "Class days",
+    "monthlyIncome": "Monthly Income",
+    "close": "Close"
   },
   "settings": {
     "languageTitle": "Language",
