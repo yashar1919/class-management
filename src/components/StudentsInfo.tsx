@@ -343,17 +343,42 @@ export default function StudentsInfo() {
                 <div className="font-semibold mb-2">
                   {t("studentInfo.ageRange") || "Age Range"}
                 </div>
-                <Slider
-                  range
-                  min={minAge}
-                  max={maxAge}
-                  value={ageRange}
-                  onChange={(v) => setAgeRange(v as [number, number])}
-                  tooltip={{
-                    formatter: (v) => `${v} ${t("studentForm.age") || "سال"}`,
-                  }}
-                  step={1}
-                />
+                <div dir={i18n.language === "fa" ? "rtl" : "ltr"}>
+                  <Slider
+                    range
+                    min={minAge}
+                    max={maxAge}
+                    value={
+                      i18n.language === "fa"
+                        ? [
+                            maxAge - (ageRange[1] - minAge),
+                            maxAge - (ageRange[0] - minAge),
+                          ]
+                        : ageRange
+                    }
+                    onChange={(v) => {
+                      if (i18n.language === "fa") {
+                        // v: [right, left] → باید برعکس ذخیره شود
+                        const [right, left] = v as [number, number];
+                        setAgeRange([
+                          maxAge - (left - minAge),
+                          maxAge - (right - minAge),
+                        ]);
+                      } else {
+                        setAgeRange(v as [number, number]);
+                      }
+                    }}
+                    tooltip={{
+                      formatter: (v) =>
+                        i18n.language === "fa"
+                          ? `${maxAge - ((v ?? minAge) - minAge)} ${
+                              t("studentForm.age") || "سال"
+                            }`
+                          : `${v} ${t("studentForm.age") || "سال"}`,
+                    }}
+                    step={1}
+                  />
+                </div>
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
                   <span>
                     {ageRange[0]} {t("studentForm.age") || "سال"}
@@ -368,18 +393,35 @@ export default function StudentsInfo() {
                 <div className="font-semibold mb-2">
                   {t("studentInfo.priceRange") || "Price Range"}
                 </div>
-                <Slider
-                  range
-                  min={0}
-                  max={maxPrice}
-                  value={priceRange}
-                  onChange={(v) => setPriceRange(v as [number, number])}
-                  tooltip={{
-                    formatter: (v) =>
-                      `${v} ${t("studentInfo.toman") || "تومان"}`,
-                  }}
-                  step={1000}
-                />
+                <div dir={i18n.language === "fa" ? "rtl" : "ltr"}>
+                  <Slider
+                    range
+                    min={0}
+                    max={maxPrice}
+                    value={
+                      i18n.language === "fa"
+                        ? [maxPrice - priceRange[1], maxPrice - priceRange[0]]
+                        : priceRange
+                    }
+                    onChange={(v) => {
+                      if (i18n.language === "fa") {
+                        const [right, left] = v as [number, number];
+                        setPriceRange([maxPrice - left, maxPrice - right]);
+                      } else {
+                        setPriceRange(v as [number, number]);
+                      }
+                    }}
+                    tooltip={{
+                      formatter: (v) =>
+                        i18n.language === "fa"
+                          ? `${maxPrice - (v ?? 0)} ${
+                              t("studentInfo.toman") || "تومان"
+                            }`
+                          : `${v ?? 0} ${t("studentInfo.toman") || "تومان"}`,
+                    }}
+                    step={1000}
+                  />
+                </div>
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
                   <span>
                     {priceRange[0]} {t("studentInfo.toman") || "تومان"}
