@@ -232,10 +232,12 @@ body {
   display: flex !important;
   min-height: 56px;
   padding-top: 10 !important;
+  margin: 0 !important;
   padding-bottom: 10 !important;
 }
 .custom-collapse .ant-collapse-expand-icon {
   align-self: center !important;
   margin-top: 0 !important;
+  margin: 0 !important;
   margin-bottom: 0 !important;
 }
