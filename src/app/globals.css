@@ -244,9 +244,9 @@ body {
 @media (max-width: 768px) {
   .custom-collapse .ant-collapse-header {
     min-height: 36px !important;
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
-    padding-right: 8px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    padding-right: 10px !important;
     padding-left: 4px !important;
   }
   .custom-collapse .ant-collapse-expand-icon {
@@ -255,9 +255,3 @@ body {
     padding: 0 !important;
   }
 }
-
-/* @media (max-width: 768px) {
-  .custom-collapse .ant-collapse-header {
-    font-size: 11px !important;
-  }
-} */
