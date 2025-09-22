@@ -163,7 +163,7 @@ export default function StudentList() {
       </div>
     ),
     children: (
-      <div className=" bg-[#141414] rounded-b-2xl">
+      <div className="px-1.5 pb-4 bg-[#141414] rounded-b-2xl">
         <CalendarTable student={student} />
       </div>
     ),

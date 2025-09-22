@@ -232,12 +232,32 @@ body {
   display: flex !important;
   min-height: 56px;
   padding-top: 10 !important;
-  margin: 0 !important;
   padding-bottom: 10 !important;
 }
 .custom-collapse .ant-collapse-expand-icon {
   align-self: center !important;
   margin-top: 0 !important;
-  margin: 0 !important;
   margin-bottom: 0 !important;
 }
+
+
+@media (max-width: 768px) {
+  .custom-collapse .ant-collapse-header {
+    min-height: 36px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    padding-right: 8px !important;
+    padding-left: 4px !important;
+  }
+  .custom-collapse .ant-collapse-expand-icon {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+/* @media (max-width: 768px) {
+  .custom-collapse .ant-collapse-header {
+    font-size: 11px !important;
+  }
+} */

@@ -46,6 +46,7 @@ export default function RootLayout({
             name="apple-mobile-web-app-status-bar-style"
             content="black-translucent"
           />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
         </head>
         <AppShell>{children}</AppShell>
       </body>
