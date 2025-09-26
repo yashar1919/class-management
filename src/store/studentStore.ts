@@ -41,7 +41,8 @@ type StudentStore = {
   toggleAbsent: (studentId: string, sessionId: string) => void;
   editingStudent: Student | null;
   setEditingStudent: (student: Student | null) => void;
-  updateStudent: (id: string, data: NewStudent) => void; // اضافه شد
+  updateStudent: (id: string, data: NewStudent) => void;
+  setStudents: (students: Student[]) => void;
 };
 
 type NewStudent = Omit<Student, "id" | "sessions">;
@@ -147,6 +148,7 @@ export const useStudentStore = create<StudentStore>()(
             editingStudent: null, // بعد از ویرایش، فرم ریست شود
           };
         }),
+      setStudents: (students) => set({ students }), // این متد را اضافه کن
     }),
     {
       name: "students-storage", // نام کلید در localStorage

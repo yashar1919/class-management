@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   CaretRightOutlined,
   DeleteOutlined,
@@ -15,9 +15,16 @@ import i18n from "@/i18n";
 
 export default function StudentList() {
   const students = useStudentStore((s) => s.students);
+  const setStudents = useStudentStore((s) => s.setStudents); // فرض بر این است که چنین متدی داری
   const removeStudent = useStudentStore((s) => s.removeStudent);
   const setEditingStudent = useStudentStore((s) => s.setEditingStudent);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    fetch("/api/students")
+      .then((res) => res.json())
+      .then((data) => setStudents(data));
+  }, [setStudents]);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   //eslint-disable-next-line

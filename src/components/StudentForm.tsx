@@ -167,7 +167,7 @@ export default function StudentForm() {
 
   const endTime = calcEndTime(startTime, duration);
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
+  /* const onSubmit: SubmitHandler<FormValues> = (data) => {
     if (!data.selectedDates || data.selectedDates.length === 0) {
       setCalendarError("Date is required");
       return;
@@ -202,6 +202,62 @@ export default function StudentForm() {
     } else {
       addStudent(studentData);
       reset(defaultValues); // فرم را بعد از افزودن خالی کن
+    }
+  }; */
+
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    if (!data.selectedDates || data.selectedDates.length === 0) {
+      setCalendarError("Date is required");
+      return;
+    }
+    setCalendarError(false);
+
+    const firstSessionDates = data.selectedDates.map(
+      (dateObj) => new Date(dateObj.toDate())
+    );
+    const actualDaysPerWeek = data.multiDay ? data.selectedDates.length : 1;
+
+    const studentData = {
+      name: data.name,
+      phone: data.phone || "",
+      address: data.address,
+      age: data.age,
+      classType: data.classType,
+      startTime: data.startTime,
+      endTime: calcEndTime(data.startTime, data.duration),
+      duration: data.duration,
+      price: data.sessionPrice.toString(),
+      firstSessionDates,
+      daysPerWeek: actualDaysPerWeek,
+      multiDay: data.multiDay,
+      onlineLink: data.onlineLink || "",
+    };
+
+    if (editingStudent) {
+      updateStudent(editingStudent.id, studentData);
+      setEditingStudent(null);
+      reset(defaultValues);
+      console.log("Student edited locally:", studentData);
+    } else {
+      try {
+        const res = await fetch("/api/students", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(studentData),
+        });
+        if (res.ok) {
+          const result = await res.json();
+          console.log("Student successfully POSTed to DB:", studentData);
+          console.log("API response:", result);
+          addStudent(studentData);
+          reset(defaultValues);
+        } else {
+          const errorText = await res.text();
+          console.error("API POST error:", res.status, errorText);
+        }
+      } catch (err) {
+        console.error("Network/API error:", err);
+      }
     }
   };
 
