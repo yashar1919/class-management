@@ -1,12 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {
-  CaretRightOutlined,
-  DeleteOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
-import type { CollapseProps } from "antd";
-import { Collapse, ConfigProvider, theme } from "antd";
+import { DeleteOutlined, EditOutlined, TableOutlined } from "@ant-design/icons";
+import { ConfigProvider, theme } from "antd";
 import { useStudentStore } from "../store/studentStore";
 import CalendarTable from "./CalendarTable";
 import { useTranslation } from "react-i18next";
@@ -16,8 +11,7 @@ import { fetchStudents, deleteStudentFromDB } from "@/services/studentService";
 
 export default function StudentList() {
   const students = useStudentStore((s) => s.students);
-  const setStudents = useStudentStore((s) => s.setStudents); // فرض بر این است که چنین متدی داری
-  //const removeStudent = useStudentStore((s) => s.removeStudent);
+  const setStudents = useStudentStore((s) => s.setStudents);
   const setEditingStudent = useStudentStore((s) => s.setEditingStudent);
   const { t } = useTranslation();
 
@@ -31,26 +25,14 @@ export default function StudentList() {
   //eslint-disable-next-line
   const [studentToDelete, setStudentToDelete] = useState<any>(null);
 
-  const weekDaysFa: Record<string, string> = {
-    Sunday: t("studentList.sunday"),
-    Monday: t("studentList.monday"),
-    Tuesday: t("studentList.tuesday"),
-    Wednesday: t("studentList.wednesday"),
-    Thursday: t("studentList.thursday"),
-    Friday: t("studentList.friday"),
-    Saturday: t("studentList.saturday"),
-  };
-
-  function getWeekDayFa(date: Date) {
-    const en = date.toLocaleDateString("en-US", { weekday: "long" });
-    return weekDaysFa[en] || en;
-  }
+  // مودال جدول جلسات
+  const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+  //eslint-disable-next-line
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
 
   const handleDeleteStudent = async (studentId: string, mongoId: string) => {
     try {
       await deleteStudentFromDB(mongoId);
-      console.log("Student deleted from DB:", studentId, mongoId);
-      // بعد از حذف، لیست را مجدد از دیتابیس بخوان و ست کن
       const students = await fetchStudents();
       setStudents(students);
     } catch (err) {
@@ -63,32 +45,49 @@ export default function StudentList() {
       <div className="text-gray-500">No students have been added yet.</div>
     );
 
-  const panelStyle: React.CSSProperties = {
-    marginBottom: 24,
-    background: "#141414",
-    borderRadius: 16,
-    border: "none",
-    color: "#fff",
-    boxShadow: "0px 0px 5px gray",
-  };
-
-  const items: CollapseProps["items"] = students.map((student) => ({
-    key: student.id,
-    label: (
-      <div className="flex flex-col md:flex-row md:items-center p-2 justify-between text-white sm:bg-none bg-gradient-to-br from-neutral-900 to-teal-950 rounded-lg">
-        <div className="flex justify-between items-center sm:hidden">
-          {/* For Mobile */}
-          <span className="font-bold text-[22px] text-teal-100 pt-1 -mt-3 sm:hidden block">
-            {student.name}
-          </span>
-          {/* For Mobile */}
-          <div className="flex gap-2">
+  return (
+    <div className="max-w-[950px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+      {students.map((student) => (
+        <div
+          key={student.mongoId || student.id}
+          className="bg-gradient-to-br from-neutral-900 to-teal-950 rounded-2xl shadow-lg p-5 grid grid-cols-8 cursor-pointer hover:ring-1 hover:ring-teal-400 transition"
+          onClick={() => {
+            setSelectedStudent(student);
+            setCalendarModalOpen(true);
+          }}
+        >
+          <div className="flex flex-col col-span-7">
+            <span className="font-bold text-lg text-teal-300 mb-5">
+              {student.name}
+            </span>
+            <span>
+              {student.classType === "online"
+                ? t("studentForm.online")
+                : t("studentForm.inPerson")}
+            </span>
+            <span>
+              {t("studentList.classDays")}:{" "}
+              {(student.sessions ?? [])
+                .map((s) =>
+                  new Date(s.date).toLocaleDateString("fa-IR", {
+                    weekday: "long",
+                  })
+                )
+                .filter((v, i, arr) => arr.indexOf(v) === i)
+                .join("، ")}
+            </span>
+            <span>
+              {t("studentList.classDuration")}: {student.duration}{" "}
+              {t("studentList.hour")}
+            </span>
+          </div>
+          <div className="col-span-1 flex flex-col gap-2 justify-center items-end">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setEditingStudent(student);
               }}
-              className="bg-sky-700 text-white px-2 py-1.5 rounded-md flex justify-center items-center cursor-pointer sm:hidden"
+              className="bg-blue-500 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-blue-600"
             >
               <EditOutlined style={{ fontSize: "20px" }} />
             </button>
@@ -98,133 +97,54 @@ export default function StudentList() {
                 setStudentToDelete(student);
                 setDeleteModalOpen(true);
               }}
-              className="bg-red-700 text-white px-2 py-1.5 rounded-md flex justify-center items-center cursor-pointer sm:hidden"
+              className="bg-red-500 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-red-600"
             >
               <DeleteOutlined style={{ fontSize: "20px" }} />
             </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedStudent(student);
+                setCalendarModalOpen(true);
+              }}
+              className="bg-teal-600 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-teal-700"
+              title={t("studentList.showTable") || "نمایش جدول"}
+            >
+              <TableOutlined style={{ fontSize: "20px" }} />
+            </button>
           </div>
         </div>
+      ))}
 
-        {/* For Desktop */}
-        <span className="font-bold text-lg text-teal-300 sm:block hidden">
-          {student.name}
-        </span>
+      {/* مودال جدول جلسات */}
+      <ConfigProvider
+        theme={{ algorithm: theme.darkAlgorithm, components: {} }}
+      >
+        <ModalCustom
+          open={calendarModalOpen}
+          onCancel={() => {
+            setCalendarModalOpen(false);
+            setSelectedStudent(null);
+          }}
+          title=""
+          footer={null}
+          width={1000}
+        >
+          {selectedStudent && (
+            <div>
+              <p className="text-teal-400 font-light text-2xl mb-5">{selectedStudent?.name || ""}</p>
+              <CalendarTable
+                studentId={
+                  selectedStudent.id ||
+                  selectedStudent.mongoId ||
+                  selectedStudent._id
+                }
+              />
+            </div>
+          )}
+        </ModalCustom>
+      </ConfigProvider>
 
-        {/* For Mobile */}
-        <div className="sm:hidden flex flex-col gap-0.5 mt-2">
-          <span className="text-sm flex items-center justify-between bg-white/10 backdrop-blur rounded-md px-2 py-1">
-            <span>
-              {student.classType === "online"
-                ? t("studentForm.online")
-                : t("studentForm.inPerson")}
-            </span>
-            <span>
-              <span className="sm:block hidden">
-                {t("studentList.classDuration")}:{" "}
-              </span>
-              {student.duration} {t("studentList.hour")}
-            </span>
-          </span>
-          <span className="text-[13px] flex gap-1 items-center bg-white/10 backdrop-blur rounded-md px-2 py-1">
-            <span className="sm:block hidden">
-              {t("studentList.classDays")}:{" "}
-            </span>
-            {(student.sessions ?? [])
-              .map((s) => getWeekDayFa(new Date(s.date)))
-              .filter((v, i, arr) => arr.indexOf(v) === i)
-              .join("، ")}
-          </span>
-        </div>
-
-        {/* For Desktop */}
-        <span className="text-sm sm:flex hidden">
-          {student.classType === "online"
-            ? t("studentForm.online")
-            : t("studentForm.inPerson")}
-        </span>
-        <span className="text-sm sm:flex gap-1 hidden">
-          <span className="sm:block hidden">
-            {t("studentList.classDays")}:{" "}
-          </span>
-          {(student.sessions ?? [])
-            .map((s) => getWeekDayFa(new Date(s.date)))
-            .filter((v, i, arr) => arr.indexOf(v) === i)
-            .join("، ")}
-        </span>
-        <span className="text-sm sm:flex gap-1 hidden">
-          <span className="sm:block hidden">
-            {t("studentList.classDuration")}:{" "}
-          </span>
-          {student.duration} {t("studentList.hour")}
-        </span>
-
-        <div className="flex gap-2">
-          {/* For Desktop */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditingStudent(student);
-            }}
-            className="bg-blue-500 w-full text-white px-2 py-2 rounded-lg sm:flex justify-center items-center cursor-pointer hover:bg-blue-600 hidden"
-          >
-            <EditOutlined style={{ fontSize: "20px" }} />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setStudentToDelete(student);
-              setDeleteModalOpen(true);
-            }}
-            className="bg-red-500 w-full text-white px-2 py-2 rounded-lg sm:flex justify-center items-center cursor-pointer hover:bg-red-600 hidden"
-          >
-            <DeleteOutlined style={{ fontSize: "20px" }} />
-          </button>
-        </div>
-      </div>
-    ),
-    children: (
-      <div className="px-1.5 pb-4 bg-[#141414] rounded-b-2xl">
-        <CalendarTable student={student} />
-      </div>
-    ),
-    style: panelStyle,
-  }));
-
-  return (
-    <div className="max-w-[950px] mx-auto">
-      {/* <Collapse
-        bordered={false}
-        defaultActiveKey={[]}
-        expandIcon={({ isActive }) => (
-          <CaretRightOutlined
-            style={{ color: "#fff" }}
-            rotate={isActive ? 90 : 0}
-          />
-        )}
-        style={{ background: "transparent" }}
-        items={items}
-        className=""
-      /> */}
-      <Collapse
-        bordered={false}
-        defaultActiveKey={[]}
-        expandIcon={({ isActive }) => (
-          <CaretRightOutlined
-            style={{
-              color: "#fff",
-              fontSize: 12,
-              marginRight: 0,
-              marginLeft: 0,
-              alignSelf: "center",
-            }}
-            rotate={isActive ? 90 : 0}
-          />
-        )}
-        expandIconPosition="start" // یا "end" بسته به نیازت
-        style={{ background: "transparent" }}
-        items={items}
-        className="custom-collapse"
-      />
       {/* Modal for delete confirmation */}
       <ConfigProvider
         theme={{
@@ -273,7 +193,7 @@ export default function StudentList() {
             {i18n.language === "fa" ? (
               <p className="text-[17px] font-light text-gray-400">
                 آیا از حذف کردن
-                <span className={`text-red-600 mx-1`}>
+                <span className="text-red-600 mx-1">
                   {studentToDelete?.name}
                 </span>
                 مطمئن هستید؟
@@ -281,7 +201,7 @@ export default function StudentList() {
             ) : (
               <p className="text-[17px] font-light text-gray-400">
                 Are you sure you want to delete
-                <span className={`text-red-600 font-medium mx-1`}>
+                <span className="text-red-600 font-medium mx-1">
                   {studentToDelete?.name}
                 </span>
                 ?

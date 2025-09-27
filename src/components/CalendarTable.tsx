@@ -2,7 +2,7 @@ import React, { useMemo, useEffect, useState } from "react";
 import { Table, Tag, ConfigProvider, theme } from "antd";
 import { CloseCircleFilled } from "@ant-design/icons";
 import type { ColumnsType, TableProps } from "antd/es/table";
-import { Student, useStudentStore } from "../store/studentStore";
+import { useStudentStore } from "../store/studentStore";
 import { useTranslation } from "react-i18next";
 
 const weekDaysFa: Record<string, string> = {
@@ -25,7 +25,8 @@ function getWeekDayEn(date: Date) {
 }
 
 type CalendarTableProps = {
-  student: Student;
+  //student: Student;
+  studentId: string;
 };
 
 interface SessionRow {
@@ -41,7 +42,11 @@ interface SessionRow {
   deposit: React.ReactNode;
 }
 
-export default function CalendarTable({ student }: CalendarTableProps) {
+export default function CalendarTable({ studentId }: CalendarTableProps) {
+  const student = useStudentStore((s) =>
+    s.students.find((stu) => stu.id === studentId || stu.mongoId === studentId)
+  );
+
   const toggleAttendance = useStudentStore((s) => s.toggleAttendance);
   const toggleAbsent = useStudentStore((s) => s.toggleAbsent);
   const { t, i18n } = useTranslation();
@@ -55,32 +60,39 @@ export default function CalendarTable({ student }: CalendarTableProps) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const data: SessionRow[] = (student?.sessions ?? []).map((session, idx) => ({
-    key: session.id, // کلید یکتا
-    session: idx + 1,
-    date: new Date(session.date).toLocaleDateString(
-      i18n.language === "fa" ? "fa-IR" : "en-US"
-    ),
-    weekday:
-      i18n.language === "fa"
-        ? getWeekDayFa(new Date(session.date))
-        : getWeekDayEn(new Date(session.date)),
-    startTime: session.startTime,
-    endTime: session.endTime,
-    attended: session.attended,
-    absent: session.absent,
-    price: session.price,
-    deposit:
-      idx + 1 > student.daysPerWeek * 4 ? (
-        <Tag color="yellow" className="tag-xs">
-          {t("table.tuitionRequired")}
-        </Tag>
-      ) : (
-        <Tag color="green" className="tag-xs">
-          {t("table.tuitionDone")}
-        </Tag>
+  const data: SessionRow[] = useMemo(() => {
+    if (!student || !student.sessions) return [];
+    // Sort sessions by date ascending
+    const sortedSessions = [...student.sessions].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    return sortedSessions.map((session, idx) => ({
+      key: session.id,
+      session: idx + 1,
+      date: new Date(session.date).toLocaleDateString(
+        i18n.language === "fa" ? "fa-IR" : "en-US"
       ),
-  }));
+      weekday:
+        i18n.language === "fa"
+          ? getWeekDayFa(new Date(session.date))
+          : getWeekDayEn(new Date(session.date)),
+      startTime: session.startTime,
+      endTime: session.endTime,
+      attended: session.attended,
+      absent: session.absent,
+      price: session.price,
+      deposit:
+        student && idx + 1 > (student.daysPerWeek ?? 1) * 4 ? (
+          <Tag color="yellow" className="tag-xs">
+            {t("table.tuitionRequired")}
+          </Tag>
+        ) : (
+          <Tag color="green" className="tag-xs">
+            {t("table.tuitionDone")}
+          </Tag>
+        ),
+    }));
+  }, [student, i18n.language, t]);
 
   const selectedRowKeys = useMemo(
     () => data.filter((row) => row.attended).map((row) => row.key),
@@ -95,8 +107,7 @@ export default function CalendarTable({ student }: CalendarTableProps) {
         key: "absent",
         align: "center",
         width: 50,
-        //eslint-disable-next-line
-        render: (_: any, record: SessionRow) => (
+        render: (_: unknown, record: SessionRow) => (
           <span
             className="flex items-center justify-center"
             style={{ minHeight: 24 }}
@@ -105,8 +116,9 @@ export default function CalendarTable({ student }: CalendarTableProps) {
               type="checkbox"
               checked={!!record.absent}
               onChange={() => {
+                if (!student) return;
                 if (!record.absent) {
-                  if (record.attended) toggleAttendance(student.id, record.key); // حالا key همان id است
+                  if (record.attended) toggleAttendance(student.id, record.key);
                 }
                 toggleAbsent(student.id, record.key);
               }}
@@ -201,6 +213,7 @@ export default function CalendarTable({ student }: CalendarTableProps) {
   const rowSelection: TableProps<SessionRow>["rowSelection"] = {
     selectedRowKeys,
     onChange: (selectedKeys: React.Key[]) => {
+      if (!student) return;
       data.forEach((row) => {
         const shouldBeAttended = selectedKeys.includes(row.key);
         if (row.attended !== shouldBeAttended) {

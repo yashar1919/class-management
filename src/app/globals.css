@@ -234,6 +234,7 @@ body {
   padding-top: 10 !important;
   padding-bottom: 10 !important;
 }
+
 .custom-collapse .ant-collapse-expand-icon {
   align-self: center !important;
   margin-top: 0 !important;
@@ -249,9 +250,16 @@ body {
     padding-right: 10px !important;
     padding-left: 4px !important;
   }
+
   .custom-collapse .ant-collapse-expand-icon {
     margin-right: 0 !important;
     margin-left: 0 !important;
     padding: 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  :where(.css-dev-only-do-not-override-1bxvije).ant-modal .ant-modal-content {
+    padding: 20px 7px;
   }
 }

@@ -456,7 +456,7 @@ export default function StudentsInfo() {
 
         {filteredStudents.map((student) => (
           <div
-            key={student.id}
+            key={student.mongoId || student.id}
             className={`bg-neutral-900 px-3 py-2 flex items-center relative overflow-hidden mb-5 shadow-md ${
               i18n.language !== "fa"
                 ? "rounded-bl-[50px] rounded-r-2xl rounded-tl-[50px]"
