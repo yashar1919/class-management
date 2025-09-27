@@ -24,6 +24,12 @@ import PersianCalendarPicker from "./UI/PersianCalendarPicker";
 import { useState, useEffect } from "react";
 import { DateObject } from "react-multi-date-picker";
 import { useTranslation } from "react-i18next";
+import { addWeeks } from "date-fns";
+import {
+  addStudentToDB,
+  editStudentInDB,
+  fetchStudents,
+} from "@/services/studentService";
 
 const schema = yup.object({
   name: yup.string().required("Full name is required"),
@@ -105,10 +111,11 @@ const defaultValues: FormValues = {
 
 export default function StudentForm() {
   const { t, i18n } = useTranslation();
-  const addStudent = useStudentStore((s) => s.addStudent);
+  //const addStudent = useStudentStore((s) => s.addStudent);
   const editingStudent = useStudentStore((s) => s.editingStudent);
   const setEditingStudent = useStudentStore((s) => s.setEditingStudent);
-  const updateStudent = useStudentStore((s) => s.updateStudent);
+  //const updateStudent = useStudentStore((s) => s.updateStudent);
+  const setStudents = useStudentStore((s) => s.setStudents);
 
   const classTypeItems: MenuProps["items"] = [
     {
@@ -167,43 +174,7 @@ export default function StudentForm() {
 
   const endTime = calcEndTime(startTime, duration);
 
-  /* const onSubmit: SubmitHandler<FormValues> = (data) => {
-    if (!data.selectedDates || data.selectedDates.length === 0) {
-      setCalendarError("Date is required");
-      return;
-    }
-    setCalendarError(false);
-
-    const firstSessionDates = data.selectedDates.map(
-      (dateObj) => new Date(dateObj.toDate())
-    );
-    const actualDaysPerWeek = data.multiDay ? data.selectedDates.length : 1;
-
-    const studentData = {
-      name: data.name,
-      phone: data.phone || "",
-      address: data.address,
-      age: data.age,
-      classType: data.classType,
-      startTime: data.startTime,
-      endTime: calcEndTime(data.startTime, data.duration),
-      duration: data.duration,
-      price: data.sessionPrice.toString(),
-      firstSessionDates,
-      daysPerWeek: actualDaysPerWeek,
-      multiDay: data.multiDay,
-      onlineLink: data.onlineLink || "",
-    };
-
-    if (editingStudent) {
-      updateStudent(editingStudent.id, studentData);
-      setEditingStudent(null);
-      reset(defaultValues); // فرم را بعد از ویرایش خالی کن
-    } else {
-      addStudent(studentData);
-      reset(defaultValues); // فرم را بعد از افزودن خالی کن
-    }
-  }; */
+  const [loading, setLoading] = useState(false);
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     if (!data.selectedDates || data.selectedDates.length === 0) {
@@ -211,6 +182,27 @@ export default function StudentForm() {
       return;
     }
     setCalendarError(false);
+    setLoading(true);
+
+    //eslint-disable-next-line
+    const sessions: any[] = [];
+    data.selectedDates.forEach((dateObj) => {
+      const baseDate = new Date(dateObj.toDate());
+      for (let i = 0; i < 5; i++) {
+        const sessionDate = addWeeks(baseDate, i);
+        sessions.push({
+          id: `${Date.now()}_${Math.random()}_${i}`,
+          date: sessionDate,
+          startTime: data.startTime,
+          endTime: calcEndTime(data.startTime, data.duration),
+          attended: false,
+          absent: false,
+          price: data.sessionPrice.toString(),
+          deposit: i < 4, // ۴ جلسه اول پرداخت شده، جلسه پنجم پرداخت نشده
+          paid: i < 4, // برای راحتی، paid هم ست کن
+        });
+      }
+    });
 
     const firstSessionDates = data.selectedDates.map(
       (dateObj) => new Date(dateObj.toDate())
@@ -231,33 +223,26 @@ export default function StudentForm() {
       daysPerWeek: actualDaysPerWeek,
       multiDay: data.multiDay,
       onlineLink: data.onlineLink || "",
+      sessions, // جدول جلسات با منطق درست
     };
 
-    if (editingStudent) {
-      updateStudent(editingStudent.id, studentData);
-      setEditingStudent(null);
-      reset(defaultValues);
-      console.log("Student edited locally:", studentData);
-    } else {
-      try {
-        const res = await fetch("/api/students", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(studentData),
-        });
-        if (res.ok) {
-          const result = await res.json();
-          console.log("Student successfully POSTed to DB:", studentData);
-          console.log("API response:", result);
-          addStudent(studentData);
-          reset(defaultValues);
-        } else {
-          const errorText = await res.text();
-          console.error("API POST error:", res.status, errorText);
-        }
-      } catch (err) {
-        console.error("Network/API error:", err);
+    try {
+      if (editingStudent && editingStudent.mongoId) {
+        await editStudentInDB(editingStudent.mongoId, studentData);
+        console.log("Student edited in DB:", studentData);
+      } else {
+        await addStudentToDB(studentData);
+        console.log("Student successfully POSTed to DB:", studentData);
       }
+      reset(defaultValues);
+      setEditingStudent(null);
+      // لیست را مجدد از دیتابیس بخوان و ست کن
+      const students = await fetchStudents();
+      setStudents(students);
+    } catch (err) {
+      console.error("API error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -783,12 +768,18 @@ export default function StudentForm() {
             padding: "19px 0px",
             border: "none",
             width: "100%",
+            opacity: loading ? 0.7 : 1,
+            cursor: loading ? "not-allowed" : "pointer",
           }}
+          loading={loading}
+          disabled={loading}
           onClick={() => {
             console.log("Submit button clicked");
           }}
         >
-          {editingStudent
+          {loading
+            ? t("studentForm.loading") || "در حال ثبت..."
+            : editingStudent
             ? t("studentForm.editStudent") || "Edit Student"
             : t("studentForm.addStudent")}
         </Button>

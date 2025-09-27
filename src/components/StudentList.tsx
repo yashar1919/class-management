@@ -12,18 +12,19 @@ import CalendarTable from "./CalendarTable";
 import { useTranslation } from "react-i18next";
 import ModalCustom from "./UI/ModalCustom";
 import i18n from "@/i18n";
+import { fetchStudents, deleteStudentFromDB } from "@/services/studentService";
 
 export default function StudentList() {
   const students = useStudentStore((s) => s.students);
   const setStudents = useStudentStore((s) => s.setStudents); // فرض بر این است که چنین متدی داری
-  const removeStudent = useStudentStore((s) => s.removeStudent);
+  //const removeStudent = useStudentStore((s) => s.removeStudent);
   const setEditingStudent = useStudentStore((s) => s.setEditingStudent);
   const { t } = useTranslation();
 
   useEffect(() => {
-    fetch("/api/students")
-      .then((res) => res.json())
-      .then((data) => setStudents(data));
+    fetchStudents()
+      .then(setStudents)
+      .catch((err) => console.error("Fetch students error:", err));
   }, [setStudents]);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -44,6 +45,18 @@ export default function StudentList() {
     const en = date.toLocaleDateString("en-US", { weekday: "long" });
     return weekDaysFa[en] || en;
   }
+
+  const handleDeleteStudent = async (studentId: string, mongoId: string) => {
+    try {
+      await deleteStudentFromDB(mongoId);
+      console.log("Student deleted from DB:", studentId, mongoId);
+      // بعد از حذف، لیست را مجدد از دیتابیس بخوان و ست کن
+      const students = await fetchStudents();
+      setStudents(students);
+    } catch (err) {
+      console.error("API DELETE error:", err);
+    }
+  };
 
   if (students.length === 0)
     return (
@@ -116,7 +129,7 @@ export default function StudentList() {
             <span className="sm:block hidden">
               {t("studentList.classDays")}:{" "}
             </span>
-            {student.sessions
+            {(student.sessions ?? [])
               .map((s) => getWeekDayFa(new Date(s.date)))
               .filter((v, i, arr) => arr.indexOf(v) === i)
               .join("، ")}
@@ -133,7 +146,7 @@ export default function StudentList() {
           <span className="sm:block hidden">
             {t("studentList.classDays")}:{" "}
           </span>
-          {student.sessions
+          {(student.sessions ?? [])
             .map((s) => getWeekDayFa(new Date(s.date)))
             .filter((v, i, arr) => arr.indexOf(v) === i)
             .join("، ")}
@@ -232,7 +245,7 @@ export default function StudentList() {
           }}
           onOk={() => {
             if (studentToDelete) {
-              removeStudent(studentToDelete.id);
+              handleDeleteStudent(studentToDelete.id, studentToDelete.mongoId);
             }
             setDeleteModalOpen(false);
             setStudentToDelete(null);
@@ -288,7 +301,10 @@ export default function StudentList() {
                 className="bg-red-500 w-full text-white px-6 py-2 rounded-lg font-medium cursor-pointer"
                 onClick={() => {
                   if (studentToDelete) {
-                    removeStudent(studentToDelete.id);
+                    handleDeleteStudent(
+                      studentToDelete.id,
+                      studentToDelete.mongoId
+                    );
                   }
                   setDeleteModalOpen(false);
                   setStudentToDelete(null);

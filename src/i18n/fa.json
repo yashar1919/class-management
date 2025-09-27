@@ -39,7 +39,8 @@
     "friday": "جمعه",
     "saturday": "شنبه",
     "delete": "حذف",
-    "deleteTitle":"حذف دانش‌آموز"
+    "deleteTitle": "حذف دانش‌آموز",
+    "loading": "بارگزاری..."
   },
   "table": {
     "attendance": "حاضر",

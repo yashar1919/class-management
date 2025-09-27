@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 
 const uri = process.env.MONGODB_URI!;
 const dbName = "studentsDataDB";
@@ -27,4 +27,23 @@ export async function GET() {
   const collection = await connectDB();
   const students = await collection.find({}).toArray();
   return NextResponse.json(students);
+}
+
+// PUT: ویرایش دانش‌آموز
+export async function PUT(req: NextRequest) {
+  const { id, data } = await req.json();
+  const collection = await connectDB();
+  const result = await collection.updateOne(
+    { _id: new ObjectId(id) },
+    { $set: data }
+  );
+  return NextResponse.json({ modifiedCount: result.modifiedCount });
+}
+
+// DELETE: حذف دانش‌آموز
+export async function DELETE(req: NextRequest) {
+  const { id } = await req.json();
+  const collection = await connectDB();
+  const result = await collection.deleteOne({ _id: new ObjectId(id) });
+  return NextResponse.json({ deletedCount: result.deletedCount });
 }

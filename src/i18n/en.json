@@ -25,7 +25,8 @@
     "chooseClassDate": "Choose Class Date",
     "sessionPrice": "Session Price",
     "editStudent": "Update",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "loading":"Loading..."
   },
   "studentList": {
     "classDays": "Class Days",

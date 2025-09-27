@@ -29,6 +29,7 @@ export type Student = {
   daysPerWeek: number;
   multiDay: boolean;
   sessions: Session[];
+  mongoId?: string;
 };
 
 type StudentStore = {
@@ -121,33 +122,13 @@ export const useStudentStore = create<StudentStore>()(
       editingStudent: null, // اضافه شد
       setEditingStudent: (student) => set({ editingStudent: student }), // اضافه شد
       updateStudent: (id, data) =>
-        set((state) => {
-          // ساخت مجدد sessions مثل addStudent
-          let sessions: Session[] = [];
-          data.firstSessionDates.forEach((firstDate: Date) => {
-            for (let i = 0; i < 5; i++) {
-              const sessionDate = addWeeks(new Date(firstDate), i);
-              sessions.push({
-                id: Date.now().toString() + Math.random(), // id یکتا
-                date: sessionDate,
-                startTime: data.startTime,
-                endTime: data.endTime,
-                attended: false,
-                absent: false,
-                price: data.price,
-              });
-            }
-          });
-          sessions = sessions.sort(
-            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-          );
-          return {
-            students: state.students.map((student) =>
-              student.id === id ? { ...student, ...data, sessions } : student
-            ),
-            editingStudent: null, // بعد از ویرایش، فرم ریست شود
-          };
-        }),
+        set((state) => ({
+          students: state.students.map((student) =>
+            student.id === id || student.mongoId === id
+              ? { ...student, ...data }
+              : student
+          ),
+        })),
       setStudents: (students) => set({ students }), // این متد را اضافه کن
     }),
     {
