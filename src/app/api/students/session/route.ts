@@ -14,21 +14,6 @@ async function connectDB() {
   return client.db(dbName).collection(collectionName);
 }
 
-// POST: افزودن دانش‌آموز جدید
-export async function POST(req: NextRequest) {
-  const data = await req.json();
-  const collection = await connectDB();
-  const result = await collection.insertOne(data);
-  return NextResponse.json({ insertedId: result.insertedId });
-}
-
-// GET: دریافت لیست دانش‌آموزان
-export async function GET() {
-  const collection = await connectDB();
-  const students = await collection.find({}).toArray();
-  return NextResponse.json(students);
-}
-
 // PUT: آپدیت وضعیت یک جلسه خاص
 export async function PUT(req: NextRequest) {
   const { mongoId, sessionId, attended, absent } = await req.json();
@@ -46,12 +31,4 @@ export async function PUT(req: NextRequest) {
   );
 
   return NextResponse.json({ modifiedCount: result.modifiedCount });
-}
-
-// DELETE: حذف دانش‌آموز
-export async function DELETE(req: NextRequest) {
-  const { id } = await req.json();
-  const collection = await connectDB();
-  const result = await collection.deleteOne({ _id: new ObjectId(id) });
-  return NextResponse.json({ deletedCount: result.deletedCount });
 }

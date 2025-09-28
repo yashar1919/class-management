@@ -41,3 +41,18 @@ export async function deleteStudentFromDB(mongoId: string) {
   if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
+
+export async function updateSessionStatus(
+  mongoId: string,
+  sessionId: string,
+  attended: boolean,
+  absent: boolean
+) {
+  const res = await fetch("/api/students/session", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mongoId, sessionId, attended, absent }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return await res.json();
+}

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { addWeeks } from "date-fns";
+import { updateSessionStatus } from "@/services/studentService";
 
 export type Session = {
   date: Date;
@@ -90,35 +91,57 @@ export const useStudentStore = create<StudentStore>()(
           students: state.students.filter((s) => s.id !== id),
         })),
       toggleAttendance: (studentId, sessionId) =>
-        set((state) => ({
-          students: state.students.map((student) =>
-            student.id === studentId
-              ? {
-                  ...student,
-                  sessions: student.sessions.map((session) =>
-                    session.id === sessionId
-                      ? { ...session, attended: !session.attended }
-                      : session
-                  ),
+        set((state) => {
+          const students = state.students.map((student) => {
+            if (student.id === studentId || student.mongoId === studentId) {
+              const sessions = student.sessions.map((session) => {
+                if (session.id === sessionId) {
+                  // وضعیت جدید
+                  const newAttended = !session.attended;
+                  // آپدیت سرور
+                  if (student.mongoId) {
+                    updateSessionStatus(
+                      student.mongoId,
+                      sessionId,
+                      newAttended,
+                      session.absent
+                    );
+                  }
+                  return { ...session, attended: newAttended };
                 }
-              : student
-          ),
-        })),
+                return session;
+              });
+              return { ...student, sessions };
+            }
+            return student;
+          });
+          return { students };
+        }),
       toggleAbsent: (studentId: string, sessionId: string) =>
-        set((state) => ({
-          students: state.students.map((student) =>
-            student.id === studentId
-              ? {
-                  ...student,
-                  sessions: student.sessions.map((session) =>
-                    session.id === sessionId
-                      ? { ...session, absent: !session.absent }
-                      : session
-                  ),
+        set((state) => {
+          const students = state.students.map((student) => {
+            if (student.id === studentId || student.mongoId === studentId) {
+              const sessions = student.sessions.map((session) => {
+                if (session.id === sessionId) {
+                  const newAbsent = !session.absent;
+                  if (student.mongoId) {
+                    updateSessionStatus(
+                      student.mongoId,
+                      sessionId,
+                      session.attended,
+                      newAbsent
+                    );
+                  }
+                  return { ...session, absent: newAbsent };
                 }
-              : student
-          ),
-        })),
+                return session;
+              });
+              return { ...student, sessions };
+            }
+            return student;
+          });
+          return { students };
+        }),
       editingStudent: null, // اضافه شد
       setEditingStudent: (student) => set({ editingStudent: student }), // اضافه شد
       updateStudent: (id, data) =>
