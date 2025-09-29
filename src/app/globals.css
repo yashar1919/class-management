@@ -263,3 +263,8 @@ body {
     padding: 20px 7px;
   }
 }
+
+:where(.css-dev-only-do-not-override-apj342).ant-btn-variant-outlined:not(:disabled):not(.ant-btn-disabled):hover,
+:where(.css-dev-only-do-not-override-apj342).ant-btn-variant-dashed:not(:disabled):not(.ant-btn-disabled):hover {
+  color: #00bba7;
+}

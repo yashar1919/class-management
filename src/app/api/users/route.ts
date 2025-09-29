@@ -23,23 +23,89 @@ async function connectDB() {
 
 // POST /api/users (Signup)
 export async function POST(req: NextRequest) {
-  const { email, password } = await req.json();
+  const { firstname, lastname, emailOrPhone, gender, birthDate, password } =
+    await req.json();
+
   const collection = await connectDB();
 
-  // آیا کاربر وجود دارد؟
-  const existing = await collection.findOne({ email });
+  // چک وجود کاربر با ایمیل یا موبایل
+  const existing = await collection.findOne({
+    $or: [
+      { emailOrPhone: emailOrPhone },
+      { email: emailOrPhone }, // اگر قبلاً با email ذخیره شده باشد
+    ],
+  });
   if (existing) {
-    return NextResponse.json({ error: "User already exists" }, { status: 409 });
+    return NextResponse.json(
+      { error: "کاربری با این ایمیل یا شماره موبایل وجود دارد" },
+      { status: 409 }
+    );
   }
 
   // رمز را هش کن
   const hashed = await bcrypt.hash(password, 10);
-  const result = await collection.insertOne({ email, password: hashed });
+
+  // ذخیره اطلاعات کامل کاربر
+  const result = await collection.insertOne({
+    firstname,
+    lastname,
+    emailOrPhone,
+    gender,
+    birthDate,
+    password: hashed,
+    createdAt: new Date(),
+  });
+
   return NextResponse.json({ insertedId: result.insertedId });
 }
 
 // PUT /api/users (Login)
 export async function PUT(req: NextRequest) {
+  const { emailOrPhone, password } = await req.json();
+  const collection = await connectDB();
+
+  // جستجو با ایمیل یا شماره موبایل
+  const user = await collection.findOne({
+    $or: [
+      { emailOrPhone: emailOrPhone },
+      { email: emailOrPhone }, // اگر قبلاً با email ذخیره شده باشد
+    ],
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "کاربر پیدا نشد" }, { status: 404 });
+  }
+
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    return NextResponse.json({ error: "رمز عبور اشتباه است" }, { status: 401 });
+  }
+
+  // ساخت JWT با jose
+  const secret = new TextEncoder().encode(JWT_SECRET);
+  const token = await new SignJWT({ emailOrPhone: user.emailOrPhone })
+    .setProtectedHeader({ alg: "HS256" })
+    .setExpirationTime(`${JWT_EXPIRE}s`)
+    .sign(secret);
+
+  // ست کردن کوکی HttpOnly
+  const cookie = serialize("access_token", token, {
+    httpOnly: true,
+    path: "/",
+    maxAge: JWT_EXPIRE,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  const response = NextResponse.json({
+    success: true,
+    emailOrPhone: user.emailOrPhone,
+  });
+  response.headers.set("Set-Cookie", cookie);
+
+  return response;
+}
+/* export async function PUT(req: NextRequest) {
   const { email, password } = await req.json();
   const collection = await connectDB();
 
@@ -73,4 +139,4 @@ export async function PUT(req: NextRequest) {
   response.headers.set("Set-Cookie", cookie);
 
   return response;
-}
+} */

@@ -2,8 +2,8 @@ import React from "react";
 import {
   BookOutlined,
   InfoCircleOutlined,
-  FundOutlined,
   SettingOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 //import { useTranslation } from "react-i18next";
 
@@ -24,9 +24,9 @@ const navItems = [
     labelKey: "sidebar.studentInfo",
   },
   {
-    id: "reports",
-    icon: <FundOutlined style={{ fontSize: 22 }} />,
-    labelKey: "sidebar.reports",
+    id: "profile",
+    icon: <UserOutlined style={{ fontSize: 22 }} />,
+    labelKey: "sidebar.profile",
   },
   {
     id: "settings",

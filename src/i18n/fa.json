@@ -5,7 +5,8 @@
     "profile": "پروفایل",
     "reports": "گزارشات",
     "lessonPlan": "درسنامه",
-    "settings": "تنظیمات"
+    "settings": "تنظیمات",
+    "logout":"خروج"
   },
   "studentForm": {
     "addNewStudent": "افزودن دانش آموز جدید",
@@ -87,6 +88,13 @@
     "monthlyIncome": "درآمد ماهیانه",
     "close": "بستن"
   },
+  "profile": {
+    "fname": "نام",
+    "lname": "نام خانوادگی",
+    "username": "نام کاربری",
+    "gender": "جنیست",
+    "dateOfBirth": "تاریخ تولد"
+  },
   "settings": {
     "languageTitle": "زبان",
     "languageDesc": "برای تغییر زبان برنامه از سوییچ زیر استفاده کنید."
@@ -99,5 +107,16 @@
     "passwordRequired": "رمز عبور الزامی است",
     "emailInvalid": "ایمیل معتبر وارد کنید",
     "passwordShort": "رمز عبور باید حداقل 4 کاراکتر باشد"
+  },
+  "signup": {
+    "signup": "ثبت نام",
+    "fname": "نام",
+    "lname": "نام خانوادگی",
+    "emailOrPhone": "ایمیل/شماره تلفن",
+    "gender": "جنیست",
+    "chooseBirthday":"تاریخ تولد خود را انتخاب کنید",
+    "password": "رمز عبور",
+    "confirmPassword": "تکرار رمز عبور",
+    "loadingSignup":"در حال ثبت نام..."
   }
 }

@@ -5,7 +5,8 @@
     "profile": "Profile",
     "reports": "Reports",
     "lessonPlan": "Lesson Plan",
-    "settings": "Settings"
+    "settings": "Settings",
+    "logout":"Logout"
   },
   "studentForm": {
     "addNewStudent": "Add New Student",
@@ -27,7 +28,7 @@
     "editStudent": "Update",
     "cancel": "Cancel",
     "loading": "Loading...",
-    "email": "E-mail",
+    "email": "E-Mail",
     "password": "Password"
   },
   "studentList": {
@@ -87,17 +88,37 @@
     "monthlyIncome": "Monthly Income",
     "close": "Close"
   },
+  "profile": {
+    "fname": "First Name",
+    "lname": "Last Name",
+    "username": "Username",
+    "gender": "Gender",
+    "dateOfBirth": "Date Of Birth"
+  },
   "settings": {
     "languageTitle": "Language",
     "languageDesc": "You can change the application language using the switch below."
   },
   "login": {
     "login": "Login",
+    "emailOrPhone": "E-Mail/Phone Number",
     "dontHaveAccount": "Don't have an account?",
     "signup": "Sign Up",
     "emailRequired": "Email is requirment",
     "passwordRequired": "Password is requirment",
     "emailInvalid": "Email is invalid",
     "passwordShort": "Password must be at least 4 characters"
+  },
+  "signup": {
+    "signup": "Sign Up",
+    "fname": "First Name",
+    "lname": "Last Name",
+    "emailOrPhone": "E-Mail/Phone Number",
+    "gender": "Gender",
+    "chooseBirthday":"Choose your birthday",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "loadingSignup": "Loading...",
+    "haveAccount":"Already have an account?"
   }
 }

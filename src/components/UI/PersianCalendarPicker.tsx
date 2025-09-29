@@ -14,6 +14,7 @@ interface PersianCalendarPickerProps {
   onChange: (value: DateObject[]) => void;
   multiple?: boolean;
   error?: string | boolean;
+  placeholder?: string;
 }
 
 const PersianCalendarPicker: React.FC<PersianCalendarPickerProps> = ({
@@ -21,6 +22,7 @@ const PersianCalendarPicker: React.FC<PersianCalendarPickerProps> = ({
   onChange,
   multiple = false,
   error,
+  placeholder,
 }) => {
   React.useEffect(() => {
     //console.log("PersianCalendarPicker error prop:", error);
@@ -74,7 +76,7 @@ const PersianCalendarPicker: React.FC<PersianCalendarPickerProps> = ({
           fontSize: "12px",
           color: error ? "red" : undefined,
         }}
-        placeholder={t("studentForm.chooseClassDate")}
+        placeholder={placeholder ?? t("studentForm.chooseClassDate")}
       />
     </div>
   );

@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
+import { MongoClient } from "mongodb";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "classco_secret"
 );
+const uri = process.env.MONGODB_URI!;
+const dbName = "studentsDataDB";
+const collectionName = "users";
+
+let client: MongoClient | null = null;
+async function connectDB() {
+  if (!client) {
+    client = new MongoClient(uri);
+    await client.connect();
+  }
+  return client.db(dbName).collection(collectionName);
+}
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get("access_token")?.value;
@@ -11,7 +24,21 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    return NextResponse.json({ email: payload.email });
+    const collection = await connectDB();
+    // جستجو با ایمیل یا شماره موبایل
+    const user = await collection.findOne({
+      $or: [
+        { emailOrPhone: payload.emailOrPhone },
+        { email: payload.emailOrPhone },
+      ],
+    });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+    //remove password from output
+    //eslint-disable-next-line
+    const { password, ...userData } = user;
+    return NextResponse.json(userData);
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

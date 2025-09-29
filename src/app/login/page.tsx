@@ -7,22 +7,39 @@ import { useTranslation } from "react-i18next";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{
-    email?: string;
+    emailOrPhone?: string;
     password?: string;
     server?: string;
   }>({});
   const { t } = useTranslation();
 
-  const validate = () => {
+  /* const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
     if (!email)
       newErrors.email = t("login.emailRequired") || "ایمیل الزامی است";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       newErrors.email = t("login.emailInvalid") || "ایمیل معتبر وارد کنید";
+    if (!password)
+      newErrors.password = t("login.passwordRequired") || "رمز عبور الزامی است";
+    else if (password.length < 4)
+      newErrors.password =
+        t("login.passwordShort") || "رمز عبور باید حداقل ۴ کاراکتر باشد";
+    return newErrors;
+  }; */
+
+  const validate = () => {
+    const newErrors: { emailOrPhone?: string; password?: string } = {};
+    if (!emailOrPhone)
+      newErrors.emailOrPhone = "ایمیل یا شماره موبایل الزامی است";
+    else if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone) &&
+      !/^09\d{9}$/.test(emailOrPhone)
+    )
+      newErrors.emailOrPhone = "ایمیل یا شماره موبایل معتبر وارد کنید";
     if (!password)
       newErrors.password = t("login.passwordRequired") || "رمز عبور الزامی است";
     else if (password.length < 4)
@@ -44,19 +61,21 @@ export default function LoginPage() {
       const res = await fetch("/api/users", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ emailOrPhone, password }),
         credentials: "include",
       });
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem("userId", data.email);
+        localStorage.setItem("userId", data.emailOrPhone);
         window.location.href = "/class";
       } else {
         const data = await res.json();
-        alert(data.error || "Login failed");
+        //alert(data.error || "Login failed");
+        setErrors({ server: data.error || "Login failed" });
       }
     } catch (err) {
       console.log(err, "Signup error");
+      setErrors({ server: "خطای سرور" });
     } finally {
       setLoading(false);
     }
@@ -66,7 +85,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-900 to-neutral-900">
       <form
         onSubmit={handleLogin}
-        className="bg-[#141414] p-8 rounded-xl shadow-lg w-full max-w-sm flex flex-col"
+        className="bg-[#141414] p-8 rounded-xl shadow-lg w-full max-w-[360px] sm:max-w-lg flex flex-col"
         noValidate
       >
         <h2 className="text-2xl font-bold text-teal-400 text-center mb-7">
@@ -86,16 +105,17 @@ export default function LoginPage() {
           <div className="flex flex-col gap-6 mb-7">
             <div>
               <InputField
-                placeholder={t("studentForm.email")}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                type="email"
+                placeholder={t("login.emailOrPhone")}
+                value={emailOrPhone}
+                onChange={(e) => setEmailOrPhone(e.target.value)}
                 disabled={loading}
                 prefix={<UserOutlined />}
-                error={!!errors.email}
+                error={!!errors.emailOrPhone}
               />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              {errors.emailOrPhone && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.emailOrPhone}
+                </p>
               )}
             </div>
             <div>
