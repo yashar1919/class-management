@@ -2,8 +2,14 @@ import React from "react";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+//eslint-disable-next-line
+// @ts-ignore
 import "react-multi-date-picker/styles/colors/teal.css";
+//eslint-disable-next-line
+// @ts-ignore
 import "react-multi-date-picker/styles/backgrounds/bg-dark.css";
+//eslint-disable-next-line
+// @ts-ignore
 import "react-multi-date-picker/styles/layouts/mobile.css";
 import { DateObject } from "react-multi-date-picker";
 import { CalendarOutlined } from "@ant-design/icons";
