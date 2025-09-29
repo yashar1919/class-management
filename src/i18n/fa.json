@@ -25,7 +25,10 @@
     "chooseClassDate": "انتخاب تاریخ کلاس",
     "sessionPrice": "هزینه هر جلسه",
     "editStudent": "بروزرسانی",
-    "cancel": "لغو"
+    "cancel": "لغو",
+    "loading": "بارگزاری...",
+    "email": "ایمیل",
+    "password": "رمز عبور"
   },
   "studentList": {
     "classDays": "روز های کلاس",
@@ -39,8 +42,7 @@
     "friday": "جمعه",
     "saturday": "شنبه",
     "delete": "حذف",
-    "deleteTitle": "حذف دانش‌آموز",
-    "loading": "بارگزاری..."
+    "deleteTitle": "حذف دانش‌آموز"
   },
   "table": {
     "attendance": "حاضر",
@@ -88,5 +90,14 @@
   "settings": {
     "languageTitle": "زبان",
     "languageDesc": "برای تغییر زبان برنامه از سوییچ زیر استفاده کنید."
+  },
+  "login": {
+    "login": "ورود",
+    "dontHaveAccount": "آیا حساب کاربری ندارید؟",
+    "signup": "ساخت حساب کاربری",
+    "emailRequired": "ایمیل الزامی است",
+    "passwordRequired": "رمز عبور الزامی است",
+    "emailInvalid": "ایمیل معتبر وارد کنید",
+    "passwordShort": "رمز عبور باید حداقل 4 کاراکتر باشد"
   }
 }

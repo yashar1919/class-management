@@ -26,7 +26,9 @@
     "sessionPrice": "Session Price",
     "editStudent": "Update",
     "cancel": "Cancel",
-    "loading":"Loading..."
+    "loading": "Loading...",
+    "email": "E-mail",
+    "password": "Password"
   },
   "studentList": {
     "classDays": "Class Days",
@@ -40,7 +42,7 @@
     "friday": "Friday",
     "saturday": "Saturday",
     "delete": "Delete",
-    "deleteTitle":"Delete Student"
+    "deleteTitle": "Delete Student"
   },
   "table": {
     "attendance": "Present",
@@ -88,5 +90,14 @@
   "settings": {
     "languageTitle": "Language",
     "languageDesc": "You can change the application language using the switch below."
+  },
+  "login": {
+    "login": "Login",
+    "dontHaveAccount": "Don't have an account?",
+    "signup": "Sign Up",
+    "emailRequired": "Email is requirment",
+    "passwordRequired": "Password is requirment",
+    "emailInvalid": "Email is invalid",
+    "passwordShort": "Password must be at least 4 characters"
   }
 }
