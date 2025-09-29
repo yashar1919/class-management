@@ -42,6 +42,12 @@ body {
   padding-right: env(safe-area-inset-right); */
 }
 
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+
 
 :where(.css-dev-only-do-not-override-kbg4zp).ant-collapse-borderless>.ant-collapse-item>.ant-collapse-content>.ant-collapse-content-box {
   padding: 0;
@@ -260,7 +266,19 @@ body {
 
 @media (max-width: 768px) {
   :where(.css-dev-only-do-not-override-1bxvije).ant-modal .ant-modal-content {
-    padding: 20px 7px;
+    padding: 20px 3px;
+  }
+}
+
+/* فایل استایل global یا ماژول */
+:where(.ant-modal-content) {
+  padding: 20px 3px !important;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  :where(.ant-modal-content) {
+    padding: 20px 3px !important;
   }
 }
 
