@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import InputField from "@/components/UI/InputField";
-import { Button, ConfigProvider, theme } from "antd";
+import { Button, ConfigProvider, notification, theme } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
@@ -30,6 +30,11 @@ export default function LoginPage() {
         t("login.passwordShort") || "رمز عبور باید حداقل ۴ کاراکتر باشد";
     return newErrors;
   }; */
+
+  const [api, contextHolder] = notification.useNotification();
+  const [notificationPlacement] = useState<
+    "top" | "bottom" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight"
+  >("top");
 
   const validate = () => {
     const newErrors: { emailOrPhone?: string; password?: string } = {};
@@ -67,15 +72,30 @@ export default function LoginPage() {
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem("userId", data.emailOrPhone);
-        window.location.href = "/class";
+        api.success({
+          message: "Login Successful",
+          description: "Welcome! You have logged in successfully.",
+          placement: notificationPlacement,
+        });
+        setTimeout(() => {
+          window.location.href = "/class";
+        }, 1200);
       } else {
         const data = await res.json();
-        //alert(data.error || "Login failed");
-        setErrors({ server: data.error || "Login failed" });
+        api.error({
+          message: "Login Error",
+          description: data.error || "Login failed",
+          placement: notificationPlacement,
+        });
+        //setErrors({ server: data.error || "Login failed" });
       }
     } catch (err) {
       console.log(err, "Signup error");
-      setErrors({ server: "خطای سرور" });
+      api.error({
+        message: "خطای سرور",
+        description: "مشکلی در ارتباط با سرور رخ داده است.",
+      });
+      //setErrors({ server: "خطای سرور" });
     } finally {
       setLoading(false);
     }
@@ -83,92 +103,95 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-900 to-neutral-900">
-      <form
-        onSubmit={handleLogin}
-        className="bg-[#141414] p-8 rounded-xl shadow-lg w-full max-w-[360px] sm:max-w-lg flex flex-col"
-        noValidate
-      >
-        <h2 className="text-2xl font-bold text-teal-400 text-center mb-7">
-          {t("login.login")}
-        </h2>
-        <ConfigProvider
-          theme={{
-            algorithm: theme.darkAlgorithm,
-            components: {
-              Input: {
-                colorPrimary: "#00bba7",
-                algorithm: true,
+      <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+        {contextHolder}
+        <form
+          onSubmit={handleLogin}
+          className="bg-[#141414] p-8 rounded-xl shadow-lg w-full max-w-[360px] sm:max-w-lg flex flex-col"
+          noValidate
+        >
+          <h2 className="text-2xl font-bold text-teal-400 text-center mb-7">
+            {t("login.login")}
+          </h2>
+          <ConfigProvider
+            theme={{
+              algorithm: theme.darkAlgorithm,
+              components: {
+                Input: {
+                  colorPrimary: "#00bba7",
+                  algorithm: true,
+                },
               },
-            },
-          }}
-        >
-          <div className="flex flex-col gap-6 mb-7">
-            <div>
-              <InputField
-                placeholder={t("login.emailOrPhone")}
-                value={emailOrPhone}
-                onChange={(e) => setEmailOrPhone(e.target.value)}
-                disabled={loading}
-                prefix={<UserOutlined />}
-                error={!!errors.emailOrPhone}
-              />
-              {errors.emailOrPhone && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.emailOrPhone}
-                </p>
-              )}
-            </div>
-            <div>
-              <InputField
-                placeholder={t("studentForm.password")}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                disabled={loading}
-                prefix={<LockOutlined />}
-                error={!!errors.password}
-              />
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-              )}
-            </div>
-          </div>
-        </ConfigProvider>
-        {errors.server && (
-          <p className="text-red-500 text-xs mt-1 text-center">
-            {errors.server}
-          </p>
-        )}
-        <Button
-          type="default"
-          htmlType="submit"
-          style={{
-            background: "#00aa98",
-            color: "#fff",
-            borderRadius: "10px",
-            fontSize: "16px",
-            fontWeight: 500,
-            padding: "19px 0px",
-            border: "none",
-            width: "100%",
-            opacity: loading ? 0.7 : 1,
-            cursor: loading ? "not-allowed" : "pointer",
-          }}
-          loading={loading}
-          disabled={loading}
-        >
-          {loading ? t("studentForm.loading") : t("login.login")}
-        </Button>
-        <div className="flex justify-center items-center gap-2 text-sm mt-3">
-          <span className="text-gray-400">{t("login.dontHaveAccount")}</span>
-          <Link
-            href="/signup"
-            className="text-teal-400 text-center hover:underline"
+            }}
           >
-            {t("login.signup")}
-          </Link>
-        </div>
-      </form>
+            <div className="flex flex-col gap-6 mb-7">
+              <div>
+                <InputField
+                  placeholder={t("login.emailOrPhone")}
+                  value={emailOrPhone}
+                  onChange={(e) => setEmailOrPhone(e.target.value)}
+                  disabled={loading}
+                  prefix={<UserOutlined />}
+                  error={!!errors.emailOrPhone}
+                />
+                {errors.emailOrPhone && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.emailOrPhone}
+                  </p>
+                )}
+              </div>
+              <div>
+                <InputField
+                  placeholder={t("studentForm.password")}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  type="password"
+                  disabled={loading}
+                  prefix={<LockOutlined />}
+                  error={!!errors.password}
+                />
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                )}
+              </div>
+            </div>
+          </ConfigProvider>
+          {errors.server && (
+            <p className="text-red-500 text-xs mt-1 text-center">
+              {errors.server}
+            </p>
+          )}
+          <Button
+            type="default"
+            htmlType="submit"
+            style={{
+              background: "#00aa98",
+              color: "#fff",
+              borderRadius: "10px",
+              fontSize: "16px",
+              fontWeight: 500,
+              padding: "19px 0px",
+              border: "none",
+              width: "100%",
+              opacity: loading ? 0.7 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+            loading={loading}
+            disabled={loading}
+          >
+            {loading ? t("studentForm.loading") : t("login.login")}
+          </Button>
+          <div className="flex justify-center items-center gap-2 text-sm mt-3">
+            <span className="text-gray-400">{t("login.dontHaveAccount")}</span>
+            <Link
+              href="/signup"
+              className="text-teal-400 text-center hover:underline"
+            >
+              {t("login.signup")}
+            </Link>
+          </div>
+        </form>
+      </ConfigProvider>
     </div>
   );
 }

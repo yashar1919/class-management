@@ -3,7 +3,7 @@ import { useState } from "react";
 import InputField from "@/components/UI/InputField";
 import DropdownField from "@/components/UI/DropdownField";
 import PersianCalendarPicker from "@/components/UI/PersianCalendarPicker";
-import { Button, ConfigProvider, theme } from "antd";
+import { Button, ConfigProvider, notification, theme } from "antd";
 import { UserOutlined, LockOutlined, PhoneOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
@@ -63,6 +63,11 @@ export default function SignupPage() {
     return newErrors;
   };
 
+  const [api, contextHolder] = notification.useNotification();
+  const [notificationPlacement] = useState<
+    "top" | "bottom" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight"
+  >("top");
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
@@ -86,13 +91,20 @@ export default function SignupPage() {
         }),
       });
       if (res.ok) {
-        window.location.href = "/login";
+        api.success({
+          message: "Signup Successful",
+          description: "Your account has been created successfully.",
+          placement: notificationPlacement,
+        });
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1200);
       } else {
         const data = await res.json();
-        setErrors({ server: data.error || "ثبت‌نام ناموفق بود" });
+        setErrors({ server: data.error || "Signup failed!" });
       }
     } catch (err) {
-      setErrors({ server: "خطای سرور" });
+      setErrors({ server: "Server error" });
       console.log(err);
     } finally {
       setLoading(false);
@@ -101,166 +113,187 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-900 to-neutral-900">
-      <form
-        onSubmit={handleSignup}
-        className="bg-[#141414] p-8 rounded-xl shadow-lg w-full max-w-[360px] sm:max-w-lg flex flex-col gap-6 my-20"
-        noValidate
-      >
-        <h2 className="text-2xl font-bold text-teal-400 text-center mb-7">
-          {t("signup.signup")}
-        </h2>
-        <ConfigProvider
-          theme={{
-            algorithm: theme.darkAlgorithm,
-            components: {
-              Input: {
-                colorPrimary: "#00bba7",
-                algorithm: true,
-              },
-              Dropdown: {
-                colorPrimary: "#00bba7",
-                algorithm: true,
-              },
+      <ConfigProvider
+        theme={{
+          algorithm: theme.darkAlgorithm,
+          components: {
+            Input: {
+              colorPrimary: "#00bba7",
+              algorithm: true,
             },
-          }}
+            Dropdown: {
+              colorPrimary: "#00bba7",
+              algorithm: true,
+            },
+          },
+        }}
+      >
+        {contextHolder}
+        <form
+          onSubmit={handleSignup}
+          className="bg-[#141414] p-8 rounded-xl shadow-lg w-full max-w-[360px] sm:max-w-lg flex flex-col gap-6 my-20"
+          noValidate
         >
-          <div className="flex flex-col gap-5 mb-7">
-            <div>
-              <InputField
-                placeholder={t("signup.fname")}
-                value={firstname}
-                onChange={(e) => setFirstname(e.target.value)}
-                disabled={loading}
-                prefix={<UserOutlined />}
-                error={!!errors.firstname}
-              />
-              {errors.firstname && (
-                <p className="text-red-500 text-xs mt-1">{errors.firstname}</p>
-              )}
-            </div>
-            <div>
-              <InputField
-                placeholder={t("signup.lname")}
-                value={lastname}
-                onChange={(e) => setLastname(e.target.value)}
-                disabled={loading}
-                prefix={<UserOutlined />}
-                error={!!errors.lastname}
-              />
-              {errors.lastname && (
-                <p className="text-red-500 text-xs mt-1">{errors.lastname}</p>
-              )}
-            </div>
-            <div>
-              <InputField
-                placeholder={t("signup.emailOrPhone")}
-                value={emailOrPhone}
-                onChange={(e) => setEmailOrPhone(e.target.value)}
-                disabled={loading}
-                prefix={<PhoneOutlined />}
-                error={!!errors.emailOrPhone}
-              />
-              {errors.emailOrPhone && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.emailOrPhone}
-                </p>
-              )}
-            </div>
-            <div>
-              <DropdownField
-                label={t("signup.gender")}
-                items={
-                  i18n.language === "fa"
-                    ? genderOptionsPersian
-                    : genderOptionsEnglish
-                }
-                value={gender}
-                onChange={setGender}
-                error={!!errors.gender}
-                icon={<UserOutlined />}
-              />
-              {errors.gender && (
-                <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
-              )}
-            </div>
-            <div>
-              <PersianCalendarPicker
-                value={birthDate}
-                onChange={setBirthDate}
-                error={!!errors.birthDate}
-                placeholder={t("signup.chooseBirthday")}
-              />
-              {errors.birthDate && (
-                <p className="text-red-500 text-xs mt-1">{errors.birthDate}</p>
-              )}
-            </div>
-            <div>
-              <InputField
-                placeholder={t("signup.password")}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                disabled={loading}
-                prefix={<LockOutlined />}
-                error={!!errors.password}
-              />
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-              )}
-            </div>
-            <div>
-              <InputField
-                placeholder={t("signup.confirmPassword")}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                type="password"
-                disabled={loading}
-                prefix={<LockOutlined />}
-                error={!!errors.confirmPassword}
-              />
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.confirmPassword}
-                </p>
-              )}
-            </div>
-          </div>
-        </ConfigProvider>
-        {errors.server && (
-          <p className="text-red-500 text-xs mt-1 text-center">
-            {errors.server}
-          </p>
-        )}
-        <Button
-          type="default"
-          htmlType="submit"
-          style={{
-            background: "#00aa98",
-            color: "#fff",
-            borderRadius: "10px",
-            fontSize: "16px",
-            fontWeight: 500,
-            padding: "19px 0px",
-            border: "none",
-            width: "100%",
-            opacity: loading ? 0.7 : 1,
-            cursor: loading ? "not-allowed" : "pointer",
-          }}
-          loading={loading}
-          disabled={loading}
-        >
-          {loading ? t("signup.loadingSignup") : t("signup.signup")}
-        </Button>
-        <div className="flex justify-center items-center gap-2 text-sm mt-3">
-          <span className="text-gray-400">{t("signup.haveAccount")}</span>
-          <Link
-            href="/login"
-            className="text-teal-400 text-center hover:underline"
+          <h2 className="text-2xl font-bold text-teal-400 text-center mb-7">
+            {t("signup.signup")}
+          </h2>
+          <ConfigProvider
+            theme={{
+              algorithm: theme.darkAlgorithm,
+              components: {
+                Input: {
+                  colorPrimary: "#00bba7",
+                  algorithm: true,
+                },
+                Dropdown: {
+                  colorPrimary: "#00bba7",
+                  algorithm: true,
+                },
+              },
+            }}
           >
-            {t("login.login")}
-          </Link>
-        </div>
-      </form>
+            <div className="flex flex-col gap-5 mb-7">
+              <div>
+                <InputField
+                  placeholder={t("signup.fname")}
+                  value={firstname}
+                  onChange={(e) => setFirstname(e.target.value)}
+                  disabled={loading}
+                  prefix={<UserOutlined />}
+                  error={!!errors.firstname}
+                />
+                {errors.firstname && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.firstname}
+                  </p>
+                )}
+              </div>
+              <div>
+                <InputField
+                  placeholder={t("signup.lname")}
+                  value={lastname}
+                  onChange={(e) => setLastname(e.target.value)}
+                  disabled={loading}
+                  prefix={<UserOutlined />}
+                  error={!!errors.lastname}
+                />
+                {errors.lastname && (
+                  <p className="text-red-500 text-xs mt-1">{errors.lastname}</p>
+                )}
+              </div>
+              <div>
+                <InputField
+                  placeholder={t("signup.emailOrPhone")}
+                  value={emailOrPhone}
+                  onChange={(e) => setEmailOrPhone(e.target.value)}
+                  disabled={loading}
+                  prefix={<PhoneOutlined />}
+                  error={!!errors.emailOrPhone}
+                />
+                {errors.emailOrPhone && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.emailOrPhone}
+                  </p>
+                )}
+              </div>
+              <div>
+                <DropdownField
+                  label={t("signup.gender")}
+                  items={
+                    i18n.language === "fa"
+                      ? genderOptionsPersian
+                      : genderOptionsEnglish
+                  }
+                  value={gender}
+                  onChange={setGender}
+                  error={!!errors.gender}
+                  icon={<UserOutlined />}
+                />
+                {errors.gender && (
+                  <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
+                )}
+              </div>
+              <div>
+                <PersianCalendarPicker
+                  value={birthDate}
+                  onChange={setBirthDate}
+                  error={!!errors.birthDate}
+                  placeholder={t("signup.chooseBirthday")}
+                />
+                {errors.birthDate && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.birthDate}
+                  </p>
+                )}
+              </div>
+              <div>
+                <InputField
+                  placeholder={t("signup.password")}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  type="password"
+                  disabled={loading}
+                  prefix={<LockOutlined />}
+                  error={!!errors.password}
+                />
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                )}
+              </div>
+              <div>
+                <InputField
+                  placeholder={t("signup.confirmPassword")}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  type="password"
+                  disabled={loading}
+                  prefix={<LockOutlined />}
+                  error={!!errors.confirmPassword}
+                />
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.confirmPassword}
+                  </p>
+                )}
+              </div>
+            </div>
+          </ConfigProvider>
+          {errors.server && (
+            <p className="text-red-500 text-xs mt-1 text-center">
+              {errors.server}
+            </p>
+          )}
+          <Button
+            type="default"
+            htmlType="submit"
+            style={{
+              background: "#00aa98",
+              color: "#fff",
+              borderRadius: "10px",
+              fontSize: "16px",
+              fontWeight: 500,
+              padding: "19px 0px",
+              border: "none",
+              width: "100%",
+              opacity: loading ? 0.7 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+            loading={loading}
+            disabled={loading}
+          >
+            {loading ? t("signup.loadingSignup") : t("signup.signup")}
+          </Button>
+          <div className="flex justify-center items-center gap-2 text-sm mt-3">
+            <span className="text-gray-400">{t("signup.haveAccount")}</span>
+            <Link
+              href="/login"
+              className="text-teal-400 text-center hover:underline"
+            >
+              {t("login.login")}
+            </Link>
+          </div>
+        </form>
+      </ConfigProvider>
     </div>
   );
 }

@@ -73,12 +73,12 @@ export async function PUT(req: NextRequest) {
   });
 
   if (!user) {
-    return NextResponse.json({ error: "کاربر پیدا نشد" }, { status: 404 });
+    return NextResponse.json({ error: "User is not found :(" }, { status: 404 });
   }
 
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) {
-    return NextResponse.json({ error: "رمز عبور اشتباه است" }, { status: 401 });
+    return NextResponse.json({ error: "Incorrect your password❌" }, { status: 401 });
   }
 
   // ساخت JWT با jose
