@@ -132,7 +132,7 @@ export default function StudentList() {
         >
           {selectedStudent && (
             <div>
-              <p className="text-teal-400 font-light text-2xl mb-5">{selectedStudent?.name || ""}</p>
+              <p className="text-teal-400 font-light text-2xl mb-5 mx-3">{selectedStudent?.name || ""}</p>
               <CalendarTable
                 studentId={
                   selectedStudent.id ||

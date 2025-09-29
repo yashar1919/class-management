@@ -39,12 +39,12 @@ export default function LoginPage() {
   const validate = () => {
     const newErrors: { emailOrPhone?: string; password?: string } = {};
     if (!emailOrPhone)
-      newErrors.emailOrPhone = "ایمیل یا شماره موبایل الزامی است";
+      newErrors.emailOrPhone = t('login.emailRequired');
     else if (
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone) &&
       !/^09\d{9}$/.test(emailOrPhone)
     )
-      newErrors.emailOrPhone = "ایمیل یا شماره موبایل معتبر وارد کنید";
+      newErrors.emailOrPhone = t('login.emailInvalid');
     if (!password)
       newErrors.password = t("login.passwordRequired") || "رمز عبور الزامی است";
     else if (password.length < 4)

@@ -104,9 +104,9 @@
     "emailOrPhone": "E-Mail/Phone Number",
     "dontHaveAccount": "Don't have an account?",
     "signup": "Sign Up",
-    "emailRequired": "Email is requirment",
-    "passwordRequired": "Password is requirment",
-    "emailInvalid": "Email is invalid",
+    "emailRequired": "Email/Phone Number is required",
+    "passwordRequired": "Password is required",
+    "emailInvalid": "Email/Phone Number is invalid",
     "passwordShort": "Password must be at least 4 characters"
   },
   "signup": {

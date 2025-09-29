@@ -103,9 +103,9 @@
     "login": "ورود",
     "dontHaveAccount": "آیا حساب کاربری ندارید؟",
     "signup": "ساخت حساب کاربری",
-    "emailRequired": "ایمیل الزامی است",
+    "emailRequired": "ایمیل/شماره موبایل الزامی است",
     "passwordRequired": "رمز عبور الزامی است",
-    "emailInvalid": "ایمیل معتبر وارد کنید",
+    "emailInvalid": "ایمیل/شماره موبایل معتبر وارد کنید",
     "passwordShort": "رمز عبور باید حداقل 4 کاراکتر باشد"
   },
   "signup": {
