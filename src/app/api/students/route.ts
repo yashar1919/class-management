@@ -17,34 +17,39 @@ async function connectDB() {
 // POST: افزودن دانش‌آموز جدید
 export async function POST(req: NextRequest) {
   const data = await req.json();
+  if (!data.userId) {
+    return NextResponse.json({ error: "userId is required" }, { status: 400 });
+  }
   const collection = await connectDB();
   const result = await collection.insertOne(data);
   return NextResponse.json({ insertedId: result.insertedId });
 }
 
 // GET: دریافت لیست دانش‌آموزان
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const userId = req.nextUrl.searchParams.get("userId");
+  if (!userId) {
+    return NextResponse.json({ error: "userId is required" }, { status: 400 });
+  }
   const collection = await connectDB();
-  const students = await collection.find({}).toArray();
+  const students = await collection.find({ userId }).toArray();
   return NextResponse.json(students);
 }
 
 // PUT: آپدیت وضعیت یک جلسه خاص
 export async function PUT(req: NextRequest) {
-  const { mongoId, sessionId, attended, absent } = await req.json();
+  const { id, data } = await req.json();
+  if (!id || !data.userId) {
+    return NextResponse.json(
+      { error: "id and userId are required" },
+      { status: 400 }
+    );
+  }
   const collection = await connectDB();
-
-  // فقط مقدار attended و absent را برای session موردنظر آپدیت کن
   const result = await collection.updateOne(
-    { _id: new ObjectId(mongoId), "sessions.id": sessionId },
-    {
-      $set: {
-        "sessions.$.attended": attended,
-        "sessions.$.absent": absent,
-      },
-    }
+    { _id: new ObjectId(id), userId: data.userId },
+    { $set: data }
   );
-
   return NextResponse.json({ modifiedCount: result.modifiedCount });
 }
 
