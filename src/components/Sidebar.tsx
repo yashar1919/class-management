@@ -7,6 +7,7 @@ import {
   FormOutlined,
   FundOutlined,
   InfoCircleOutlined,
+  LoadingOutlined,
   LogoutOutlined,
   MenuOutlined,
   SettingOutlined,
@@ -15,6 +16,8 @@ import {
 import { useTranslation } from "react-i18next";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
+import { ConfigProvider, Spin, theme } from "antd";
+import ModalCustom from "./UI/ModalCustom";
 //import { signOut } from "next-auth/react";
 
 const MobileBottomNav = dynamic(() => import("./MobileBottomNav"), {
@@ -37,10 +40,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     window.location.href = "/login";
   }; */
 
+  const [logoutModalOpen, setLogoutModalOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+
   const handleLogout = async () => {
-    // حذف کوکی سمت سرور
+    setLoading(true);
     await fetch("/api/users/logout", { method: "POST" });
-    window.location.href = "/login";
+    // کمی تاخیر برای نمایش لودینگ (اختیاری)
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 700);
   };
 
   const activeTab = pathname?.split("/")[1] || "class";
@@ -106,102 +115,168 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   }
 
   return (
-    <aside
-      className={`fixed top-3 ${
-        i18n.language === "fa" ? "right-3" : "left-3"
-      } bottom-3 z-50 bg-neutral-900 rounded-2xl transition-all duration-300 ${
-        isOpen ? "w-64" : "w-20"
-      } flex flex-col`}
-      style={{ boxShadow: "0px 0px 5px #33c9b9" }}
-    >
-      {/* Logo & Toggle */}
-      <div className="px-4 py-3">
-        <div className={`${isOpen ? "hidden" : "block"} mb-3`}>
-          <Image src={Logo} width={50} alt="classco logo" />
+    <>
+      {loading && (
+        <div className="fixed inset-0 z-[9999] flex flex-col gap-7 items-center justify-center backdrop-blur-md bg-black/40">
+          <Spin
+            indicator={<LoadingOutlined spin />}
+            size="large"
+            style={{ color: "oklch(60% 0.118 184.704)", scale: 2 }}
+          />
+          <span className="text-teal-600 text-xl">Loading...</span>
         </div>
-        <div
-          className={`flex mb-2 ${isOpen ? "justify-end" : "justify-center"}`}
-        >
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className={`text-teal-500 ${
-              isOpen ? "hover:text-gray-500" : "hover:text-teal-100"
-            } transition cursor-pointer`}
+      )}
+      <aside
+        className={`fixed top-3 ${
+          i18n.language === "fa" ? "right-3" : "left-3"
+        } bottom-3 z-50 bg-neutral-900 rounded-2xl transition-all duration-300 ${
+          isOpen ? "w-64" : "w-20"
+        } flex flex-col`}
+        style={{ boxShadow: "0px 0px 5px #33c9b9" }}
+      >
+        {/* Logo & Toggle */}
+        <div className="px-4 py-3">
+          <div className={`${isOpen ? "hidden" : "block"} mb-3`}>
+            <Image src={Logo} width={50} alt="classco logo" />
+          </div>
+          <div
+            className={`flex mb-2 ${isOpen ? "justify-end" : "justify-center"}`}
           >
-            {isOpen ? (
-              <CloseOutlined />
-            ) : (
-              <MenuOutlined style={{ fontSize: "18px" }} />
-            )}
-          </button>
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className={`text-teal-500 ${
+                isOpen ? "hover:text-gray-500" : "hover:text-teal-100"
+              } transition cursor-pointer`}
+            >
+              {isOpen ? (
+                <CloseOutlined />
+              ) : (
+                <MenuOutlined style={{ fontSize: "18px" }} />
+              )}
+            </button>
+          </div>
+          <div className={`${isOpen ? "block" : "hidden"} flex justify-center`}>
+            <Image src={Logo} width={250} alt="classco logo" />
+          </div>
         </div>
-        <div className={`${isOpen ? "block" : "hidden"} flex justify-center`}>
-          <Image src={Logo} width={250} alt="classco logo" />
-        </div>
-      </div>
 
-      {/* Content: منو + دکمه خروج جدا */}
-      <div className="flex flex-col justify-between flex-1 px-2 pb-4">
-        {/* منوی اصلی */}
-        <ul className="space-y-3 mt-4">
-          {menuItems.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <li key={item.id}>
-                <button
-                  onClick={() => router.push(item.path)}
-                  className={`flex items-center ${
-                    isOpen
-                      ? "w-full px-5 py-2 rounded-lg"
-                      : "mx-auto px-4 py-3 rounded-full"
-                  } gap-4 transition-colors duration-200 cursor-pointer ${
-                    isActive
-                      ? "bg-teal-500 text-neutral-900"
-                      : "text-gray-300 hover:bg-teal-200 hover:text-teal-900"
-                  }`}
-                >
-                  <span
-                    className={`transition-all duration-300 ${
-                      !isOpen && isActive ? "scale-130" : undefined
+        {/* Content: منو + دکمه خروج جدا */}
+        <div className="flex flex-col justify-between flex-1 px-2 pb-4">
+          {/* منوی اصلی */}
+          <ul className="space-y-3 mt-4">
+            {menuItems.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => router.push(item.path)}
+                    className={`flex items-center ${
+                      isOpen
+                        ? "w-full px-5 py-2 rounded-lg"
+                        : "mx-auto px-4 py-3 rounded-full"
+                    } gap-4 transition-colors duration-200 cursor-pointer ${
+                      isActive
+                        ? "bg-teal-500 text-neutral-900"
+                        : "text-gray-300 hover:bg-teal-200 hover:text-teal-900"
                     }`}
                   >
-                    {item.icon}
-                  </span>
-                  <span
-                    className={`${isOpen ? "block" : "hidden"} font-medium`}
-                  >
-                    {item.title}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+                    <span
+                      className={`transition-all duration-300 ${
+                        !isOpen && isActive ? "scale-130" : undefined
+                      }`}
+                    >
+                      {item.icon}
+                    </span>
+                    <span
+                      className={`${isOpen ? "block" : "hidden"} font-medium`}
+                    >
+                      {item.title}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
 
-        {/* دکمه خروج — همیشه پایین */}
-        <ul className="mt-auto">
-          {" "}
-          {/* mt-auto باعث میشه به پایین بچسبه */}
-          <li>
-            <button
-              onClick={handleLogout}
-              className={`flex items-center ${
-                isOpen
-                  ? "w-full px-5 py-2 rounded-lg"
-                  : "mx-auto px-4 py-3 rounded-full"
-              } gap-4 transition-colors duration-200 cursor-pointer text-red-400 hover:bg-red-100 hover:text-red-700`}
+          {/* دکمه خروج — همیشه پایین */}
+          <ul className="mt-auto">
+            <li>
+              <button
+                onClick={() => setLogoutModalOpen(true)}
+                className={`flex items-center ${
+                  isOpen
+                    ? "w-full px-5 py-2 rounded-lg"
+                    : "mx-auto px-4 py-3 rounded-full"
+                } gap-4 transition-colors duration-200 cursor-pointer text-red-400 hover:bg-red-100 hover:text-red-700`}
+              >
+                <span>
+                  <LogoutOutlined style={{ fontSize: "18px" }} />
+                </span>
+                <span className={`${isOpen ? "block" : "hidden"} font-medium`}>
+                  Logout
+                </span>
+              </button>
+            </li>
+          </ul>
+
+          {/* مودال تأیید لاگ‌اوت */}
+          <ConfigProvider
+            theme={{
+              algorithm: theme.darkAlgorithm,
+              components: {
+                Button: {
+                  colorPrimary: "#00bba7",
+                  algorithm: true,
+                },
+              },
+            }}
+          >
+            <ModalCustom
+              open={logoutModalOpen}
+              onCancel={() => setLogoutModalOpen(false)}
+              title=""
+              footer={null}
             >
-              <span>
-                <LogoutOutlined style={{ fontSize: "18px" }} />
-              </span>
-              <span className={`${isOpen ? "block" : "hidden"} font-medium`}>
-                Logout
-              </span>
-            </button>
-          </li>
-        </ul>
-      </div>
-    </aside>
+              <div className="text-center">
+                <div className="mb-5">
+                  <LogoutOutlined
+                    style={{
+                      fontSize: "40px",
+                      color: "#fb2c36",
+                      backgroundColor: "#460809",
+                      borderRadius: "100%",
+                      padding: "10px",
+                    }}
+                  />
+                  <p className="text-white text-lg mt-1 font-semibold">
+                    خروج از حساب کاربری
+                  </p>
+                </div>
+                <p className="text-[17px] font-light text-gray-400">
+                  آیا مطمئن هستید که می‌خواهید خارج شوید؟
+                </p>
+                <div className="flex justify-center gap-4 mt-7">
+                  <button
+                    className="border border-neutral-700 w-full text-gray-300 px-6 py-2 rounded-lg cursor-pointer"
+                    onClick={() => setLogoutModalOpen(false)}
+                    disabled={loading}
+                  >
+                    انصراف
+                  </button>
+                  <button
+                    className="bg-red-500 w-full text-white px-6 py-2 rounded-lg font-medium cursor-pointer"
+                    onClick={handleLogout}
+                    disabled={loading}
+                  >
+                    خروج
+                  </button>
+                </div>
+              </div>
+            </ModalCustom>
+          </ConfigProvider>
+        </div>
+      </aside>
+    </>
   );
 };
 
