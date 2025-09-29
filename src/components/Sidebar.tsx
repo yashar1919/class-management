@@ -7,6 +7,7 @@ import {
   FormOutlined,
   FundOutlined,
   InfoCircleOutlined,
+  LogoutOutlined,
   MenuOutlined,
   SettingOutlined,
   UserOutlined,
@@ -14,6 +15,7 @@ import {
 import { useTranslation } from "react-i18next";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
+//import { signOut } from "next-auth/react";
 
 const MobileBottomNav = dynamic(() => import("./MobileBottomNav"), {
   ssr: false,
@@ -29,6 +31,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const { i18n, t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
+
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    window.location.href = "/login";
+  };
 
   const activeTab = pathname?.split("/")[1] || "class";
 
@@ -96,9 +103,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     <aside
       className={`fixed top-3 ${
         i18n.language === "fa" ? "right-3" : "left-3"
-      } left-3 bottom-3 h-auto z-50 bg-neutral-900 rounded-2xl transition-all duration-300 ${
+      } bottom-3 z-50 bg-neutral-900 rounded-2xl transition-all duration-300 ${
         isOpen ? "w-64" : "w-20"
-      }`}
+      } flex flex-col`}
       style={{ boxShadow: "0px 0px 5px #33c9b9" }}
     >
       {/* Logo & Toggle */}
@@ -127,9 +134,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         </div>
       </div>
 
-      {/* Menu */}
-      <nav className={`${isOpen ? "mt-10" : "mt-4"}`}>
-        <ul className="space-y-3 px-2">
+      {/* Content: منو + دکمه خروج جدا */}
+      <div className="flex flex-col justify-between flex-1 px-2 pb-4">
+        {/* منوی اصلی */}
+        <ul className="space-y-3 mt-4">
           {menuItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -163,7 +171,30 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             );
           })}
         </ul>
-      </nav>
+
+        {/* دکمه خروج — همیشه پایین */}
+        <ul className="mt-auto">
+          {" "}
+          {/* mt-auto باعث میشه به پایین بچسبه */}
+          <li>
+            <button
+              onClick={handleLogout}
+              className={`flex items-center ${
+                isOpen
+                  ? "w-full px-5 py-2 rounded-lg"
+                  : "mx-auto px-4 py-3 rounded-full"
+              } gap-4 transition-colors duration-200 cursor-pointer text-red-400 hover:bg-red-100 hover:text-red-700`}
+            >
+              <span>
+                <LogoutOutlined style={{ fontSize: "18px" }} />
+              </span>
+              <span className={`${isOpen ? "block" : "hidden"} font-medium`}>
+                Logout
+              </span>
+            </button>
+          </li>
+        </ul>
+      </div>
     </aside>
   );
 };
