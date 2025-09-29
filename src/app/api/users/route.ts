@@ -2,10 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
 //eslint-disable-next-line
 const bcrypt = require("bcrypt");
+import { SignJWT } from "jose";
+import { serialize } from "cookie";
 
 const uri = process.env.MONGODB_URI!;
 const dbName = "studentsDataDB";
 const collectionName = "users";
+
+const JWT_SECRET = process.env.JWT_SECRET || "classco_secret";
+const JWT_EXPIRE = 60 * 60 * 24 * 30; // 30 روز
 
 let client: MongoClient | null = null;
 async function connectDB() {
@@ -48,6 +53,24 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Invalid password" }, { status: 401 });
   }
 
-  // اینجا می‌توان توکن یا session بسازی (برای سادگی فقط پیام موفقیت می‌دهیم)
-  return NextResponse.json({ success: true, email: user.email });
+  // ساخت JWT با jose
+  const secret = new TextEncoder().encode(JWT_SECRET);
+  const token = await new SignJWT({ email })
+    .setProtectedHeader({ alg: "HS256" })
+    .setExpirationTime(`${JWT_EXPIRE}s`)
+    .sign(secret);
+
+  // ست کردن کوکی HttpOnly
+  const cookie = serialize("access_token", token, {
+    httpOnly: true,
+    path: "/",
+    maxAge: JWT_EXPIRE,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  const response = NextResponse.json({ success: true, email: user.email });
+  response.headers.set("Set-Cookie", cookie);
+
+  return response;
 }

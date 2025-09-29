@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+//eslint-disable-next-line
+// @ts-ignore
 import "./globals.css";
 import "@ant-design/v5-patch-for-react-19";
 import AppShellWrapper from "./AppShellWrapper";

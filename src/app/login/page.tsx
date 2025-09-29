@@ -8,14 +8,20 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      /* const res = await fetch("/api/users", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      }); */
       const res = await fetch("/api/users", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
+        credentials: "include",
       });
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem("userId", data.email); // یا هر آیدی یکتا
+        localStorage.setItem("userId", data.email);
         window.location.href = "/class";
       } else {
         const data = await res.json();

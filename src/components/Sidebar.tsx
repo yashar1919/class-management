@@ -32,8 +32,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleLogout = () => {
+  /* const handleLogout = () => {
     localStorage.removeItem("userId");
+    window.location.href = "/login";
+  }; */
+
+  const handleLogout = async () => {
+    // حذف کوکی سمت سرور
+    await fetch("/api/users/logout", { method: "POST" });
     window.location.href = "/login";
   };
 
