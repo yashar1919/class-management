@@ -175,7 +175,7 @@ export default function StudentList() {
           cancelText={t("studentList.cancel") || "انصراف"}
           footer={null}
         >
-          <div className="text-center">
+          <div className="text-center px-8">
             <div className="mb-5">
               <DeleteOutlined
                 style={{

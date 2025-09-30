@@ -286,3 +286,7 @@ html, body {
 :where(.css-dev-only-do-not-override-apj342).ant-btn-variant-dashed:not(:disabled):not(.ant-btn-disabled):hover {
   color: #00bba7;
 }
+
+:where(.css-dev-only-do-not-override-1nfynx2).ant-modal .ant-modal-content{
+  background-color: #141414;
+}

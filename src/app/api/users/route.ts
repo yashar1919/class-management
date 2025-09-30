@@ -73,12 +73,18 @@ export async function PUT(req: NextRequest) {
   });
 
   if (!user) {
-    return NextResponse.json({ error: "User is not found :(" }, { status: 404 });
+    return NextResponse.json(
+      { error: "User is not found :(" },
+      { status: 404 }
+    );
   }
 
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) {
-    return NextResponse.json({ error: "Incorrect your password❌" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Incorrect your password❌" },
+      { status: 401 }
+    );
   }
 
   // ساخت JWT با jose
@@ -104,6 +110,41 @@ export async function PUT(req: NextRequest) {
   response.headers.set("Set-Cookie", cookie);
 
   return response;
+}
+
+// PATCH /api/users (Edit Profile)
+export async function PATCH(req: NextRequest) {
+  const { firstname, lastname, emailOrPhone, gender, birthDate, newPassword } =
+    await req.json();
+  const collection = await connectDB();
+
+  const user = await collection.findOne({
+    $or: [{ emailOrPhone: emailOrPhone }, { email: emailOrPhone }],
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  //eslint-disable-next-line
+  const updateFields: any = {
+    firstname,
+    lastname,
+    emailOrPhone,
+    gender,
+    birthDate,
+    updatedAt: new Date(),
+  };
+
+  if (newPassword && newPassword.length >= 4) {
+    const hashed = await bcrypt.hash(newPassword, 10);
+    updateFields.password = hashed;
+  }
+
+  await collection.updateOne({ _id: user._id }, { $set: updateFields });
+
+  const updatedUser = await collection.findOne({ _id: user._id });
+  return NextResponse.json(updatedUser);
 }
 /* export async function PUT(req: NextRequest) {
   const { email, password } = await req.json();

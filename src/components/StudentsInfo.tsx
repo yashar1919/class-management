@@ -657,24 +657,26 @@ export default function StudentsInfo() {
           width={550}
           title=""
           footer={
-            <Button
-              block
-              onClick={() => setModalOpen(false)}
-              style={{
-                marginTop: 10,
-                height: 35,
-                border: closeBtnHover
-                  ? "1px solid #d32626"
-                  : "1px solid #ad1616",
-                color: closeBtnHover ? "#d32626" : "#ad1616",
-                transition: " color 0.3s",
-                fontSize: "16px",
-              }}
-              onMouseEnter={() => setCloseBtnHover(true)}
-              onMouseLeave={() => setCloseBtnHover(false)}
-            >
-              {t("studentInfo.close")}
-            </Button>
+            <div className="px-3">
+              <Button
+                block
+                onClick={() => setModalOpen(false)}
+                style={{
+                  marginTop: 10,
+                  height: 35,
+                  border: closeBtnHover
+                    ? "1px solid #d32626"
+                    : "1px solid #ad1616",
+                  color: closeBtnHover ? "#d32626" : "#ad1616",
+                  transition: " color 0.3s",
+                  fontSize: "16px",
+                }}
+                onMouseEnter={() => setCloseBtnHover(true)}
+                onMouseLeave={() => setCloseBtnHover(false)}
+              >
+                {t("studentInfo.close")}
+              </Button>
+            </div>
           }
         >
           {selectedStudent && (
@@ -683,7 +685,7 @@ export default function StudentsInfo() {
                 {t("studentInfo.fullInfo")}
               </p>
               <div
-                className="space-y-0 text-base overflow-y-auto max-h-[70vh] [&::-webkit-scrollbar]:w-0.5
+                className="space-y-0 text-base p-3 overflow-y-auto max-h-[70vh] [&::-webkit-scrollbar]:w-0.5
                 [&::-webkit-scrollbar-track]:rounded-full
                 [&::-webkit-scrollbar-track]:bg-gray-100
                 [&::-webkit-scrollbar-thumb]:rounded-full

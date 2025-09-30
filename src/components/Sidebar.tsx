@@ -237,7 +237,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               title=""
               footer={null}
             >
-              <div className="text-center">
+              <div className="text-center px-8">
                 <div className="mb-5">
                   <LogoutOutlined
                     style={{
