@@ -4,6 +4,7 @@ import { MongoClient } from "mongodb";
 const bcrypt = require("bcrypt");
 import { SignJWT } from "jose";
 import { serialize } from "cookie";
+import { sendWelcomeEmail } from "@/services/emailService";
 
 const uri = process.env.MONGODB_URI!;
 const dbName = "studentsDataDB";
@@ -55,6 +56,19 @@ export async function POST(req: NextRequest) {
     password: hashed,
     createdAt: new Date(),
   });
+
+  // اگر ایمیل بود (نه شماره موبایل)، ایمیل خوش‌آمدگویی بفرست
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone)) {
+    try {
+      await sendWelcomeEmail({
+        to: emailOrPhone,
+        firstname,
+        lastname,
+      });
+    } catch (e) {
+      console.error("Failed to send welcome email:", e);
+    }
+  }
 
   return NextResponse.json({ insertedId: result.insertedId });
 }
