@@ -59,12 +59,14 @@ export async function POST(req: NextRequest) {
 
   // اگر ایمیل بود (نه شماره موبایل)، ایمیل خوش‌آمدگویی بفرست
   if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone)) {
+    console.log("Try to send welcome email to:", emailOrPhone);
     try {
       await sendWelcomeEmail({
         to: emailOrPhone,
         firstname,
         lastname,
       });
+      console.log("Welcome email sent to:", emailOrPhone);
     } catch (e) {
       console.error("Failed to send welcome email:", e);
     }
