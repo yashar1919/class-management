@@ -10,10 +10,14 @@ export function sendWelcomeSMS({
   firstname: string;
   lastname: string;
 }) {
+  const username = process.env.MELIPAYAMAK_USERNAME;
+  const password = process.env.MELIPAYAMAK_PASSWORD;
   const message = `${firstname} ${lastname}👋،\nبه کلاسکو خوش آمدید! مدیریت دانش‌آموزان و کلاس‌هایتان را با ما ساده‌تر کنید.`;
 
   const data = JSON.stringify({
     from: "50002710016871",
+    username,
+    password,
     to: to, // به صورت آرایه
     text: message,
   });
