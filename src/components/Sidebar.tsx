@@ -36,7 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const pathname = usePathname();
 
   /* const handleLogout = () => {
-    localStorage.removeItem("userId");
+    localStorage.removeItem("userId"); // Session cleanup - Keep for logout
     window.location.href = "/login";
   }; */
 

@@ -6,7 +6,7 @@ declare global {
 }
 
 export async function fetchStudents() {
-  const userId = localStorage.getItem("userId"); // بعد از لاگین ذخیره کن
+  const userId = localStorage.getItem("userId"); // Session data - Keep for authentication
   const res = await fetch(`/api/students?userId=${userId}`);
   if (!res.ok) throw new Error("Failed to fetch students");
   const data = await res.json();
@@ -20,7 +20,7 @@ export async function fetchStudents() {
 
 //eslint-disable-next-line
 export async function addStudentToDB(studentData: any) {
-  const userId = localStorage.getItem("userId");
+  const userId = localStorage.getItem("userId"); // Session data - Keep for authentication
   const res = await fetch("/api/students", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -32,7 +32,7 @@ export async function addStudentToDB(studentData: any) {
 
 //eslint-disable-next-line
 export async function editStudentInDB(mongoId: string, studentData: any) {
-  const userId = localStorage.getItem("userId");
+  const userId = localStorage.getItem("userId"); // Session data - Keep for authentication
   // دریافت دانش‌آموز فعلی از لیست دانش‌آموزان موجود در استور
   // فرض: useStudentStore.getState().students همیشه به‌روز است
   let currentStudent;

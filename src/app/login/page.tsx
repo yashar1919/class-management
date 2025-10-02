@@ -38,13 +38,12 @@ export default function LoginPage() {
 
   const validate = () => {
     const newErrors: { emailOrPhone?: string; password?: string } = {};
-    if (!emailOrPhone)
-      newErrors.emailOrPhone = t('login.emailRequired');
+    if (!emailOrPhone) newErrors.emailOrPhone = t("login.emailRequired");
     else if (
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone) &&
       !/^09\d{9}$/.test(emailOrPhone)
     )
-      newErrors.emailOrPhone = t('login.emailInvalid');
+      newErrors.emailOrPhone = t("login.emailInvalid");
     if (!password)
       newErrors.password = t("login.passwordRequired") || "رمز عبور الزامی است";
     else if (password.length < 4)
@@ -71,7 +70,7 @@ export default function LoginPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem("userId", data.emailOrPhone);
+        localStorage.setItem("userId", data.emailOrPhone); // Session data - Keep for authentication
         api.success({
           message: "Login Successful",
           description: "Welcome! You have logged in successfully.",

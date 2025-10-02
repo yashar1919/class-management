@@ -54,7 +54,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const userId =
-        typeof window !== "undefined" ? localStorage.getItem("userId") : "";
+        typeof window !== "undefined" ? localStorage.getItem("userId") : ""; // Session data - Keep for authentication
       if (!userId) return;
       try {
         const res = await fetch("/api/users/me", { credentials: "include" });
@@ -79,7 +79,7 @@ const Profile = () => {
     setLoadingLogout(true);
     await fetch("/api/users/logout", { method: "POST" });
     setTimeout(() => {
-      localStorage.removeItem("userId");
+      localStorage.removeItem("userId"); // Session cleanup - Keep for logout
       window.location.href = "/login";
     }, 700);
   };
@@ -238,8 +238,8 @@ const Profile = () => {
                     ? "مرد"
                     : "زن"
                   : user.gender === "male"
-                  ? "Male"
-                  : "Female"}
+                    ? "Male"
+                    : "Female"}
               </span>
             </div>
             <div className="mb-5 flex items-center gap-3">
