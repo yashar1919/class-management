@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 import { SignJWT } from "jose";
 import { serialize } from "cookie";
 import { sendWelcomeEmail } from "@/services/emailService";
+import { sendWelcomeSMS } from "@/services/smsService";
 
 const uri = process.env.MONGODB_URI!;
 const dbName = "studentsDataDB";
@@ -57,9 +58,21 @@ export async function POST(req: NextRequest) {
     createdAt: new Date(),
   });
 
-  // اگر ایمیل بود (نه شماره موبایل)، ایمیل خوش‌آمدگویی بفرست
-  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone)) {
-    console.log("Try to send welcome email to:", emailOrPhone);
+  // بعد از ثبت موفق کاربر:
+  if (/^09\d{9}$/.test(emailOrPhone)) {
+    // اگر شماره موبایل بود
+    try {
+      await sendWelcomeSMS({
+        to: emailOrPhone,
+        firstname: firstname,
+        lastname: lastname,
+      });
+      console.log("Welcome SMS sent to:", emailOrPhone);
+    } catch (e) {
+      console.error("Failed to send welcome SMS:", e);
+    }
+  } else if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone)) {
+    // اگر ایمیل بود
     try {
       await sendWelcomeEmail({
         to: emailOrPhone,
