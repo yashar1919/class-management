@@ -59,30 +59,63 @@ export async function POST(req: NextRequest) {
   });
 
   // بعد از ثبت موفق کاربر:
+  console.log("🎯 User registered successfully, checking notification type...");
+  console.log("📝 emailOrPhone value:", emailOrPhone);
+  console.log("📝 emailOrPhone type:", typeof emailOrPhone);
+
   if (/^09\d{9}$/.test(emailOrPhone)) {
     // اگر شماره موبایل بود
+    console.log("📱 Detected mobile number, sending SMS...");
+    console.log(
+      "🔧 Environment check - MELIPAYAMAK_USERNAME:",
+      process.env.MELIPAYAMAK_USERNAME ? "✅ Set" : "❌ Missing"
+    );
+    console.log(
+      "🔧 Environment check - MELIPAYAMAK_PASSWORD:",
+      process.env.MELIPAYAMAK_PASSWORD ? "✅ Set" : "❌ Missing"
+    );
+
     try {
+      console.log("🚀 Starting SMS send process...");
       await sendWelcomeSMS({
         to: emailOrPhone,
         firstname: firstname,
         lastname: lastname,
       });
-      console.log("Welcome SMS sent to:", emailOrPhone);
+      console.log("✅ Welcome SMS sent successfully to:", emailOrPhone);
     } catch (e) {
-      console.error("Failed to send welcome SMS:", e);
+      console.error("❌ Failed to send welcome SMS:", e);
+      console.error("❌ SMS Error details:", {
+        message: (e as Error).message,
+        stack: (e as Error).stack,
+        name: (e as Error).name,
+      });
     }
   } else if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone)) {
     // اگر ایمیل بود
+    console.log("📧 Detected email address, sending email...");
     try {
       await sendWelcomeEmail({
         to: emailOrPhone,
         firstname,
         lastname,
       });
-      console.log("Welcome email sent to:", emailOrPhone);
+      console.log("✅ Welcome email sent successfully to:", emailOrPhone);
     } catch (e) {
-      console.error("Failed to send welcome email:", e);
+      console.error("❌ Failed to send welcome email:", e);
+      console.error("❌ Email Error details:", {
+        message: (e as Error).message,
+        stack: (e as Error).stack,
+        name: (e as Error).name,
+      });
     }
+  } else {
+    console.log("❓ Unknown format for emailOrPhone:", emailOrPhone);
+    console.log("❓ Mobile regex test result:", /^09\d{9}$/.test(emailOrPhone));
+    console.log(
+      "❓ Email regex test result:",
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone)
+    );
   }
 
   return NextResponse.json({ insertedId: result.insertedId });
