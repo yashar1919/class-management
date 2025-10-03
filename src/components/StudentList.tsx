@@ -1,7 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { DeleteOutlined, EditOutlined, TableOutlined } from "@ant-design/icons";
-import { ConfigProvider, theme } from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  TableOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
+import { ConfigProvider, theme, Spin } from "antd";
 import { useStudentStore } from "../store/studentStore";
 import CalendarTable from "./CalendarTable";
 import { useTranslation } from "react-i18next";
@@ -15,10 +20,19 @@ export default function StudentList() {
   const setEditingStudent = useStudentStore((s) => s.setEditingStudent);
   const { t } = useTranslation();
 
+  const [loading, setLoading] = useState(true); // اضافه کردن state لودینگ
+
   useEffect(() => {
+    setLoading(true);
     fetchStudents()
-      .then(setStudents)
-      .catch((err) => console.error("Fetch students error:", err));
+      .then((data) => {
+        setStudents(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Fetch students error:", err);
+        setLoading(false);
+      });
   }, [setStudents]);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -40,10 +54,28 @@ export default function StudentList() {
     }
   };
 
-  if (students.length === 0)
+  if (loading) {
     return (
-      <div className="text-gray-500">No students have been added yet.</div>
+      <div className="flex flex-col gap-7 items-center justify-center my-20">
+        <Spin
+          indicator={<LoadingOutlined spin />}
+          size="large"
+          style={{ color: "oklch(60% 0.118 184.704)", scale: 1.5 }}
+        />
+        <span className="text-teal-600">
+          Loading<span className="font-semibold mx-1">Students</span>...
+        </span>
+      </div>
     );
+  }
+
+  if (students.length === 0) {
+    return (
+      <div className="text-gray-500 text-center">
+        No students have been added yet.
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-[950px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
@@ -132,7 +164,9 @@ export default function StudentList() {
         >
           {selectedStudent && (
             <div>
-              <p className="text-teal-400 font-light text-2xl mb-5 mx-3">{selectedStudent?.name || ""}</p>
+              <p className="text-teal-400 font-light text-2xl mb-5 mx-3">
+                {selectedStudent?.name || ""}
+              </p>
               <CalendarTable
                 studentId={
                   selectedStudent.id ||
