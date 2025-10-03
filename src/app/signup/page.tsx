@@ -96,6 +96,7 @@ export default function SignupPage() {
           description: "Your account has been created successfully.",
           placement: notificationPlacement,
         });
+        localStorage.setItem("isSignedUp", "1");
         setTimeout(() => {
           window.location.href = "/login";
         }, 1200);
