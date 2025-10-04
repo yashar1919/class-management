@@ -280,7 +280,7 @@ const Profile = () => {
                 {user.birthDate}
               </span>
             </div>
-            <div className="flex flex-col justify-center gap-3 mt-10">
+            <div className="flex flex-col justify-center gap-2 mt-10">
               <div>
                 <button
                   onClick={() => setEditModalOpen(true)}
@@ -290,7 +290,7 @@ const Profile = () => {
                   Edit
                 </button>
               </div>
-              <div className="flex justify-between gap-2">
+              <div className="flex flex-col sm:flex-row justify-between gap-2">
                 <button
                   onClick={() => setLogoutModalOpen(true)}
                   className="flex items-center justify-center gap-2 bg-transparent border border-red-500 hover:opacity-70 cursor-pointer text-red-500 w-full font-semibold rounded-lg py-1.5 transition-all duration-200"
