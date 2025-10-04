@@ -43,3 +43,32 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  const token = req.cookies.get("access_token")?.value;
+  if (!token)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const collection = await connectDB();
+    // حذف کاربر با ایمیل یا شماره موبایل
+    const result = await collection.deleteOne({
+      $or: [
+        { emailOrPhone: payload.emailOrPhone },
+        { email: payload.emailOrPhone },
+      ],
+    });
+    // حذف کوکی توکن
+    const response = NextResponse.json({
+      success: true,
+      deletedCount: result.deletedCount,
+    });
+    response.headers.set(
+      "Set-Cookie",
+      "access_token=; Path=/; HttpOnly; Max-Age=0; SameSite=Lax"
+    );
+    return response;
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+}

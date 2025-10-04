@@ -29,6 +29,8 @@ const Profile = () => {
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const { t, i18n } = useTranslation();
   const [api, contextHolder] = notification.useNotification();
 
@@ -82,6 +84,34 @@ const Profile = () => {
       localStorage.removeItem("userId"); // Session cleanup - Keep for logout
       window.location.href = "/login";
     }, 700);
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/users/me", {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        localStorage.clear();
+        window.location.href = "/signup";
+      } else {
+        setDeleting(false);
+        api.error({
+          message: "Delete Error",
+          description: "Account deletion failed.",
+          placement: "top",
+        });
+      }
+    } catch {
+      setDeleting(false);
+      api.error({
+        message: "Delete Error",
+        description: "Server error",
+        placement: "top",
+      });
+    }
   };
 
   // Edit validation
@@ -250,21 +280,32 @@ const Profile = () => {
                 {user.birthDate}
               </span>
             </div>
-            <div className="flex justify-center gap-3 mt-10">
-              <button
-                onClick={() => setEditModalOpen(true)}
-                className="flex items-center justify-center gap-2 border border-teal-500 hover:opacity-70 text-teal-500 font-semibold rounded-lg py-1.5 w-full transition-all duration-200 cursor-pointer"
-              >
-                <EditOutlined />
-                Edit
-              </button>
-              <button
-                onClick={() => setLogoutModalOpen(true)}
-                className="flex items-center justify-center gap-2 bg-transparent border border-red-500 hover:opacity-70 cursor-pointer text-red-500 w-full font-semibold rounded-lg py-1.5 transition-all duration-200"
-              >
-                <LogoutOutlined />
-                {t("sidebar.logout")}
-              </button>
+            <div className="flex flex-col justify-center gap-3 mt-10">
+              <div>
+                <button
+                  onClick={() => setEditModalOpen(true)}
+                  className="flex items-center justify-center gap-2 border border-teal-500 hover:opacity-70 text-teal-500 font-semibold rounded-lg py-1.5 w-full transition-all duration-200 cursor-pointer"
+                >
+                  <EditOutlined />
+                  Edit
+                </button>
+              </div>
+              <div className="flex justify-between gap-2">
+                <button
+                  onClick={() => setLogoutModalOpen(true)}
+                  className="flex items-center justify-center gap-2 bg-transparent border border-red-500 hover:opacity-70 cursor-pointer text-red-500 w-full font-semibold rounded-lg py-1.5 transition-all duration-200"
+                >
+                  <LogoutOutlined />
+                  {t("sidebar.logout")}
+                </button>
+                <button
+                  onClick={() => setDeleteModalOpen(true)}
+                  className="flex items-center justify-center gap-2 bg-transparent border border-gray-500 hover:opacity-70 cursor-pointer text-gray-400 w-full font-semibold rounded-lg py-1.5 transition-all duration-200"
+                >
+                  <LockOutlined />
+                  Delete Account
+                </button>
+              </div>
             </div>
             {/* مودال تایید خروج */}
             <ConfigProvider
@@ -539,6 +580,51 @@ const Profile = () => {
                     </div>
                   )}
                 </form>
+              </ModalCustom>
+              {/* مودال حذف حساب کاربری */}
+              <ModalCustom
+                open={deleteModalOpen}
+                onCancel={() => setDeleteModalOpen(false)}
+                title=""
+                footer={null}
+              >
+                <div className="text-center px-8">
+                  <div className="mb-5">
+                    <LockOutlined
+                      style={{
+                        fontSize: "40px",
+                        color: "#fb2c36",
+                        backgroundColor: "#460809",
+                        borderRadius: "100%",
+                        padding: "10px",
+                      }}
+                    />
+                    <p className="text-white text-lg mt-1 font-semibold">
+                      حذف حساب کاربری
+                    </p>
+                  </div>
+                  <p className="text-[17px] font-light text-gray-400">
+                    آیا مطمئن هستید که می‌خواهید حساب کاربری خود را{" "}
+                    <span className="text-red-400 font-bold">برای همیشه</span>{" "}
+                    حذف کنید؟ این عملیات غیرقابل بازگشت است.
+                  </p>
+                  <div className="flex justify-center gap-4 mt-7">
+                    <button
+                      className="border border-neutral-700 w-full text-gray-300 px-6 py-2 rounded-lg cursor-pointer"
+                      onClick={() => setDeleteModalOpen(false)}
+                      disabled={deleting}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="bg-red-500 w-full text-white px-6 py-2 rounded-lg font-medium cursor-pointer"
+                      onClick={handleDeleteAccount}
+                      disabled={deleting}
+                    >
+                      Delete Account
+                    </button>
+                  </div>
+                </div>
               </ModalCustom>
             </ConfigProvider>
           </div>

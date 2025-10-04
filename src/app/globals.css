@@ -42,7 +42,8 @@ body {
   padding-right: env(safe-area-inset-right); */
 }
 
-html, body {
+html,
+body {
   margin: 0 !important;
   padding: 0 !important;
   box-sizing: border-box;
@@ -287,6 +288,10 @@ html, body {
   color: #00bba7;
 }
 
-:where(.css-dev-only-do-not-override-1nfynx2).ant-modal .ant-modal-content{
+:where(.css-dev-only-do-not-override-1nfynx2).ant-modal .ant-modal-content {
+  background-color: #141414;
+}
+
+:where(.css-dev-only-do-not-override-1m79rvm).ant-modal .ant-modal-content {
   background-color: #141414;
 }
