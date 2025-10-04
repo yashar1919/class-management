@@ -1,12 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ConfigProvider, notification, theme } from "antd";
+import { ConfigProvider, notification, theme, message } from "antd";
 import StudentForm from "@/components/StudentForm";
 import StudentList from "@/components/StudentList";
 
 export default function ClassPage() {
-  const [api, contextHolder] = notification.useNotification();
+  const [api, notificationContextHolder] = notification.useNotification();
+  const [messageApi, messageContextHolder] = message.useMessage();
+
+  // کلید یکتا برای message لودینگ
+  const loadingKey = "students-loading";
+
+  // تابع هندل تغییر لودینگ
+  const handleStudentListLoading = (loading: boolean) => {
+    if (loading) {
+      messageApi.open({
+        key: loadingKey,
+        type: "loading",
+        content: "Loading students...",
+        duration: 0,
+      });
+    } else {
+      messageApi.destroy(loadingKey);
+    }
+  };
+
   const [, setFirstname] = useState<string>("");
 
   useEffect(() => {
@@ -55,9 +74,13 @@ export default function ClassPage() {
 
   return (
     <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
-      {contextHolder}
+      {notificationContextHolder}
+      {messageContextHolder}
       <StudentForm />
-      <StudentList />
+      <StudentList
+        messageApi={messageApi}
+        onLoadingChange={handleStudentListLoading}
+      />
     </ConfigProvider>
   );
 }

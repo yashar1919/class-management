@@ -1,4 +1,11 @@
-import { ConfigProvider, Spin, theme, Button, notification } from "antd";
+import {
+  ConfigProvider,
+  Spin,
+  theme,
+  Button,
+  notification,
+  message,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import {
   LoadingOutlined,
@@ -33,6 +40,8 @@ const Profile = () => {
   const [deleting, setDeleting] = useState(false);
   const { t, i18n } = useTranslation();
   const [api, contextHolder] = notification.useNotification();
+  //const [loadingUser, setLoadingUser] = useState(true);
+  const [messageApi, messageContextHolder] = message.useMessage();
 
   // Edit fields state
   const [firstname, setFirstname] = useState("");
@@ -55,9 +64,20 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      //setLoadingUser(true);
+      messageApi.open({
+        key: "profile-loading",
+        type: "loading",
+        content: "Loading profile...",
+        duration: 0,
+      });
       const userId =
         typeof window !== "undefined" ? localStorage.getItem("userId") : ""; // Session data - Keep for authentication
-      if (!userId) return;
+      if (!userId) {
+        //setLoadingUser(false);
+        messageApi.destroy("profile-loading");
+        return;
+      }
       try {
         const res = await fetch("/api/users/me", { credentials: "include" });
         if (res.ok) {
@@ -72,9 +92,13 @@ const Profile = () => {
         }
       } catch {
         setUser(null);
+      } finally {
+        //setLoadingUser(false);
+        messageApi.destroy("profile-loading");
       }
     };
     fetchUser();
+    //eslint-disable-next-line
   }, []);
 
   const handleLogout = async () => {
@@ -208,6 +232,7 @@ const Profile = () => {
           algorithm: theme.darkAlgorithm,
         }}
       >
+        {messageContextHolder}
         {contextHolder}
         {loadingLogout && (
           <div className="fixed inset-0 z-[9999] flex flex-col gap-7 items-center justify-center backdrop-blur-md bg-black/40">
@@ -367,6 +392,7 @@ const Profile = () => {
                 onCancel={() => setEditModalOpen(false)}
                 title=""
                 footer={null}
+                className="edit-modal-bg"
               >
                 <form
                   className=""
@@ -543,6 +569,22 @@ const Profile = () => {
                   ) : (
                     <div className="px-8 my-3 flex justify-between gap-2 mt-10">
                       <Button
+                        type="default"
+                        style={{
+                          color: "#fb2c36",
+                          borderRadius: "10px",
+                          fontSize: "16px",
+                          fontWeight: 500,
+                          padding: "19px 0px",
+                          border: "1px solid #fb2c36",
+                          width: "100%",
+                        }}
+                        onClick={() => setEditModalOpen(false)}
+                        disabled={editLoading}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
                         htmlType="submit"
                         loading={editLoading}
                         style={{
@@ -560,22 +602,6 @@ const Profile = () => {
                         disabled={editLoading}
                       >
                         Save Changes
-                      </Button>
-                      <Button
-                        type="default"
-                        style={{
-                          color: "#fb2c36",
-                          borderRadius: "10px",
-                          fontSize: "16px",
-                          fontWeight: 500,
-                          padding: "19px 0px",
-                          border: "1px solid #fb2c36",
-                          width: "100%",
-                        }}
-                        onClick={() => setEditModalOpen(false)}
-                        disabled={editLoading}
-                      >
-                        Cancel
                       </Button>
                     </div>
                   )}

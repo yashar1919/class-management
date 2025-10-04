@@ -15,7 +15,14 @@ import {
   SwapLeftOutlined,
   CalculatorOutlined,
 } from "@ant-design/icons";
-import { Checkbox, ConfigProvider, Button, theme, type MenuProps } from "antd";
+import {
+  Checkbox,
+  ConfigProvider,
+  Button,
+  theme,
+  type MenuProps,
+  message,
+} from "antd";
 import DropdownField from "./UI/DropdownField";
 import TimePickerCustom from "./UI/TimePickerCustom";
 import InputNumberField from "./UI/InputNumberField";
@@ -175,6 +182,7 @@ export default function StudentForm() {
   const endTime = calcEndTime(startTime, duration);
 
   const [loading, setLoading] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     if (!data.selectedDates || data.selectedDates.length === 0) {
@@ -233,6 +241,10 @@ export default function StudentForm() {
       } else {
         await addStudentToDB(studentData);
         console.log("Student successfully POSTed to DB:", studentData);
+        messageApi.open({
+          type: "success",
+          content: "Student added successfully!",
+        });
       }
       reset(defaultValues);
       setEditingStudent(null);
@@ -277,86 +289,24 @@ export default function StudentForm() {
   const [calendarError, setCalendarError] = useState<string | boolean>(false);
 
   return (
-    <form
-      className="w-full max-w-[950px] mx-auto bg-[#141414] p-8 rounded-2xl flex flex-col gap-7 mt-8 mb-8"
-      style={{ boxShadow: "0px 0px 7px gray" }}
-      onSubmit={(e) => {
-        console.log("form onSubmit event fired");
-        handleSubmit(onSubmit)(e);
-      }}
-      noValidate
-    >
-      <h2 className="text-2xl sm:text-4xl font-bold text-teal-300 mb-2 text-center">
-        {t("studentForm.addNewStudent")}
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
-        <div>
-          <Controller
-            name="name"
-            control={control}
-            render={({ field }) => (
-              <ConfigProvider
-                theme={{
-                  algorithm: theme.darkAlgorithm,
-                  components: {
-                    Input: {
-                      colorPrimary: "#00bba7",
-                      algorithm: true,
-                    },
-                  },
-                }}
-              >
-                <InputField
-                  placeholder={t("studentForm.fullName")}
-                  prefix={<UserOutlined />}
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={!!errors.name}
-                />
-              </ConfigProvider>
-            )}
-          />
-          {errors.name && (
-            <p className="text-red-500 text-xs mt-1 ml-2">
-              {errors.name.message}
-            </p>
-          )}
-        </div>
-        <div>
-          <Controller
-            name="phone"
-            control={control}
-            render={({ field }) => (
-              <ConfigProvider
-                theme={{
-                  algorithm: theme.darkAlgorithm,
-                  components: {
-                    Input: {
-                      colorPrimary: "#00bba7",
-                      algorithm: true,
-                    },
-                  },
-                }}
-              >
-                <InputField
-                  placeholder={t("studentForm.phone")}
-                  prefix={<PhoneOutlined />}
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={!!errors.phone}
-                  type="tel"
-                />
-              </ConfigProvider>
-            )}
-          />
-          {errors.phone && (
-            <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>
-          )}
-        </div>
-        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-7">
+    <>
+      {contextHolder}
+      <form
+        className="w-full max-w-[950px] mx-auto bg-[#141414] p-8 rounded-2xl flex flex-col gap-7 mt-8 mb-8"
+        style={{ boxShadow: "0px 0px 7px gray" }}
+        onSubmit={(e) => {
+          console.log("form onSubmit event fired");
+          handleSubmit(onSubmit)(e);
+        }}
+        noValidate
+      >
+        <h2 className="text-2xl sm:text-4xl font-bold text-teal-300 mb-2 text-center">
+          {t("studentForm.addNewStudent")}
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
           <div>
             <Controller
-              name="address"
+              name="name"
               control={control}
               render={({ field }) => (
                 <ConfigProvider
@@ -371,57 +321,195 @@ export default function StudentForm() {
                   }}
                 >
                   <InputField
-                    placeholder={t("studentForm.address")}
-                    prefix={<HomeOutlined />}
+                    placeholder={t("studentForm.fullName")}
+                    prefix={<UserOutlined />}
                     value={field.value}
                     onChange={field.onChange}
-                    error={!!errors.address}
+                    error={!!errors.name}
                   />
                 </ConfigProvider>
               )}
             />
-            {errors.address && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.address.message}
+            {errors.name && (
+              <p className="text-red-500 text-xs mt-1 ml-2">
+                {errors.name.message}
               </p>
             )}
           </div>
           <div>
             <Controller
-              name="age"
+              name="phone"
               control={control}
               render={({ field }) => (
                 <ConfigProvider
                   theme={{
                     algorithm: theme.darkAlgorithm,
                     components: {
-                      InputNumber: {
+                      Input: {
                         colorPrimary: "#00bba7",
                         algorithm: true,
                       },
                     },
                   }}
                 >
-                  <InputNumberField
-                    placeholder={t("studentForm.age")}
-                    addonBefore={<CalculatorOutlined />}
+                  <InputField
+                    placeholder={t("studentForm.phone")}
+                    prefix={<PhoneOutlined />}
                     value={field.value}
                     onChange={field.onChange}
-                    error={!!errors.age}
-                    min={1}
-                    max={120}
+                    error={!!errors.phone}
+                    type="tel"
                   />
                 </ConfigProvider>
               )}
             />
-            {errors.age && (
-              <p className="text-red-500 text-xs mt-1">{errors.age.message}</p>
+            {errors.phone && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.phone.message}
+              </p>
             )}
           </div>
-        </div>
-        {classTypeValue === "online" ? (
           <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-7">
             <div>
+              <Controller
+                name="address"
+                control={control}
+                render={({ field }) => (
+                  <ConfigProvider
+                    theme={{
+                      algorithm: theme.darkAlgorithm,
+                      components: {
+                        Input: {
+                          colorPrimary: "#00bba7",
+                          algorithm: true,
+                        },
+                      },
+                    }}
+                  >
+                    <InputField
+                      placeholder={t("studentForm.address")}
+                      prefix={<HomeOutlined />}
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors.address}
+                    />
+                  </ConfigProvider>
+                )}
+              />
+              {errors.address && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.address.message}
+                </p>
+              )}
+            </div>
+            <div>
+              <Controller
+                name="age"
+                control={control}
+                render={({ field }) => (
+                  <ConfigProvider
+                    theme={{
+                      algorithm: theme.darkAlgorithm,
+                      components: {
+                        InputNumber: {
+                          colorPrimary: "#00bba7",
+                          algorithm: true,
+                        },
+                      },
+                    }}
+                  >
+                    <InputNumberField
+                      placeholder={t("studentForm.age")}
+                      addonBefore={<CalculatorOutlined />}
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors.age}
+                      min={1}
+                      max={120}
+                    />
+                  </ConfigProvider>
+                )}
+              />
+              {errors.age && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.age.message}
+                </p>
+              )}
+            </div>
+          </div>
+          {classTypeValue === "online" ? (
+            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-7">
+              <div>
+                <Controller
+                  name="classType"
+                  control={control}
+                  render={({ field }) => (
+                    <ConfigProvider
+                      theme={{
+                        algorithm: theme.darkAlgorithm,
+                        components: {
+                          Dropdown: {
+                            colorPrimary: "#fff",
+                            algorithm: true,
+                          },
+                        },
+                      }}
+                    >
+                      <DropdownField
+                        label={t("studentForm.classType")}
+                        icon={<ClusterOutlined />}
+                        items={classTypeItems}
+                        value={field.value}
+                        onChange={(val) => field.onChange(val)}
+                        error={!!errors.classType}
+                      />
+                    </ConfigProvider>
+                  )}
+                />
+                {errors.classType && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.classType.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Controller
+                  name="onlineLink"
+                  control={control}
+                  render={({ field }) => (
+                    <ConfigProvider
+                      theme={{
+                        algorithm: theme.darkAlgorithm,
+                        components: {
+                          Input: {
+                            colorPrimary: "#00bba7",
+                            algorithm: true,
+                          },
+                        },
+                      }}
+                    >
+                      <InputField
+                        placeholder={
+                          t("studentForm.onlineLink") || "Google Meet Link"
+                        }
+                        prefix={<ClusterOutlined />}
+                        value={field.value}
+                        onChange={field.onChange}
+                        error={!!errors.onlineLink}
+                        type="url"
+                      />
+                    </ConfigProvider>
+                  )}
+                />
+                {errors.onlineLink && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.onlineLink.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="md:col-span-2">
               <Controller
                 name="classType"
                 control={control}
@@ -454,336 +542,271 @@ export default function StudentForm() {
                 </p>
               )}
             </div>
-            <div>
-              <Controller
-                name="onlineLink"
-                control={control}
-                render={({ field }) => (
-                  <ConfigProvider
-                    theme={{
-                      algorithm: theme.darkAlgorithm,
-                      components: {
-                        Input: {
-                          colorPrimary: "#00bba7",
-                          algorithm: true,
-                        },
-                      },
-                    }}
-                  >
-                    <InputField
-                      placeholder={
-                        t("studentForm.onlineLink") || "Google Meet Link"
-                      }
-                      prefix={<ClusterOutlined />}
-                      value={field.value}
-                      onChange={field.onChange}
-                      error={!!errors.onlineLink}
-                      type="url"
-                    />
-                  </ConfigProvider>
-                )}
-              />
-              {errors.onlineLink && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.onlineLink.message}
-                </p>
-              )}
-            </div>
-          </div>
-        ) : (
+          )}
           <div className="md:col-span-2">
             <Controller
-              name="classType"
+              name="duration"
               control={control}
               render={({ field }) => (
                 <ConfigProvider
                   theme={{
                     algorithm: theme.darkAlgorithm,
                     components: {
-                      Dropdown: {
-                        colorPrimary: "#fff",
-                        algorithm: true,
-                      },
-                    },
-                  }}
-                >
-                  <DropdownField
-                    label={t("studentForm.classType")}
-                    icon={<ClusterOutlined />}
-                    items={classTypeItems}
-                    value={field.value}
-                    onChange={(val) => field.onChange(val)}
-                    error={!!errors.classType}
-                  />
-                </ConfigProvider>
-              )}
-            />
-            {errors.classType && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.classType.message}
-              </p>
-            )}
-          </div>
-        )}
-        <div className="md:col-span-2">
-          <Controller
-            name="duration"
-            control={control}
-            render={({ field }) => (
-              <ConfigProvider
-                theme={{
-                  algorithm: theme.darkAlgorithm,
-                  components: {
-                    InputNumber: {
-                      colorPrimary: "#00bba7",
-                      algorithm: true,
-                    },
-                  },
-                }}
-              >
-                <InputNumberField
-                  placeholder={t("studentForm.durationHours")}
-                  addonBefore={<HistoryOutlined />}
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={!!errors.duration}
-                />
-              </ConfigProvider>
-            )}
-          />
-          {errors.duration && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.duration.message}
-            </p>
-          )}
-        </div>
-        <div className="grid grid-cols-5 items-center w-full">
-          <div className="col-span-2">
-            <Controller
-              name="startTime"
-              control={control}
-              render={({ field }) => (
-                <ConfigProvider
-                  theme={{
-                    algorithm: theme.darkAlgorithm,
-                    components: {
-                      DatePicker: {
+                      InputNumber: {
                         colorPrimary: "#00bba7",
                         algorithm: true,
                       },
                     },
                   }}
                 >
-                  <TimePickerCustom
-                    value={field.value ? dayjs(field.value, "HH:mm") : null}
-                    onChange={(val) => {
-                      if (val && typeof val.format === "function") {
-                        console.log("onChange value:", val.format("HH:mm"));
-                        field.onChange(val.format("HH:mm"));
-                      } else {
-                        console.log("onChange value:", val);
-                        field.onChange(val);
-                      }
-                    }}
-                    error={!!errors.startTime}
-                    placeholder={t("studentForm.startTime")}
+                  <InputNumberField
+                    placeholder={t("studentForm.durationHours")}
+                    addonBefore={<HistoryOutlined />}
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={!!errors.duration}
                   />
                 </ConfigProvider>
               )}
             />
-            {errors.startTime && (
+            {errors.duration && (
               <p className="text-red-500 text-xs mt-1">
-                {errors.startTime.message}
+                {errors.duration.message}
               </p>
             )}
           </div>
-          <div className="col-span-1 text-center">
-            {i18n.language === "fa" ? (
-              <SwapLeftOutlined
-                style={{
-                  color: startTimeValue ? "#00bba7" : "gray",
-                  fontSize: "24px",
-                }}
+          <div className="grid grid-cols-5 items-center w-full">
+            <div className="col-span-2">
+              <Controller
+                name="startTime"
+                control={control}
+                render={({ field }) => (
+                  <ConfigProvider
+                    theme={{
+                      algorithm: theme.darkAlgorithm,
+                      components: {
+                        DatePicker: {
+                          colorPrimary: "#00bba7",
+                          algorithm: true,
+                        },
+                      },
+                    }}
+                  >
+                    <TimePickerCustom
+                      value={field.value ? dayjs(field.value, "HH:mm") : null}
+                      onChange={(val) => {
+                        if (val && typeof val.format === "function") {
+                          console.log("onChange value:", val.format("HH:mm"));
+                          field.onChange(val.format("HH:mm"));
+                        } else {
+                          console.log("onChange value:", val);
+                          field.onChange(val);
+                        }
+                      }}
+                      error={!!errors.startTime}
+                      placeholder={t("studentForm.startTime")}
+                    />
+                  </ConfigProvider>
+                )}
               />
-            ) : (
-              <SwapRightOutlined
-                style={{
-                  color: startTimeValue ? "#00bba7" : "gray",
-                  fontSize: "24px",
-                }}
-              />
-            )}
-          </div>
-          <div className="flex items-center col-span-2">
-            <ConfigProvider
-              theme={{
-                algorithm: theme.darkAlgorithm,
-                components: {
-                  DatePicker: {
-                    colorPrimary: "#00bba7",
-                    algorithm: true,
-                  },
-                },
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <p className="text-xs text-gray-500">
-                  {t("studentForm.endTime")}:
+              {errors.startTime && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.startTime.message}
                 </p>
-                <InputField value={endTime} disabled className="text-center" />
-              </div>
-            </ConfigProvider>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-end">
-          <Controller
-            name="multiDay"
-            control={control}
-            defaultValue={false}
-            render={({ field }) => (
-              <ConfigProvider
-                theme={{
-                  algorithm: theme.darkAlgorithm,
-                  components: {
-                    Checkbox: {
-                      colorPrimary: "#00bba7",
-                      algorithm: true,
-                    },
-                  },
-                }}
-              >
-                <Checkbox
-                  checked={field.value}
-                  onChange={(e) => field.onChange(e.target.checked)}
-                >
-                  <p className="text-sm">
-                    {t("studentForm.isClassMoreThanOneDay")}
-                  </p>
-                </Checkbox>
-              </ConfigProvider>
-            )}
-          />
-        </div>
-        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-          <div className="w-6/7">
-            <Controller
-              name="selectedDates"
-              control={control}
-              render={({ field }) => (
-                <PersianCalendarPicker
-                  value={field.value}
-                  onChange={field.onChange}
-                  multiple={multiDay}
-                  error={errors.selectedDates?.message}
+              )}
+            </div>
+            <div className="col-span-1 text-center">
+              {i18n.language === "fa" ? (
+                <SwapLeftOutlined
+                  style={{
+                    color: startTimeValue ? "#00bba7" : "gray",
+                    fontSize: "24px",
+                  }}
+                />
+              ) : (
+                <SwapRightOutlined
+                  style={{
+                    color: startTimeValue ? "#00bba7" : "gray",
+                    fontSize: "24px",
+                  }}
                 />
               )}
-            />
-            {errors.selectedDates && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.selectedDates.message}
-              </p>
-            )}
-            {calendarError && (
-              <p className="text-red-500 text-xs mt-1">
-                {typeof calendarError === "string"
-                  ? calendarError
-                  : "لطفاً یک یا چند روز را انتخاب کنید"}
-              </p>
-            )}
-          </div>
-          <Controller
-            name="sessionPrice"
-            control={control}
-            defaultValue={1}
-            render={({ field }) => (
+            </div>
+            <div className="flex items-center col-span-2">
               <ConfigProvider
                 theme={{
                   algorithm: theme.darkAlgorithm,
                   components: {
-                    InputNumber: {
+                    DatePicker: {
                       colorPrimary: "#00bba7",
                       algorithm: true,
                     },
                   },
                 }}
               >
-                <InputNumberField
-                  placeholder={t("studentForm.sessionPrice")}
-                  addonBefore={<DollarOutlined />}
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={!!errors.sessionPrice}
-                  formatter={(value: string | number | undefined) =>
-                    value
-                      ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                      : ""
-                  }
-                  parser={(value: string | undefined) =>
-                    value ? value.replace(/(,*)/g, "") : ""
-                  }
-                />
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-gray-500">
+                    {t("studentForm.endTime")}:
+                  </p>
+                  <InputField
+                    value={endTime}
+                    disabled
+                    className="text-center"
+                  />
+                </div>
               </ConfigProvider>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end">
+            <Controller
+              name="multiDay"
+              control={control}
+              defaultValue={false}
+              render={({ field }) => (
+                <ConfigProvider
+                  theme={{
+                    algorithm: theme.darkAlgorithm,
+                    components: {
+                      Checkbox: {
+                        colorPrimary: "#00bba7",
+                        algorithm: true,
+                      },
+                    },
+                  }}
+                >
+                  <Checkbox
+                    checked={field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                  >
+                    <p className="text-sm">
+                      {t("studentForm.isClassMoreThanOneDay")}
+                    </p>
+                  </Checkbox>
+                </ConfigProvider>
+              )}
+            />
+          </div>
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+            <div className="w-6/7">
+              <Controller
+                name="selectedDates"
+                control={control}
+                render={({ field }) => (
+                  <PersianCalendarPicker
+                    value={field.value}
+                    onChange={field.onChange}
+                    multiple={multiDay}
+                    error={errors.selectedDates?.message}
+                  />
+                )}
+              />
+              {errors.selectedDates && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.selectedDates.message}
+                </p>
+              )}
+              {calendarError && (
+                <p className="text-red-500 text-xs mt-1">
+                  {typeof calendarError === "string"
+                    ? calendarError
+                    : "لطفاً یک یا چند روز را انتخاب کنید"}
+                </p>
+              )}
+            </div>
+            <Controller
+              name="sessionPrice"
+              control={control}
+              defaultValue={1}
+              render={({ field }) => (
+                <ConfigProvider
+                  theme={{
+                    algorithm: theme.darkAlgorithm,
+                    components: {
+                      InputNumber: {
+                        colorPrimary: "#00bba7",
+                        algorithm: true,
+                      },
+                    },
+                  }}
+                >
+                  <InputNumberField
+                    placeholder={t("studentForm.sessionPrice")}
+                    addonBefore={<DollarOutlined />}
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={!!errors.sessionPrice}
+                    formatter={(value: string | number | undefined) =>
+                      value
+                        ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        : ""
+                    }
+                    parser={(value: string | undefined) =>
+                      value ? value.replace(/(,*)/g, "") : ""
+                    }
+                  />
+                </ConfigProvider>
+              )}
+            />
+            {errors.sessionPrice && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.sessionPrice.message}
+              </p>
             )}
-          />
-          {errors.sessionPrice && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.sessionPrice.message}
-            </p>
-          )}
+          </div>
         </div>
-      </div>
-      <div className="flex justify-center items-center gap-4 mt-5">
-        {/* دکمه لغو فقط در حالت ویرایش نمایش داده شود */}
-        {editingStudent && (
+        <div className="flex justify-center items-center gap-4 mt-5">
+          {/* دکمه لغو فقط در حالت ویرایش نمایش داده شود */}
+          {editingStudent && (
+            <Button
+              type="default"
+              style={{
+                backgroundColor: "transparent",
+                color: "#d32626",
+                borderRadius: "10px",
+                fontSize: "16px",
+                fontWeight: 500,
+                padding: "19px 0px",
+                border: "1px solid #d32626",
+                width: "100%",
+              }}
+              onClick={() => {
+                setEditingStudent(null);
+                reset(defaultValues);
+              }}
+            >
+              {t("studentForm.cancel") || "Cancel"}
+            </Button>
+          )}
           <Button
             type="default"
+            htmlType="submit"
             style={{
-              backgroundColor: "transparent",
-              color: "#d32626",
+              background: "#00aa98",
+              color: "#fff",
               borderRadius: "10px",
               fontSize: "16px",
               fontWeight: 500,
               padding: "19px 0px",
-              border: "1px solid #d32626",
+              border: "none",
               width: "100%",
+              opacity: loading ? 0.7 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
             }}
+            loading={loading}
+            disabled={loading}
             onClick={() => {
-              setEditingStudent(null);
-              reset(defaultValues);
+              console.log("Submit button clicked");
             }}
           >
-            {t("studentForm.cancel") || "Cancel"}
+            {loading
+              ? t("studentForm.loading") || "در حال ثبت..."
+              : editingStudent
+                ? t("studentForm.editStudent") || "Edit Student"
+                : t("studentForm.addStudent")}
           </Button>
-        )}
-        <Button
-          type="default"
-          htmlType="submit"
-          style={{
-            background: "#00aa98",
-            color: "#fff",
-            borderRadius: "10px",
-            fontSize: "16px",
-            fontWeight: 500,
-            padding: "19px 0px",
-            border: "none",
-            width: "100%",
-            opacity: loading ? 0.7 : 1,
-            cursor: loading ? "not-allowed" : "pointer",
-          }}
-          loading={loading}
-          disabled={loading}
-          onClick={() => {
-            console.log("Submit button clicked");
-          }}
-        >
-          {loading
-            ? t("studentForm.loading") || "در حال ثبت..."
-            : editingStudent
-            ? t("studentForm.editStudent") || "Edit Student"
-            : t("studentForm.addStudent")}
-        </Button>
-      </div>
-    </form>
+        </div>
+      </form>
+    </>
   );
 }

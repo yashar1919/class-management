@@ -14,7 +14,14 @@ import ModalCustom from "./UI/ModalCustom";
 import i18n from "@/i18n";
 import { fetchStudents, deleteStudentFromDB } from "@/services/studentService";
 
-export default function StudentList() {
+export default function StudentList({
+  messageApi,
+  onLoadingChange,
+}: {
+  //eslint-disable-next-line
+  messageApi: any;
+  onLoadingChange?: (loading: boolean) => void;
+}) {
   const students = useStudentStore((s) => s.students);
   const setStudents = useStudentStore((s) => s.setStudents);
   const setEditingStudent = useStudentStore((s) => s.setEditingStudent);
@@ -22,7 +29,7 @@ export default function StudentList() {
 
   const [loading, setLoading] = useState(true); // اضافه کردن state لودینگ
 
-  useEffect(() => {
+  /* useEffect(() => {
     setLoading(true);
     fetchStudents()
       .then((data) => {
@@ -33,7 +40,23 @@ export default function StudentList() {
         console.error("Fetch students error:", err);
         setLoading(false);
       });
-  }, [setStudents]);
+  }, [setStudents]); */
+
+  useEffect(() => {
+    setLoading(true);
+    onLoadingChange?.(true); // اعلام شروع لودینگ
+    fetchStudents()
+      .then((data) => {
+        setStudents(data);
+        setLoading(false);
+        onLoadingChange?.(false); // اعلام پایان لودینگ
+      })
+      .catch((err) => {
+        console.error("Fetch students error:", err);
+        setLoading(false);
+        onLoadingChange?.(false); // اعلام پایان لودینگ حتی در خطا
+      });
+  }, [setStudents, onLoadingChange]);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   //eslint-disable-next-line
@@ -44,13 +67,26 @@ export default function StudentList() {
   //eslint-disable-next-line
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
 
-  const handleDeleteStudent = async (studentId: string, mongoId: string) => {
+  const handleDeleteStudent = async (
+    studentId: string,
+    mongoId: string,
+    name: string
+  ) => {
     try {
       await deleteStudentFromDB(mongoId);
       const students = await fetchStudents();
       setStudents(students);
+      // نمایش پیام موفقیت با نام دانش‌آموز
+      messageApi.open({
+        type: "success",
+        content: `Student "${name}" deleted successfully!`,
+      });
     } catch (err) {
       console.error("API DELETE error:", err);
+      messageApi.open({
+        type: "error",
+        content: "Failed to delete student.",
+      });
     }
   };
 
@@ -78,198 +114,205 @@ export default function StudentList() {
   }
 
   return (
-    <div className="max-w-[950px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-      {students.map((student) => (
-        <div
-          key={student.mongoId || student.id}
-          className="bg-gradient-to-br from-neutral-900 to-teal-950 rounded-2xl shadow-lg p-5 grid grid-cols-8 cursor-pointer hover:ring-1 hover:ring-teal-400 transition"
-          onClick={() => {
-            setSelectedStudent(student);
-            setCalendarModalOpen(true);
-          }}
-        >
-          <div className="flex flex-col col-span-7">
-            <span className="font-bold text-lg text-teal-300 mb-5">
-              {student.name}
-            </span>
-            <span>
-              {student.classType === "online"
-                ? t("studentForm.online")
-                : t("studentForm.inPerson")}
-            </span>
-            <span>
-              {t("studentList.classDays")}:{" "}
-              {(student.sessions ?? [])
-                .map((s) =>
-                  new Date(s.date).toLocaleDateString("fa-IR", {
-                    weekday: "long",
-                  })
-                )
-                .filter((v, i, arr) => arr.indexOf(v) === i)
-                .join("، ")}
-            </span>
-            <span>
-              {t("studentList.classDuration")}: {student.duration}{" "}
-              {t("studentList.hour")}
-            </span>
-          </div>
-          <div className="col-span-1 flex flex-col gap-2 justify-center items-end">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setEditingStudent(student);
-              }}
-              className="bg-blue-500 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-blue-600"
-            >
-              <EditOutlined style={{ fontSize: "20px" }} />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setStudentToDelete(student);
-                setDeleteModalOpen(true);
-              }}
-              className="bg-red-500 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-red-600"
-            >
-              <DeleteOutlined style={{ fontSize: "20px" }} />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedStudent(student);
-                setCalendarModalOpen(true);
-              }}
-              className="bg-teal-600 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-teal-700"
-              title={t("studentList.showTable") || "نمایش جدول"}
-            >
-              <TableOutlined style={{ fontSize: "20px" }} />
-            </button>
-          </div>
-        </div>
-      ))}
-
-      {/* مودال جدول جلسات */}
-      <ConfigProvider
-        theme={{ algorithm: theme.darkAlgorithm, components: {} }}
-      >
-        <ModalCustom
-          open={calendarModalOpen}
-          onCancel={() => {
-            setCalendarModalOpen(false);
-            setSelectedStudent(null);
-          }}
-          title=""
-          footer={null}
-          width={1000}
-        >
-          {selectedStudent && (
-            <div>
-              <p className="text-teal-400 font-light text-2xl mb-5 mx-3">
-                {selectedStudent?.name || ""}
-              </p>
-              <CalendarTable
-                studentId={
-                  selectedStudent.id ||
-                  selectedStudent.mongoId ||
-                  selectedStudent._id
-                }
-              />
+    <>
+      <div className="max-w-[950px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        {students.map((student) => (
+          <div
+            key={student.mongoId || student.id}
+            className="bg-gradient-to-br from-neutral-900 to-teal-950 rounded-2xl shadow-lg p-5 grid grid-cols-8 cursor-pointer hover:ring-1 hover:ring-teal-400 transition"
+            onClick={() => {
+              setSelectedStudent(student);
+              setCalendarModalOpen(true);
+            }}
+          >
+            <div className="flex flex-col col-span-7">
+              <span className="font-bold text-lg text-teal-300 mb-5">
+                {student.name}
+              </span>
+              <span>
+                {student.classType === "online"
+                  ? t("studentForm.online")
+                  : t("studentForm.inPerson")}
+              </span>
+              <span>
+                {t("studentList.classDays")}:{" "}
+                {(student.sessions ?? [])
+                  .map((s) =>
+                    new Date(s.date).toLocaleDateString("fa-IR", {
+                      weekday: "long",
+                    })
+                  )
+                  .filter((v, i, arr) => arr.indexOf(v) === i)
+                  .join("، ")}
+              </span>
+              <span>
+                {t("studentList.classDuration")}: {student.duration}{" "}
+                {t("studentList.hour")}
+              </span>
             </div>
-          )}
-        </ModalCustom>
-      </ConfigProvider>
-
-      {/* Modal for delete confirmation */}
-      <ConfigProvider
-        theme={{
-          algorithm: theme.darkAlgorithm,
-          components: {
-            Button: {
-              colorPrimary: "#00bba7",
-              algorithm: true,
-            },
-          },
-        }}
-      >
-        <ModalCustom
-          open={deleteModalOpen}
-          onCancel={() => {
-            setDeleteModalOpen(false);
-            setStudentToDelete(null);
-          }}
-          onOk={() => {
-            if (studentToDelete) {
-              handleDeleteStudent(studentToDelete.id, studentToDelete.mongoId);
-            }
-            setDeleteModalOpen(false);
-            setStudentToDelete(null);
-          }}
-          title=""
-          okText={t("studentList.delete") || "حذف"}
-          cancelText={t("studentList.cancel") || "انصراف"}
-          footer={null}
-        >
-          <div className="text-center px-8">
-            <div className="mb-5">
-              <DeleteOutlined
-                style={{
-                  fontSize: "40px",
-                  color: "#fb2c36",
-                  backgroundColor: "#460809",
-                  borderRadius: "100%",
-                  padding: "10px",
-                }}
-              />
-              <p className="text-white text-lg mt-1 font-semibold">
-                {t("studentList.deleteTitle")}
-              </p>
-            </div>
-            {i18n.language === "fa" ? (
-              <p className="text-[17px] font-light text-gray-400">
-                آیا از حذف کردن
-                <span className="text-red-600 mx-1">
-                  {studentToDelete?.name}
-                </span>
-                مطمئن هستید؟
-              </p>
-            ) : (
-              <p className="text-[17px] font-light text-gray-400">
-                Are you sure you want to delete
-                <span className="text-red-600 font-medium mx-1">
-                  {studentToDelete?.name}
-                </span>
-                ?
-              </p>
-            )}
-            <div className="flex justify-center gap-4 mt-7">
+            <div className="col-span-1 flex flex-col gap-2 justify-center items-end">
               <button
-                className="border border-neutral-700 w-full text-gray-300 px-6 py-2 rounded-lg cursor-pointer"
-                onClick={() => {
-                  setDeleteModalOpen(false);
-                  setStudentToDelete(null);
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingStudent(student);
                 }}
+                className="bg-blue-500 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-blue-600"
               >
-                {t("studentForm.cancel") || "Cancel"}
+                <EditOutlined style={{ fontSize: "20px" }} />
               </button>
               <button
-                className="bg-red-500 w-full text-white px-6 py-2 rounded-lg font-medium cursor-pointer"
-                onClick={() => {
-                  if (studentToDelete) {
-                    handleDeleteStudent(
-                      studentToDelete.id,
-                      studentToDelete.mongoId
-                    );
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setStudentToDelete(student);
+                  setDeleteModalOpen(true);
+                }}
+                className="bg-red-500 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-red-600"
+              >
+                <DeleteOutlined style={{ fontSize: "20px" }} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedStudent(student);
+                  setCalendarModalOpen(true);
+                }}
+                className="bg-teal-600 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-teal-700"
+                title={t("studentList.showTable") || "نمایش جدول"}
+              >
+                <TableOutlined style={{ fontSize: "20px" }} />
+              </button>
+            </div>
+          </div>
+        ))}
+
+        {/* مودال جدول جلسات */}
+        <ConfigProvider
+          theme={{ algorithm: theme.darkAlgorithm, components: {} }}
+        >
+          <ModalCustom
+            open={calendarModalOpen}
+            onCancel={() => {
+              setCalendarModalOpen(false);
+              setSelectedStudent(null);
+            }}
+            title=""
+            footer={null}
+            width={1000}
+          >
+            {selectedStudent && (
+              <div>
+                <p className="text-teal-400 font-light text-2xl mb-5 mx-3">
+                  {selectedStudent?.name || ""}
+                </p>
+                <CalendarTable
+                  studentId={
+                    selectedStudent.id ||
+                    selectedStudent.mongoId ||
+                    selectedStudent._id
                   }
-                  setDeleteModalOpen(false);
-                  setStudentToDelete(null);
-                }}
-              >
-                {t("studentList.delete") || "Delete"}
-              </button>
+                />
+              </div>
+            )}
+          </ModalCustom>
+        </ConfigProvider>
+
+        {/* Modal for delete confirmation */}
+        <ConfigProvider
+          theme={{
+            algorithm: theme.darkAlgorithm,
+            components: {
+              Button: {
+                colorPrimary: "#00bba7",
+                algorithm: true,
+              },
+            },
+          }}
+        >
+          <ModalCustom
+            open={deleteModalOpen}
+            onCancel={() => {
+              setDeleteModalOpen(false);
+              setStudentToDelete(null);
+            }}
+            onOk={() => {
+              if (studentToDelete) {
+                handleDeleteStudent(
+                  studentToDelete.id,
+                  studentToDelete.mongoId,
+                  studentToDelete.name
+                );
+              }
+              setDeleteModalOpen(false);
+              setStudentToDelete(null);
+            }}
+            title=""
+            okText={t("studentList.delete") || "حذف"}
+            cancelText={t("studentList.cancel") || "انصراف"}
+            footer={null}
+          >
+            <div className="text-center px-8">
+              <div className="mb-5">
+                <DeleteOutlined
+                  style={{
+                    fontSize: "40px",
+                    color: "#fb2c36",
+                    backgroundColor: "#460809",
+                    borderRadius: "100%",
+                    padding: "10px",
+                  }}
+                />
+                <p className="text-white text-lg mt-1 font-semibold">
+                  {t("studentList.deleteTitle")}
+                </p>
+              </div>
+              {i18n.language === "fa" ? (
+                <p className="text-[17px] font-light text-gray-400">
+                  آیا از حذف کردن
+                  <span className="text-red-600 mx-1">
+                    {studentToDelete?.name}
+                  </span>
+                  مطمئن هستید؟
+                </p>
+              ) : (
+                <p className="text-[17px] font-light text-gray-400">
+                  Are you sure you want to delete
+                  <span className="text-red-600 font-medium mx-1">
+                    {studentToDelete?.name}
+                  </span>
+                  ?
+                </p>
+              )}
+              <div className="flex justify-center gap-4 mt-7">
+                <button
+                  className="border border-neutral-700 w-full text-gray-300 px-6 py-2 rounded-lg cursor-pointer"
+                  onClick={() => {
+                    setDeleteModalOpen(false);
+                    setStudentToDelete(null);
+                  }}
+                >
+                  {t("studentForm.cancel") || "Cancel"}
+                </button>
+                <button
+                  className="bg-red-500 w-full text-white px-6 py-2 rounded-lg font-medium cursor-pointer"
+                  onClick={() => {
+                    if (studentToDelete) {
+                      handleDeleteStudent(
+                        studentToDelete.id,
+                        studentToDelete.mongoId,
+                        studentToDelete.name
+                      );
+                    }
+                    setDeleteModalOpen(false);
+                    setStudentToDelete(null);
+                  }}
+                >
+                  {t("studentList.delete") || "Delete"}
+                </button>
+              </div>
             </div>
-          </div>
-        </ModalCustom>
-      </ConfigProvider>
-    </div>
+          </ModalCustom>
+        </ConfigProvider>
+      </div>
+    </>
   );
 }

@@ -292,6 +292,18 @@ body {
   background-color: #141414;
 }
 
-:where(.css-dev-only-do-not-override-1m79rvm).ant-modal .ant-modal-content {
+/* :where(.css-dev-only-do-not-override-1m79rvm).ant-modal .ant-modal-content {
   background-color: #141414;
+} */
+.edit-modal-bg .ant-modal-content {
+  background: #141414 !important;
+}
+
+:where(.css-dev-only-do-not-override-bgn4vy).ant-input {
+  font-size: 18px !important;
+  padding: 10px;
+}
+
+:where(.css-dev-only-do-not-override-bgn4vy).ant-otp {
+  column-gap: 18px;
 }
