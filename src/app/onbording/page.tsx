@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Image1 from "../onbording/image-1.png";
-import Image2 from "../onbording/image-2.png";
+//import Image2 from "../onbording/image-2.png";
 
 const steps = [
   {
@@ -20,7 +20,7 @@ const steps = [
   },
 ];
 
-const images = [Image1, Image2, Image1];
+const images = [Image1, Image1, Image1];
 
 export default function OnbordingPage() {
   const [step, setStep] = useState(0);
