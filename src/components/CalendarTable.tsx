@@ -69,9 +69,10 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
     return sortedSessions.map((session, idx) => ({
       key: session.id,
       session: idx + 1,
-      date: new Date(session.date).toLocaleDateString(
+      date: new Date(session.date).toLocaleDateString("fa-IR"),
+      /* date: new Date(session.date).toLocaleDateString(
         i18n.language === "fa" ? "fa-IR" : "en-US"
-      ),
+      ), */
       weekday:
         i18n.language === "fa"
           ? getWeekDayFa(new Date(session.date))
