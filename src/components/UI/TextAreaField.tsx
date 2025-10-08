@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Input } from "antd";
-//import { useTheme } from "../../../context/ThemeContext";
+import { useTranslation } from "react-i18next";
 
 const { TextArea } = Input;
 
@@ -11,6 +11,8 @@ interface TextAreaFieldProps {
   rows?: number;
   maxLength?: number;
   error?: boolean;
+  disabled?: boolean;
+  className?: string;
 }
 
 const TextAreaField: React.FC<TextAreaFieldProps> = ({
@@ -20,39 +22,54 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   rows = 4,
   maxLength,
   error,
+  disabled = false,
+  className = "",
 }) => {
   const [focused, setFocused] = useState(false);
+  const { i18n } = useTranslation();
 
   const isFloating = focused || (!!value && value.length > 0);
-  const labelColor = focused ? "text-custom-primary-500" : "text-gray-400";
-  const borderColor = focused ? "border-blue-600" : "border-gray-300";
-  //const { theme } = useTheme();
+  const labelColor = error
+    ? "text-red-500"
+    : focused
+      ? "text-teal-500"
+      : "text-gray-400";
+
+  // تعیین جهت و تراز بر اساس زبان
+  const isRTL = i18n.language === "fa";
+  const inputDir = isRTL ? "rtl" : "ltr";
+  const inputTextAlign = isRTL ? "right" : "left";
+  const labelLeft = isRTL ? undefined : isFloating ? "0.75rem" : "2.2rem";
+  const labelRight = isRTL ? (isFloating ? "0.75rem" : "2.2rem") : undefined;
 
   return (
-    <div className="relative w-full">
+    <div className={`relative w-full ${className}`}>
       <span
         className={`
-          absolute transition-all duration-300 pointer-events-none z-10 px-1
-          text-xs font-normal
+          absolute transition-all duration-300 pointer-events-none z-10
+          text-xs font-normal px-2
           ${labelColor}
+          ${isFloating ? "bg-[#141414]" : ""}
         `}
-        /* className={`
-          absolute transition-all duration-300 pointer-events-none z-10 ${
-            theme === "dark" ? "bg-[#1e2636]" : "bg-white"
-          } px-1
-          text-xs font-normal
-          ${labelColor}
-        `} */
         style={{
-          left: "1rem",
-          top: isFloating ? "-0.75rem" : "18%",
-          fontStyle: isFloating ? "italic" : undefined,
+          left: labelLeft,
+          right: labelRight,
+          top: isFloating ? "-0.7rem" : "50%",
           transform: isFloating ? "none" : "translateY(-50%)",
+          fontStyle: isFloating ? "italic" : undefined,
+          textAlign: inputTextAlign,
         }}
       >
         {placeholder}
       </span>
       <TextArea
+        dir={inputDir}
+        style={{
+          borderRadius: "10px",
+          borderColor: error ? "#ef4444" : focused ? "#00bba7" : undefined,
+          textAlign: inputTextAlign,
+          resize: "vertical",
+        }}
         rows={rows}
         maxLength={maxLength}
         value={value}
@@ -60,16 +77,10 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         placeholder=""
-        className={`w-full rounded-2xl pt-6 pb-2 ${borderColor}`}
-        style={{
-          resize: "vertical",
-          borderRadius: "10px",
-          backgroundColor: "white",
-          //backgroundColor: theme === "dark" ? "#1e2636" : "white",
-          color: "black",
-          //color: theme === "dark" ? "white" : "black",
-          ...(error && { borderColor: "#ef4444", borderWidth: 1 }),
-        }}
+        className={`transition-all duration-300 pt-6 pb-2 ${
+          error ? "input-error-placeholder" : ""
+        }`}
+        disabled={disabled}
       />
     </div>
   );

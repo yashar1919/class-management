@@ -1,9 +1,20 @@
 import React, { useMemo, useEffect, useState } from "react";
-import { Table, Tag, ConfigProvider, theme } from "antd";
+import {
+  Table,
+  Tag,
+  ConfigProvider,
+  theme,
+  Button,
+  notification,
+  Input,
+} from "antd";
 import { CloseCircleFilled } from "@ant-design/icons";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { useStudentStore } from "../store/studentStore";
 import { useTranslation } from "react-i18next";
+import ModalCustom from "./UI/ModalCustom";
+
+const { TextArea } = Input;
 
 const weekDaysFa: Record<string, string> = {
   Sunday: "یکشنبه",
@@ -52,6 +63,22 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
   const { t, i18n } = useTranslation();
 
   const [isMobile, setIsMobile] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sendingSMS, setSendingSMS] = useState(false);
+
+  const defaultSmsText = student
+    ? `${student.name} عزیز، زمان پرداخت شهریه کلاس شما فرا رسیده است. لطفا جهت ادامه جلسات، پرداخت را انجام دهید.`
+    : "";
+
+  // مقدار اولیه smsText با متن دیفالت
+  const [smsText, setSmsText] = useState(defaultSmsText);
+
+  const [api, contextHolder] = notification.useNotification();
+
+  useEffect(() => {
+    // هر بار student تغییر کرد، مقدار smsText را با متن دیفالت مقداردهی کن
+    setSmsText(defaultSmsText);
+  }, [defaultSmsText]);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640);
@@ -94,6 +121,63 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
         ),
     }));
   }, [student, i18n.language, t]);
+
+  useEffect(() => {
+    // فقط جلساتی که پرداخت شده‌اند (تگ سبز دارند)
+    const paidRows = data.filter((row, idx) => {
+      return student && idx + 1 <= (student.daysPerWeek ?? 1) * 4;
+    });
+
+    // آیا همه جلسات پرداخت شده attended=true هستند؟
+    const allPaidAttended = paidRows.every((row) => row.attended);
+
+    if (paidRows.length > 0 && allPaidAttended && student) {
+      setIsModalOpen(true);
+    } else {
+      setIsModalOpen(false);
+    }
+  }, [data, student]);
+
+  const handleSendSMS = async () => {
+    if (!student) return;
+    setSendingSMS(true);
+    try {
+      const res = await fetch("/api/payment-sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: student.name,
+          phone: student.phone,
+          customText: smsText.trim() ? smsText : defaultSmsText,
+        }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        api.success({
+          message: "ارسال شد",
+          description: "پیامک پرداخت با موفقیت ارسال شد.",
+          placement: "top",
+        });
+      } else {
+        api.error({
+          message: "خطا",
+          description: "ارسال پیامک با خطا مواجه شد.",
+          placement: "top",
+        });
+      }
+      //eslint-disable-next-line
+    } catch (err) {
+      api.error({
+        message: "خطا",
+        description: "ارسال پیامک با خطا مواجه شد.",
+        placement: "top",
+      });
+    } finally {
+      setSendingSMS(false);
+      setIsModalOpen(false);
+      setSmsText(""); // پاک کردن متن بعد از ارسال
+    }
+  };
 
   const selectedRowKeys = useMemo(
     () => data.filter((row) => row.attended).map((row) => row.key),
@@ -239,32 +323,114 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
   }
 
   return (
-    <div
-      className="overflow-x-auto rounded-lg border border-gray-500"
-      style={{ maxHeight: 300, overflowY: "auto" }}
-    >
-      <ConfigProvider
-        theme={{
-          algorithm: theme.darkAlgorithm,
-          components: {
-            Table: {
-              colorPrimary: "#00bba7",
-              algorithm: true,
-            },
-          },
-        }}
+    <>
+      {contextHolder}
+
+      <ModalCustom
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        footer={null}
+        title=""
+        className="text-right "
       >
-        <Table
-          columns={columns}
-          dataSource={data}
-          pagination={false}
-          size="small"
-          bordered
-          scroll={{ y: 250 }}
-          rowSelection={rowSelection}
-          rowClassName={rowClassName}
-        />
-      </ConfigProvider>
-    </div>
+        <div className="px-8" style={{ direction: "rtl" }}>
+          <p className="text-center w-full block text-2xl text-teal-600 font-bold">
+            ارسال پیامک پرداخت
+          </p>
+          <p className="my-5">
+            زمان پرداخت شهریه برای دانش‌آموز{" "}
+            <span className="font-bold text-teal-700">{student?.name}</span> با
+            شماره{" "}
+            <span className="font-bold text-teal-700">{student?.phone}</span>{" "}
+            فرا رسیده است.
+            <br />
+            اگر می‌خواهید پیامک پرداخت ارسال شود، متن زیر را ویرایش کنید یا همان
+            متن دیفالت را ارسال کنید.
+          </p>
+          <ConfigProvider
+            theme={{
+              algorithm: theme.darkAlgorithm,
+              components: {
+                Input: {
+                  colorPrimary: "#00bba7",
+                  algorithm: true,
+                },
+              },
+            }}
+          >
+            <TextArea
+              value={smsText}
+              onChange={(e) => setSmsText(e.target.value)}
+              placeholder="متن پیامک پرداخت"
+              rows={4}
+              dir="rtl"
+              style={{
+                textAlign: "right",
+                direction: "rtl",
+              }}
+              className="text-lg"
+            />
+          </ConfigProvider>
+          <div className="flex justify-between items-center gap-4 mt-5">
+            <ConfigProvider
+              theme={{
+                algorithm: theme.darkAlgorithm,
+                components: {
+                  Button: {
+                    colorPrimary: "#00bba7",
+                    algorithm: true,
+                  },
+                },
+              }}
+            >
+              <Button
+                key="send"
+                type="primary"
+                loading={sendingSMS}
+                onClick={handleSendSMS}
+                className="w-full"
+              >
+                ارسال
+              </Button>
+              <Button
+                key="cancel"
+                onClick={() => setIsModalOpen(false)}
+                className="w-full"
+              >
+                لغو
+              </Button>
+            </ConfigProvider>
+          </div>
+        </div>
+      </ModalCustom>
+
+      <div
+        className="overflow-x-auto rounded-lg border border-gray-500"
+        style={{ maxHeight: 300, overflowY: "auto" }}
+      >
+        <ConfigProvider
+          theme={{
+            algorithm: theme.darkAlgorithm,
+            components: {
+              Table: {
+                colorPrimary: "#00bba7",
+                algorithm: true,
+              },
+            },
+          }}
+        >
+          <Table
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            size="small"
+            bordered
+            scroll={{ y: 250 }}
+            rowSelection={rowSelection}
+            rowClassName={rowClassName}
+          />
+        </ConfigProvider>
+      </div>
+    </>
   );
 }
