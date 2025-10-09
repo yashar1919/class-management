@@ -11,6 +11,8 @@ import {
   Slider,
   Select,
   Avatar,
+  Spin,
+  message,
 } from "antd";
 import {
   FilterOutlined,
@@ -27,20 +29,25 @@ import {
   CalendarOutlined,
   ScheduleOutlined,
   BarsOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import ModalCustom from "../components/UI/ModalCustom";
+import { fetchStudents } from "../services/studentService";
 const { Search } = Input;
 
 export default function StudentsInfo() {
   const { t, i18n } = useTranslation();
   const students = useStudentStore((s) => s.students);
+  const setStudents = useStudentStore((s) => s.setStudents);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   //eslint-disable-next-line
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [closeBtnHover, setCloseBtnHover] = useState(false); //hover for close btn modal
+  const [messageApi, messageContextHolder] = message.useMessage();
 
   // فیلترها
   const [typeFilter, setTypeFilter] = useState<"all" | "online" | "in-person">(
@@ -76,6 +83,36 @@ export default function StudentsInfo() {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // Fetch students data when component mounts
+  useEffect(() => {
+    const loadStudents = async () => {
+      // نمایش لودینگ message بالای صفحه
+      messageApi.open({
+        key: "students-loading",
+        type: "loading",
+        content: "Loading students...",
+        duration: 0,
+      });
+      try {
+        setLoading(true);
+        const fetchedStudents = await fetchStudents();
+        setStudents(fetchedStudents);
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      } finally {
+        setLoading(false);
+        messageApi.destroy("students-loading");
+      }
+    };
+
+    // Only fetch if students haven't been loaded yet
+    if (students.length === 0) {
+      loadStudents();
+    } else {
+      setLoading(false);
+    }
+  }, [students.length, setStudents, t, messageApi]);
 
   // گزینه‌های فیلتر با ترجمه
   const TIME_FILTERS = [
@@ -184,7 +221,36 @@ export default function StudentsInfo() {
     ageRange,
   ]);
 
-  if (students.length === 0)
+  // Show loading state
+  if (loading) {
+    return (
+      <ConfigProvider
+        theme={{
+          algorithm: theme.darkAlgorithm,
+          components: {
+            Message: {
+              colorPrimary: "#00bba7",
+              algorithm: true,
+            },
+          },
+        }}
+      >
+        <div className="flex justify-center items-center h-64">
+          {messageContextHolder}
+          <div className="flex flex-col gap-7 items-center justify-center mt-20">
+            <Spin
+              indicator={<LoadingOutlined spin />}
+              size="large"
+              style={{ color: "oklch(60% 0.118 184.704)", scale: 1.5 }}
+            />
+            <span className="text-teal-600">Loading...</span>
+          </div>
+        </div>
+      </ConfigProvider>
+    );
+  }
+
+  if (students.length === 0 && !loading)
     return (
       <div className="text-gray-500">
         {t("studentInfo.noStudent") || "No students added yet."}
@@ -467,10 +533,10 @@ export default function StudentsInfo() {
         )}
 
         {filteredStudents.map((student) => (
-          <>
+          <div key={student.mongoId || student.id}>
             {isMobile ? (
               <div
-                key={student.mongoId || student.id}
+                //key={student.mongoId || student.id}
                 className="bg-neutral-900 mx-2 mb-5 rounded-2xl overflow-hidden flex flex-col"
                 style={{
                   boxShadow: "0px 0px 7px #989898",
@@ -736,7 +802,7 @@ export default function StudentsInfo() {
                 )}
               </div>
             )}
-          </>
+          </div>
         ))}
       </div>
       <ConfigProvider
