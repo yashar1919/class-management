@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useStudentStore } from "../store/studentStore";
 import {
   ConfigProvider,
@@ -64,6 +64,18 @@ export default function StudentsInfo() {
     return Math.max(...students.map((s) => Number(s.age) || 0));
   }, [students]);
   const [ageRange, setAgeRange] = useState<[number, number]>([minAge, maxAge]);
+
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  useEffect(() => {
+    // تابع چک کننده سایز
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768); // 768px معمولاً برای موبایل
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // گزینه‌های فیلتر با ترجمه
   const TIME_FILTERS = [
@@ -455,188 +467,276 @@ export default function StudentsInfo() {
         )}
 
         {filteredStudents.map((student) => (
-          <div
-            key={student.mongoId || student.id}
-            className={`bg-neutral-900 px-3 py-2 flex items-center relative overflow-hidden mb-5 shadow-md ${
-              i18n.language !== "fa"
-                ? "rounded-bl-[50px] rounded-r-2xl rounded-tl-[50px]"
-                : "rounded-br-[50px] rounded-l-2xl rounded-tr-[50px]"
-            }`}
-            style={{
-              boxShadow: "0px 0px 7px #989898",
-
-              flexDirection: i18n.language === "fa" ? "row-reverse" : "row",
-            }}
-            dir={i18n.language === "fa" ? "rtl" : "ltr"}
-          >
-            {/* دکمه فلش فارسی */}
-            {i18n.language === "fa" && (
-              <button
-                className="absolute left-0 top-0 bottom-0 w-[50px] bg-teal-600 flex items-center justify-center border-none outline-none cursor-pointer transition-all hover:bg-teal-700 active:bg-teal-800"
-                style={{
-                  height: "100%",
-                  boxShadow: "none",
-                }}
-                onClick={() => {
-                  setSelectedStudent(student);
-                  setModalOpen(true);
-                }}
-              >
-                <span className="text-white text-2xl flex items-center justify-center">
-                  <ArrowLeftOutlined />
-                </span>
-              </button>
-            )}
-
-            {/* آواتار و اطلاعات */}
-            <div
-              className={`flex flex-1 items-center ${
-                i18n.language === "fa" ? "justify-end" : "justify-start"
-              }`}
-            >
-              {/* آواتار */}
-              <Avatar
-                style={{
-                  backgroundColor: "oklch(98.4% 0.014 180.72)",
-                  color: "oklch(77.7% 0.152 181.912)",
-                  fontSize: "35px",
-                  fontWeight: 600,
-                  boxShadow: "0px 0px 10px #00bba7",
-                  display: "flex",
-                  alignItems: "center",
-                  marginLeft: i18n.language === "fa" ? "20px" : undefined,
-                  marginRight: i18n.language === "en" ? "20px" : undefined,
-                }}
-                size={60}
-                //className={i18n.language === "fa" ? "ml-4" : "mr-4"}
-              >
-                {student.name?.[0]?.toUpperCase() || "Y"}
-              </Avatar>
-              {/* اسم و اطلاعات */}
+          <>
+            {isMobile ? (
               <div
-                className={`flex flex-col flex-1 ${
-                  i18n.language === "fa" ? "pl-[60px]" : "pr-[60px]"
-                }`}
+                key={student.mongoId || student.id}
+                className="bg-neutral-900 mx-2 mb-5 rounded-2xl overflow-hidden flex flex-col"
+                style={{
+                  boxShadow: "0px 0px 7px #989898",
+                  //height: "300px",
+                  width: "80%",
+                  maxWidth: "400px",
+                  margin: "0 auto 20px",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
               >
-                <div
-                  className={`font-bold text-2xl mb-2 text-teal-200 break-words ${
-                    i18n.language === "fa" ? "text-right" : "text-left"
-                  }`}
-                >
-                  {student.name}
-                </div>
-                <div
-                  className={`flex w-full justify-between items-center mt-1 flex-wrap gap-y-2`}
-                  dir={i18n.language === "fa" ? "rtl" : "ltr"}
-                >
-                  {[
-                    <div className="w-full sm:w-auto" key="phone">
-                      <span className="text-teal-400 text-[16px]">
-                        {t("studentForm.phone") || "Phone"}:
+                <div className="flex flex-col items-center pt-4">
+                  {/* Avatar */}
+                  <Avatar
+                    style={{
+                      backgroundColor: "oklch(98.4% 0.014 180.72)",
+                      color: "oklch(77.7% 0.152 181.912)",
+                      fontSize: "35px",
+                      fontWeight: 600,
+                      boxShadow: "0px 0px 10px #00bba7",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    size={64}
+                  >
+                    {student.name?.[0]?.toUpperCase() || "Y"}
+                  </Avatar>
+                  {/* Full Name */}
+                  <h3 className="mt-3 text-xl font-semibold text-teal-300 text-center break-words px-4">
+                    {student.name}
+                  </h3>
+                  {/* Student Information */}
+                  <div className="flex flex-col w-1/2 pl-2 gap-2 my-5">
+                    <div className="flex items-center gap-2 mb-1">
+                      <PhoneOutlined className="text-teal-400" />
+                      <span className="text-sm text-gray-300 truncate">
+                        {student.phone || "-"}
                       </span>
-                      <span
-                        className={`text-sm break-all ${
-                          i18n.language === "fa" ? "mr-1" : "ml-1"
-                        }`}
-                      >
-                        {student.phone
-                          ? student.phone.split("").map((char, idx) =>
-                              /\d/.test(char) ? (
-                                <span
-                                  key={idx}
-                                  className="inline-block mx-[0.5px]"
-                                >
-                                  {char}
-                                </span>
-                              ) : (
-                                <span key={idx}>{char}</span>
-                              )
-                            )
-                          : "-"}
-                      </span>
-                    </div>,
-                    <div className="w-full sm:w-auto" key="classType">
-                      <span className="text-teal-400 text-[16px]">
-                        {t("studentForm.classType") || "Class type"}:
-                      </span>
-                      <span
-                        className={`text-sm ${
-                          i18n.language === "fa" ? "mr-1" : "ml-1"
-                        }`}
-                      >
+                    </div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <LaptopOutlined className="text-teal-400" />
+                      <span className="text-sm text-gray-300">
                         {student.classType === "online"
                           ? t("studentForm.online")
                           : student.classType === "in-person"
-                          ? t("studentForm.inPerson")
-                          : student.classType}
+                            ? t("studentForm.inPerson")
+                            : student.classType}
                       </span>
-                    </div>,
-                    <div className="w-full sm:w-auto" key="time">
-                      <span className="text-teal-400 text-[16px]">
-                        {t("studentInfo.time") || "Time"}:
+                    </div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <ClockCircleOutlined className="text-teal-400" />
+                      <span className="text-sm text-gray-300">
+                        {student.startTime} - {student.endTime}
                       </span>
-                      <span
-                        className={`text-sm ${
-                          i18n.language === "fa" ? "mr-1" : "ml-1"
-                        }`}
-                      >
-                        {student.startTime}{" "}
-                        <span className="text-xs">
-                          {t("studentInfo.until")}
-                        </span>{" "}
-                        {student.endTime}
-                      </span>
-                    </div>,
-                    <div className="w-full sm:w-auto" key="duration">
-                      <span className="text-teal-400 text-[16px]">
-                        {t("studentForm.durationHours") || "Duration"}:
-                      </span>
-                      <span
-                        className={`text-sm ${
-                          i18n.language === "fa" ? "mr-1" : "ml-1"
-                        }`}
-                      >
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FieldTimeOutlined className="text-teal-400" />
+                      <span className="text-sm text-gray-300">
                         {student.duration} {t("studentList.hour") || "hour(s)"}
                       </span>
-                    </div>,
-                  ].reduce((acc: React.ReactNode[], curr, idx, arr) => {
-                    acc.push(curr);
-                    if (idx < arr.length - 1) {
-                      acc.push(
-                        <div
-                          key={`divider-${idx}`}
-                          className="hidden sm:flex h-7 items-center"
-                          aria-hidden
-                        >
-                          <div className="border-l border-gray-500 opacity-30 h-full mx-3" />
-                        </div>
-                      );
-                    }
-                    return acc;
-                  }, [])}
+                    </div>
+                  </div>
+                </div>
+                {/* teal Button at the bottom */}
+                <div className="mx-3 mb-4" style={{ marginTop: "auto" }}>
+                  <button
+                    className="w-full py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white transition-colors"
+                    onClick={() => {
+                      setSelectedStudent(student);
+                      setModalOpen(true);
+                    }}
+                  >
+                    <p className="flex justify-center items-center gap-2">
+                      View Details
+                      <ArrowRightOutlined />
+                    </p>
+                  </button>
                 </div>
               </div>
-            </div>
-
-            {/* دکمه فلش انگلیسی */}
-            {i18n.language !== "fa" && (
-              <button
-                className="absolute right-0 top-0 bottom-0 w-[50px] bg-teal-600 flex items-center justify-center border-none outline-none cursor-pointer transition-all hover:bg-teal-700 active:bg-teal-800"
+            ) : (
+              <div
+                key={student.mongoId || student.id}
+                className={`bg-neutral-900 px-3 py-2 flex items-center relative overflow-hidden mb-5 shadow-md ${
+                  i18n.language !== "fa"
+                    ? "rounded-bl-[50px] rounded-r-2xl rounded-tl-[50px]"
+                    : "rounded-br-[50px] rounded-l-2xl rounded-tr-[50px]"
+                }`}
                 style={{
-                  height: "100%",
-                  boxShadow: "none",
+                  boxShadow: "0px 0px 7px #989898",
+
+                  flexDirection: i18n.language === "fa" ? "row-reverse" : "row",
                 }}
-                onClick={() => {
-                  setSelectedStudent(student);
-                  setModalOpen(true);
-                }}
+                dir={i18n.language === "fa" ? "rtl" : "ltr"}
               >
-                <span className="text-white text-2xl flex items-center justify-center">
-                  <ArrowRightOutlined />
-                </span>
-              </button>
+                {/* دکمه فلش فارسی */}
+                {i18n.language === "fa" && (
+                  <button
+                    className="absolute left-0 top-0 bottom-0 w-[50px] bg-teal-600 flex items-center justify-center border-none outline-none cursor-pointer transition-all hover:bg-teal-700 active:bg-teal-800"
+                    style={{
+                      height: "100%",
+                      boxShadow: "none",
+                    }}
+                    onClick={() => {
+                      setSelectedStudent(student);
+                      setModalOpen(true);
+                    }}
+                  >
+                    <span className="text-white text-2xl flex items-center justify-center">
+                      <ArrowLeftOutlined />
+                    </span>
+                  </button>
+                )}
+
+                {/* آواتار و اطلاعات */}
+                <div
+                  className={`flex flex-1 items-center ${
+                    i18n.language === "fa" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  {/* آواتار */}
+                  <Avatar
+                    style={{
+                      backgroundColor: "oklch(98.4% 0.014 180.72)",
+                      color: "oklch(77.7% 0.152 181.912)",
+                      fontSize: "35px",
+                      fontWeight: 600,
+                      boxShadow: "0px 0px 10px #00bba7",
+                      display: "flex",
+                      alignItems: "center",
+                      marginLeft: i18n.language === "fa" ? "20px" : undefined,
+                      marginRight: i18n.language === "en" ? "20px" : undefined,
+                    }}
+                    size={60}
+                    //className={i18n.language === "fa" ? "ml-4" : "mr-4"}
+                  >
+                    {student.name?.[0]?.toUpperCase() || "Y"}
+                  </Avatar>
+                  {/* اسم و اطلاعات */}
+                  <div
+                    className={`flex flex-col flex-1 ${
+                      i18n.language === "fa" ? "pl-[60px]" : "pr-[60px]"
+                    }`}
+                  >
+                    <div
+                      className={`font-bold text-2xl mb-2 text-teal-200 break-words ${
+                        i18n.language === "fa" ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {student.name}
+                    </div>
+                    <div
+                      className={`flex w-full justify-between items-center mt-1 flex-wrap gap-y-2`}
+                      dir={i18n.language === "fa" ? "rtl" : "ltr"}
+                    >
+                      {[
+                        <div className="w-full sm:w-auto" key="phone">
+                          <span className="text-teal-400 text-[16px]">
+                            {t("studentForm.phone") || "Phone"}:
+                          </span>
+                          <span
+                            className={`text-sm break-all ${
+                              i18n.language === "fa" ? "mr-1" : "ml-1"
+                            }`}
+                          >
+                            {student.phone
+                              ? student.phone.split("").map((char, idx) =>
+                                  /\d/.test(char) ? (
+                                    <span
+                                      key={idx}
+                                      className="inline-block mx-[0.5px]"
+                                    >
+                                      {char}
+                                    </span>
+                                  ) : (
+                                    <span key={idx}>{char}</span>
+                                  )
+                                )
+                              : "-"}
+                          </span>
+                        </div>,
+                        <div className="w-full sm:w-auto" key="classType">
+                          <span className="text-teal-400 text-[16px]">
+                            {t("studentForm.classType") || "Class type"}:
+                          </span>
+                          <span
+                            className={`text-sm ${
+                              i18n.language === "fa" ? "mr-1" : "ml-1"
+                            }`}
+                          >
+                            {student.classType === "online"
+                              ? t("studentForm.online")
+                              : student.classType === "in-person"
+                                ? t("studentForm.inPerson")
+                                : student.classType}
+                          </span>
+                        </div>,
+                        <div className="w-full sm:w-auto" key="time">
+                          <span className="text-teal-400 text-[16px]">
+                            {t("studentInfo.time") || "Time"}:
+                          </span>
+                          <span
+                            className={`text-sm ${
+                              i18n.language === "fa" ? "mr-1" : "ml-1"
+                            }`}
+                          >
+                            {student.startTime}{" "}
+                            <span className="text-xs">
+                              {t("studentInfo.until")}
+                            </span>{" "}
+                            {student.endTime}
+                          </span>
+                        </div>,
+                        <div className="w-full sm:w-auto" key="duration">
+                          <span className="text-teal-400 text-[16px]">
+                            {t("studentForm.durationHours") || "Duration"}:
+                          </span>
+                          <span
+                            className={`text-sm ${
+                              i18n.language === "fa" ? "mr-1" : "ml-1"
+                            }`}
+                          >
+                            {student.duration}{" "}
+                            {t("studentList.hour") || "hour(s)"}
+                          </span>
+                        </div>,
+                      ].reduce((acc: React.ReactNode[], curr, idx, arr) => {
+                        acc.push(curr);
+                        if (idx < arr.length - 1) {
+                          acc.push(
+                            <div
+                              key={`divider-${idx}`}
+                              className="hidden sm:flex h-7 items-center"
+                              aria-hidden
+                            >
+                              <div className="border-l border-gray-500 opacity-30 h-full mx-3" />
+                            </div>
+                          );
+                        }
+                        return acc;
+                      }, [])}
+                    </div>
+                  </div>
+                </div>
+
+                {/* دکمه فلش انگلیسی */}
+                {i18n.language !== "fa" && (
+                  <button
+                    className="absolute right-0 top-0 bottom-0 w-[50px] bg-teal-600 flex items-center justify-center border-none outline-none cursor-pointer transition-all hover:bg-teal-700 active:bg-teal-800"
+                    style={{
+                      height: "100%",
+                      boxShadow: "none",
+                    }}
+                    onClick={() => {
+                      setSelectedStudent(student);
+                      setModalOpen(true);
+                    }}
+                  >
+                    <span className="text-white text-2xl flex items-center justify-center">
+                      <ArrowRightOutlined />
+                    </span>
+                  </button>
+                )}
+              </div>
             )}
-          </div>
+          </>
         ))}
       </div>
       <ConfigProvider
@@ -776,8 +876,8 @@ export default function StudentsInfo() {
                     {selectedStudent.classType === "online"
                       ? t("studentForm.online")
                       : selectedStudent.classType === "in-person"
-                      ? t("studentForm.inPerson")
-                      : selectedStudent.classType}
+                        ? t("studentForm.inPerson")
+                        : selectedStudent.classType}
                   </span>
                 </div>
                 <div className="border-t border-gray-700 opacity-40 my-2" />
