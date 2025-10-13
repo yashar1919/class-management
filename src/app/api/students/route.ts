@@ -36,21 +36,35 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(students);
 }
 
-// PUT: آپدیت وضعیت یک جلسه خاص
+// PUT: آپدیت دانش‌آموز و برگرداندن سند به‌روز شده
 export async function PUT(req: NextRequest) {
   const { id, data } = await req.json();
-  if (!id || !data.userId) {
-    return NextResponse.json(
-      { error: "id and userId are required" },
-      { status: 400 }
-    );
+  if (!id) {
+    return NextResponse.json({ error: "id is required" }, { status: 400 });
   }
+
+  // Add userId to the query for security
+  const userId = data.userId;
+  if (!userId) {
+    return NextResponse.json({ error: "userId is required" }, { status: 400 });
+  }
+
   const collection = await connectDB();
-  const result = await collection.updateOne(
-    { _id: new ObjectId(id), userId: data.userId },
-    { $set: data }
+
+  // Update and return the updated document
+  const result = await collection.findOneAndUpdate(
+    { _id: new ObjectId(id), userId },
+    { $set: data },
+    { returnDocument: "after" } // Return the updated document
   );
-  return NextResponse.json({ modifiedCount: result.modifiedCount });
+
+  if (!result) {
+    return NextResponse.json({ error: "Student not found" }, { status: 404 });
+  }
+
+  // Convert _id to mongoId for consistency
+  const updatedStudent = { ...result, mongoId: result._id };
+  return NextResponse.json(updatedStudent);
 }
 
 // DELETE: حذف دانش‌آموز

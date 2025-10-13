@@ -199,6 +199,31 @@ body {
   color: #fff !important;
 }
 
+/* اطمینان از حفظ border های هفته‌ای در حالت absent */
+.ant-table-tbody>tr.row-absent.first-of-week:hover>td {
+  border-top: 2px solid rgba(255, 255, 255, 0.8) !important;
+}
+
+.ant-table-tbody>tr.row-absent.week-1.first-of-week:hover>td {
+  border-top: 2px solid #00bba7 !important;
+}
+
+.ant-table-tbody>tr.row-absent.week-2.first-of-week:hover>td {
+  border-top: 2px solid #6366f1 !important;
+}
+
+.ant-table-tbody>tr.row-absent.week-3.first-of-week:hover>td {
+  border-top: 2px solid #ec4899 !important;
+}
+
+.ant-table-tbody>tr.row-absent.week-4.first-of-week:hover>td {
+  border-top: 2px solid #a855f7 !important;
+}
+
+.ant-table-tbody>tr.row-absent.week-5.first-of-week:hover>td {
+  border-top: 2px solid #22c55e !important;
+}
+
 @media (max-width: 768px) {
   .ant-table-small {
     font-size: 12px !important;
@@ -306,4 +331,155 @@ body {
 
 :where(.css-dev-only-do-not-override-bgn4vy).ant-otp {
   column-gap: 18px;
+}
+
+/* استایل‌های متفاوت برای هر هفته در جدول - فقط border */
+/* .week-1 {
+  border-left: 6px solid #00bba7 !important;
+  border-right: 2px solid #00bba7 !important;
+}
+
+.week-2 {
+  border-left: 6px solid #6366f1 !important;
+  border-right: 2px solid #6366f1 !important;
+}
+
+.week-3 {
+  border-left: 6px solid #ec4899 !important;
+  border-right: 2px solid #ec4899 !important;
+}
+
+.week-4 {
+  border-left: 6px solid #a855f7 !important;
+  border-right: 2px solid #a855f7 !important;
+}
+
+.week-5 {
+  border-left: 6px solid #22c55e !important;
+  border-right: 2px solid #22c55e !important;
+} */
+
+/* ایجاد تمایز بیشتر برای اولین جلسه هر هفته */
+/* .first-of-week {
+  border-top: 4px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+.week-1.first-of-week {
+  border-top: 4px solid #00bba7 !important;
+}
+
+.week-2.first-of-week {
+  border-top: 4px solid #6366f1 !important;
+}
+
+.week-3.first-of-week {
+  border-top: 4px solid #ec4899 !important;
+}
+
+.week-4.first-of-week {
+  border-top: 4px solid #a855f7 !important;
+}
+
+.week-5.first-of-week {
+  border-top: 4px solid #22c55e !important;
+} */
+
+/* Hover effects برای بهتر شدن UX - فقط border */
+/* .week-1:hover {
+  border-left: 8px solid #00bba7 !important;
+}
+
+.week-2:hover {
+  border-left: 8px solid #6366f1 !important;
+}
+
+.week-3:hover {
+  border-left: 8px solid #ec4899 !important;
+}
+
+.week-4:hover {
+  border-left: 8px solid #a855f7 !important;
+}
+
+.week-5:hover {
+  border-left: 8px solid #22c55e !important;
+} */
+
+/* Override Ant Design table border styles */
+.ant-table-tbody>tr.week-1,
+.ant-table-tbody>tr.week-2,
+.ant-table-tbody>tr.week-3,
+.ant-table-tbody>tr.week-4,
+.ant-table-tbody>tr.week-5 {
+  border-collapse: separate !important;
+}
+
+/* .ant-table-tbody > tr.week-1 > td {
+  border-left: 6px solid #00bba7 !important;
+}
+
+.ant-table-tbody > tr.week-2 > td {
+  border-left: 6px solid #6366f1 !important;
+}
+
+.ant-table-tbody > tr.week-3 > td {
+  border-left: 6px solid #ec4899 !important;
+}
+
+.ant-table-tbody > tr.week-4 > td {
+  border-left: 6px solid #a855f7 !important;
+}
+
+.ant-table-tbody > tr.week-5 > td {
+  border-left: 6px solid #22c55e !important;
+} */
+
+/* اولین جلسه هر هفته */
+.ant-table-tbody>tr.first-of-week>td {
+  border-top: 2px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+.ant-table-tbody>tr.week-1.first-of-week>td {
+  border-top: 2px solid gray !important;
+}
+
+.ant-table-tbody>tr.week-2.first-of-week>td {
+  border-top: 2px solid gray !important;
+}
+
+.ant-table-tbody>tr.week-3.first-of-week>td {
+  border-top: 2px solid gray !important;
+}
+
+.ant-table-tbody>tr.week-4.first-of-week>td {
+  border-top: 2px solid gray !important;
+}
+
+.ant-table-tbody>tr.week-5.first-of-week>td {
+  border-top: 2px solid gray !important;
+}
+
+/* حفظ border های هفته‌ای حتی برای row-absent */
+.ant-table-tbody>tr.row-absent.first-of-week>td {
+  border-top: 2px solid rgba(255, 255, 255, 0.8) !important;
+}
+
+.ant-table-tbody>tr.row-absent.week-1.first-of-week>td {
+  border-top: 2px solid gray !important;
+}
+
+.ant-table-tbody>tr.row-absent.week-2.first-of-week>td {
+  border-top: 2px solid gray !important;
+}
+
+.ant-table-tbody>tr.row-absent.week-3.first-of-week>td {
+  border-top: 2px solid gray !important;
+}
+
+.ant-table-tbody>tr.row-absent.week-4.first-of-week>td {
+  border-top: 2px solid gray !important;
+}
+
+.ant-table-tbody>tr.row-absent.week-5.first-of-week>td {
+  border-top: 2px solid gray !important;
 }

@@ -84,6 +84,11 @@ const schema = yup.object({
     .typeError("Session price must be a number")
     .min(0, "Session price cannot be negative")
     .required("Session price is required"),
+  studentDepositAmount: yup
+    .number()
+    .typeError("مبلغ واریزی باید عدد باشد")
+    .min(0, "مبلغ واریزی نمی‌تواند منفی باشد")
+    .default(0),
 });
 
 type FormValues = {
@@ -97,6 +102,7 @@ type FormValues = {
   multiDay: boolean;
   daysPerWeek: number;
   sessionPrice: number;
+  studentDepositAmount: number;
   selectedDates: DateObject[];
   onlineLink?: string;
 };
@@ -112,6 +118,7 @@ const defaultValues: FormValues = {
   multiDay: false,
   daysPerWeek: 2,
   sessionPrice: 1,
+  studentDepositAmount: 0,
   selectedDates: [],
   onlineLink: "",
 };
@@ -121,7 +128,7 @@ export default function StudentForm() {
   //const addStudent = useStudentStore((s) => s.addStudent);
   const editingStudent = useStudentStore((s) => s.editingStudent);
   const setEditingStudent = useStudentStore((s) => s.setEditingStudent);
-  //const updateStudent = useStudentStore((s) => s.updateStudent);
+  const updateStudent = useStudentStore((s) => s.updateStudent);
   const setStudents = useStudentStore((s) => s.setStudents);
 
   const classTypeItems: MenuProps["items"] = [
@@ -165,6 +172,18 @@ export default function StudentForm() {
       });
     } else {
       setValue("daysPerWeek", 1, { shouldValidate: true });
+
+      // اگر multiDay false شد و بیشتر از یک تاریخ انتخاب شده، فقط اولین تاریخ را نگه دار
+      if (selectedDates && selectedDates.length > 1) {
+        console.log(
+          "Reducing selected dates from",
+          selectedDates.length,
+          "to 1"
+        );
+        setValue("selectedDates", [selectedDates[0]], {
+          shouldValidate: true,
+        });
+      }
     }
   }, [multiDay, selectedDates, setValue]);
 
@@ -192,52 +211,158 @@ export default function StudentForm() {
     setCalendarError(false);
     setLoading(true);
 
-    //eslint-disable-next-line
-    const sessions: any[] = [];
-    data.selectedDates.forEach((dateObj) => {
-      const baseDate = new Date(dateObj.toDate());
-      for (let i = 0; i < 5; i++) {
-        const sessionDate = addWeeks(baseDate, i);
-        sessions.push({
-          id: `${Date.now()}_${Math.random()}_${i}`,
-          date: sessionDate,
-          startTime: data.startTime,
-          endTime: calcEndTime(data.startTime, data.duration),
-          attended: false,
-          absent: false,
-          price: data.sessionPrice.toString(),
-          deposit: i < 4, // ۴ جلسه اول پرداخت شده، جلسه پنجم پرداخت نشده
-          paid: i < 4, // برای راحتی، paid هم ست کن
-        });
-      }
-    });
-
     const firstSessionDates = data.selectedDates.map(
       (dateObj) => new Date(dateObj.toDate())
     );
+    // اگر multiDay false است، فقط اولین تاریخ را استفاده کن
+    const finalSessionDates = data.multiDay
+      ? firstSessionDates
+      : [firstSessionDates[0]];
     const actualDaysPerWeek = data.multiDay ? data.selectedDates.length : 1;
 
-    const studentData = {
-      name: data.name,
-      phone: data.phone || "",
-      address: data.address,
-      age: data.age,
-      classType: data.classType,
-      startTime: data.startTime,
-      endTime: calcEndTime(data.startTime, data.duration),
-      duration: data.duration,
-      price: data.sessionPrice.toString(),
-      firstSessionDates,
-      daysPerWeek: actualDaysPerWeek,
+    console.log("Form data for submission:", {
       multiDay: data.multiDay,
-      onlineLink: data.onlineLink || "",
-      sessions, // جدول جلسات با منطق درست
-    };
+      selectedDatesLength: data.selectedDates.length,
+      actualDaysPerWeek,
+      firstSessionDatesLength: firstSessionDates.length,
+    });
+
+    let studentData;
+
+    if (editingStudent && editingStudent.mongoId) {
+      // برای ویرایش: sessions موجود را حفظ می‌کنیم
+      studentData = {
+        name: data.name,
+        phone: data.phone || "",
+        address: data.address,
+        age: data.age,
+        classType: data.classType,
+        startTime: data.startTime,
+        endTime: calcEndTime(data.startTime, data.duration),
+        duration: data.duration,
+        price: data.sessionPrice.toString(),
+        depositAmount: data.studentDepositAmount,
+        firstSessionDates: finalSessionDates,
+        daysPerWeek: actualDaysPerWeek,
+        multiDay: data.multiDay,
+        onlineLink: data.onlineLink || "",
+        // sessions موجود را حفظ می‌کنیم - از service layer مدیریت می‌شود
+      };
+    } else {
+      // برای دانش‌آموز جدید: sessions جدید تولید می‌کنیم
+      // محاسبه تعداد جلسات بر اساس مبلغ واریزی
+      const totalPaidSessions = Math.floor(
+        data.studentDepositAmount / data.sessionPrice
+      );
+
+      // منطق ماهانه: تولید جدول بر اساس ماه‌های کامل (هر ماه = 4 جلسه)
+      const monthsNeeded = Math.ceil(totalPaidSessions / 4); // تعداد ماه‌های مورد نیاز
+      const totalSessionsToGenerate = monthsNeeded * 4; // هر ماه 4 جلسه
+
+      //eslint-disable-next-line
+      const sessions: any[] = [];
+      const daysPerWeek = finalSessionDates.length;
+
+      console.log("Form session generation:", {
+        totalPaidSessions,
+        totalSessionsToGenerate,
+        daysPerWeek,
+        finalSessionDatesCount: finalSessionDates.length,
+      });
+
+      // منطق جدید: توزیع sessions بر اساس تعداد جلسات پرداخت شده
+      let sessionCounter = 0;
+      let weekCounter = 0;
+
+      // ادامه تولید تا زمانی که تمام sessions مورد نیاز تولید شوند
+      while (sessionCounter < totalSessionsToGenerate) {
+        // برای هر روز از روزهای هفته
+        for (
+          let dayIndex = 0;
+          dayIndex < daysPerWeek && sessionCounter < totalSessionsToGenerate;
+          dayIndex++
+        ) {
+          const baseDate = finalSessionDates[dayIndex];
+          const sessionDate = addWeeks(baseDate, weekCounter);
+          const isPaid = sessionCounter < totalPaidSessions;
+
+          sessions.push({
+            id: `${Date.now()}_${Math.random()}_${sessionCounter}`,
+            date: sessionDate,
+            startTime: data.startTime,
+            endTime: calcEndTime(data.startTime, data.duration),
+            attended: false,
+            absent: false,
+            price: data.sessionPrice.toString(),
+            deposit: isPaid,
+            paid: isPaid,
+          });
+
+          sessionCounter++;
+        }
+        weekCounter++;
+      }
+
+      console.log("Form final session result:", {
+        totalSessionsGenerated: sessions.length,
+        paidSessions: sessions.filter((s) => s.paid).length,
+        unpaidSessions: sessions.filter((s) => !s.paid).length,
+      });
+
+      studentData = {
+        name: data.name,
+        phone: data.phone || "",
+        address: data.address,
+        age: data.age,
+        classType: data.classType,
+        startTime: data.startTime,
+        endTime: calcEndTime(data.startTime, data.duration),
+        duration: data.duration,
+        price: data.sessionPrice.toString(),
+        depositAmount: data.studentDepositAmount,
+        firstSessionDates: finalSessionDates,
+        daysPerWeek: actualDaysPerWeek,
+        multiDay: data.multiDay,
+        onlineLink: data.onlineLink || "",
+        sessions, // جدول جلسات با منطق درست
+      };
+    }
 
     try {
       if (editingStudent && editingStudent.mongoId) {
-        await editStudentInDB(editingStudent.mongoId, studentData);
-        console.log("Student edited in DB:", studentData);
+        // فراخوانی API بدون optimistic update تا current student در service درست باشد
+
+        const updatedStudentData = await editStudentInDB(
+          editingStudent.mongoId,
+          studentData
+        );
+        console.log("Student edited in DB:", updatedStudentData);
+
+        // بعد از موفقیت API، store را بروزرسانی کن
+        if (updatedStudentData) {
+          updateStudent(editingStudent.mongoId, {
+            ...updatedStudentData,
+            mongoId: editingStudent.mongoId,
+          });
+        }
+
+        // اگر API موفق بود، داده‌های برگشتی را در store به‌روزرسانی کن
+        if (updatedStudentData) {
+          console.log("Updating store with:", {
+            mongoId: editingStudent.mongoId,
+            sessionsCount: updatedStudentData.sessions?.length,
+            depositAmount: updatedStudentData.depositAmount,
+          });
+          updateStudent(editingStudent.mongoId, {
+            ...updatedStudentData,
+            mongoId: editingStudent.mongoId,
+          });
+        }
+
+        messageApi.open({
+          type: "success",
+          content: "Student updated successfully!",
+        });
       } else {
         await addStudentToDB(studentData);
         console.log("Student successfully POSTed to DB:", studentData);
@@ -245,14 +370,22 @@ export default function StudentForm() {
           type: "success",
           content: "Student added successfully!",
         });
+
+        // برای دانش‌آموز جدید، همچنان لیست کامل را بروزرسانی کن
+        const students = await fetchStudents();
+        setStudents(students);
       }
       reset(defaultValues);
       setEditingStudent(null);
-      // لیست را مجدد از دیتابیس بخوان و ست کن
-      const students = await fetchStudents();
-      setStudents(students);
     } catch (err) {
       console.error("API error:", err);
+      // در صورت خطا، داده‌ها را از سرور مجدداً بخوان
+      const students = await fetchStudents();
+      setStudents(students);
+      messageApi.open({
+        type: "error",
+        content: "Error updating student. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -272,6 +405,7 @@ export default function StudentForm() {
         multiDay: editingStudent.multiDay,
         daysPerWeek: editingStudent.daysPerWeek,
         sessionPrice: Number(editingStudent.price),
+        studentDepositAmount: editingStudent.depositAmount || 0,
         selectedDates: editingStudent.firstSessionDates.map(
           (d) => new DateObject(new Date(d))
         ),
@@ -543,6 +677,7 @@ export default function StudentForm() {
               )}
             </div>
           )}
+
           <div className="md:col-span-2">
             <Controller
               name="duration"
@@ -687,33 +822,33 @@ export default function StudentForm() {
               )}
             />
           </div>
+          <div className="md:col-span-2">
+            <Controller
+              name="selectedDates"
+              control={control}
+              render={({ field }) => (
+                <PersianCalendarPicker
+                  value={field.value}
+                  onChange={field.onChange}
+                  multiple={multiDay}
+                  error={errors.selectedDates?.message}
+                />
+              )}
+            />
+            {errors.selectedDates && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.selectedDates.message}
+              </p>
+            )}
+            {calendarError && (
+              <p className="text-red-500 text-xs mt-1">
+                {typeof calendarError === "string"
+                  ? calendarError
+                  : "لطفاً یک یا چند روز را انتخاب کنید"}
+              </p>
+            )}
+          </div>
           <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-            <div className="w-6/7">
-              <Controller
-                name="selectedDates"
-                control={control}
-                render={({ field }) => (
-                  <PersianCalendarPicker
-                    value={field.value}
-                    onChange={field.onChange}
-                    multiple={multiDay}
-                    error={errors.selectedDates?.message}
-                  />
-                )}
-              />
-              {errors.selectedDates && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.selectedDates.message}
-                </p>
-              )}
-              {calendarError && (
-                <p className="text-red-500 text-xs mt-1">
-                  {typeof calendarError === "string"
-                    ? calendarError
-                    : "لطفاً یک یا چند روز را انتخاب کنید"}
-                </p>
-              )}
-            </div>
             <Controller
               name="sessionPrice"
               control={control}
@@ -751,6 +886,51 @@ export default function StudentForm() {
             {errors.sessionPrice && (
               <p className="text-red-500 text-xs mt-1">
                 {errors.sessionPrice.message}
+              </p>
+            )}
+            {/* Student Deposit Amount Field - Full Width */}
+            <Controller
+              name="studentDepositAmount"
+              control={control}
+              render={({ field }) => (
+                <ConfigProvider
+                  theme={{
+                    algorithm: theme.darkAlgorithm,
+                    components: {
+                      InputNumber: {
+                        colorPrimary: "#00bba7",
+                        algorithm: true,
+                      },
+                    },
+                  }}
+                >
+                  <InputNumberField
+                    placeholder="Student Deposit Amount"
+                    addonBefore={<DollarOutlined />}
+                    value={field.value ?? 0}
+                    onChange={field.onChange}
+                    error={!!errors.studentDepositAmount}
+                    formatter={(value: string | number | undefined) => {
+                      if (
+                        value === undefined ||
+                        value === null ||
+                        value === ""
+                      ) {
+                        return "";
+                      }
+                      return `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    }}
+                    parser={(value: string | undefined) =>
+                      value ? value.replace(/(,*)/g, "") : ""
+                    }
+                    min={0}
+                  />
+                </ConfigProvider>
+              )}
+            />
+            {errors.studentDepositAmount && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.studentDepositAmount.message}
               </p>
             )}
           </div>

@@ -41,6 +41,7 @@ export default function OnbordingPage() {
         alt="Welcome Illustration"
         width={320}
         className="mb-8"
+        loading="lazy"
       />
       <div
         className="flex flex-col justify-center items-center"

@@ -10,6 +10,8 @@ export type Session = {
   attended: boolean;
   absent: boolean;
   price: string;
+  deposit?: boolean;
+  paid?: boolean;
   //eslint-disable-next-line
   id: any;
 };
@@ -26,6 +28,7 @@ export type Student = {
   endTime: string;
   duration: number;
   price: string;
+  depositAmount?: number;
   firstSessionDates: Date[]; // array of first session dates
   daysPerWeek: number;
   multiDay: boolean;
@@ -43,7 +46,7 @@ type StudentStore = {
   toggleAbsent: (studentId: string, sessionId: string) => void;
   editingStudent: Student | null;
   setEditingStudent: (student: Student | null) => void;
-  updateStudent: (id: string, data: NewStudent) => void;
+  updateStudent: (id: string, data: Partial<Student>) => void;
   setStudents: (students: Student[]) => void;
 };
 

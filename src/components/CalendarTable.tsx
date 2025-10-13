@@ -35,6 +35,13 @@ function getWeekDayEn(date: Date) {
   return date.toLocaleDateString("en-US", { weekday: "long" });
 }
 
+// تابع محاسبه شماره هفته از اولین جلسه
+function getWeekNumber(date: Date, firstSessionDate: Date): number {
+  const diffTime = date.getTime() - firstSessionDate.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  return Math.floor(diffDays / 7) + 1;
+}
+
 type CalendarTableProps = {
   //student: Student;
   studentId: string;
@@ -49,6 +56,7 @@ interface SessionRow {
   endTime: string;
   attended: boolean;
   absent?: boolean;
+  weekNumber: number;
   price: string | number;
   deposit: React.ReactNode;
 }
@@ -65,10 +73,46 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sendingSMS, setSendingSMS] = useState(false);
+  const [isModalDismissed, setIsModalDismissed] = useState(false);
 
   const defaultSmsText = student
     ? `${student.name} عزیز، زمان پرداخت شهریه کلاس شما فرا رسیده است. لطفا جهت ادامه جلسات، پرداخت را انجام دهید.`
     : "";
+
+  // محاسبه آمار پرداخت ماهانه
+  const paymentStats = useMemo(() => {
+    if (!student?.sessions)
+      return {
+        totalPaid: 0,
+        totalRemaining: 0,
+        paidAmount: 0,
+        remainingAmount: 0,
+        totalMonths: 0,
+        paidMonths: 0,
+        remainingMonths: 0,
+      };
+
+    const paidSessionsCount = student.sessions.filter(
+      (s) => s.paid || s.deposit
+    ).length;
+    const totalSessions = student.sessions.length;
+    const sessionPrice = parseFloat(student.price) || 0;
+
+    // محاسبات ماهانه (هر ماه = 4 جلسه)
+    const totalMonths = Math.ceil(totalSessions / 4);
+    const paidMonths = Math.floor(paidSessionsCount / 4);
+    const remainingMonths = totalMonths - paidMonths;
+
+    return {
+      totalPaid: paidSessionsCount,
+      totalRemaining: totalSessions - paidSessionsCount,
+      paidAmount: paidSessionsCount * sessionPrice,
+      remainingAmount: (totalSessions - paidSessionsCount) * sessionPrice,
+      totalMonths,
+      paidMonths,
+      remainingMonths,
+    };
+  }, [student]);
 
   // مقدار اولیه smsText با متن دیفالت
   const [smsText, setSmsText] = useState(defaultSmsText);
@@ -87,56 +131,80 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const data: SessionRow[] = useMemo(() => {
+  // محاسبه data بدون useMemo برای اطمینان از بروزرسانی
+  const data: SessionRow[] = (() => {
     if (!student || !student.sessions) return [];
     // Sort sessions by date ascending
     const sortedSessions = [...student.sessions].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
-    return sortedSessions.map((session, idx) => ({
-      key: session.id,
-      session: idx + 1,
-      date: new Date(session.date).toLocaleDateString("fa-IR"),
-      /* date: new Date(session.date).toLocaleDateString(
-        i18n.language === "fa" ? "fa-IR" : "en-US"
-      ), */
-      weekday:
-        i18n.language === "fa"
-          ? getWeekDayFa(new Date(session.date))
-          : getWeekDayEn(new Date(session.date)),
-      startTime: session.startTime,
-      endTime: session.endTime,
-      attended: session.attended,
-      absent: session.absent,
-      price: session.price,
-      deposit:
-        student && idx + 1 > (student.daysPerWeek ?? 1) * 4 ? (
-          <Tag color="yellow" className="tag-xs">
-            {t("table.tuitionRequired")}
-          </Tag>
-        ) : (
-          <Tag color="green" className="tag-xs">
-            {t("table.tuitionDone")}
-          </Tag>
-        ),
-    }));
-  }, [student, i18n.language, t]);
+
+    // پیدا کردن اولین تاریخ جلسه برای محاسبه شماره هفته
+    const firstSessionDate =
+      sortedSessions.length > 0 ? new Date(sortedSessions[0].date) : new Date();
+
+    return sortedSessions.map((session, idx) => {
+      const sessionDate = new Date(session.date);
+      const weekNumber = getWeekNumber(sessionDate, firstSessionDate);
+
+      return {
+        key: session.id,
+        session: idx + 1,
+        date: new Date(session.date).toLocaleDateString("fa-IR"),
+        /* date: new Date(session.date).toLocaleDateString(
+          i18n.language === "fa" ? "fa-IR" : "en-US"
+        ), */
+        weekday:
+          i18n.language === "fa"
+            ? getWeekDayFa(new Date(session.date))
+            : getWeekDayEn(new Date(session.date)),
+        startTime: session.startTime,
+        endTime: session.endTime,
+        attended: session.attended,
+        absent: session.absent,
+        price: session.price,
+        weekNumber, // اضافه کردن شماره هفته
+        deposit:
+          session.deposit || session.paid ? (
+            <Tag color="green" className="tag-xs">
+              {t("table.tuitionDone")}
+            </Tag>
+          ) : (
+            <Tag color="yellow" className="tag-xs">
+              {t("table.tuitionRequired")}
+            </Tag>
+          ),
+      };
+    });
+  })();
+
+  // Reset dismiss state when student changes
+  useEffect(() => {
+    setIsModalDismissed(false);
+  }, [student?.id]); // Reset when student changes
 
   useEffect(() => {
-    // فقط جلساتی که پرداخت شده‌اند (تگ سبز دارند)
-    const paidRows = data.filter((row, idx) => {
-      return student && idx + 1 <= (student.daysPerWeek ?? 1) * 4;
+    if (!student || !student.sessions) return;
+
+    // فقط جلساتی که پرداخت شده‌اند (deposit یا paid = true)
+    const paidRows = data.filter((row) => {
+      const session = student.sessions.find((s) => s.id === row.key);
+      return session && (session.deposit || session.paid);
     });
 
     // آیا همه جلسات پرداخت شده attended=true هستند؟
-    const allPaidAttended = paidRows.every((row) => row.attended);
+    const allPaidAttended =
+      paidRows.length > 0 && paidRows.every((row) => row.attended);
 
-    if (paidRows.length > 0 && allPaidAttended && student) {
-      setIsModalOpen(true);
-    } else {
+    // اگر کاربر تیک‌ها را تغییر داده، dismiss state را reset کن
+    if (!allPaidAttended) {
       setIsModalOpen(false);
+      setIsModalDismissed(false); // Reset dismiss state when conditions change
+    } else if (allPaidAttended && student && !isModalDismissed) {
+      // فقط زمانی مودال را باز کن که کاربر آن را manually نبسته باشد
+      setIsModalOpen(true);
     }
-  }, [data, student]);
+  }, [data, student, isModalDismissed]);
 
   const handleSendSMS = async () => {
     if (!student) return;
@@ -175,14 +243,14 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
     } finally {
       setSendingSMS(false);
       setIsModalOpen(false);
+      setIsModalDismissed(true);
       setSmsText(""); // پاک کردن متن بعد از ارسال
     }
   };
 
-  const selectedRowKeys = useMemo(
-    () => data.filter((row) => row.attended).map((row) => row.key),
-    [data]
-  );
+  const selectedRowKeys = data
+    .filter((row) => row.attended)
+    .map((row) => row.key);
 
   const columns: ColumnsType<SessionRow> = useMemo(() => {
     const baseColumns: ColumnsType<SessionRow> = [
@@ -202,10 +270,12 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
               checked={!!record.absent}
               onChange={() => {
                 if (!student) return;
+                const studentIdentifier = student.mongoId || student.id;
                 if (!record.absent) {
-                  if (record.attended) toggleAttendance(student.id, record.key);
+                  if (record.attended)
+                    toggleAttendance(studentIdentifier, record.key);
                 }
-                toggleAbsent(student.id, record.key);
+                toggleAbsent(studentIdentifier, record.key);
               }}
               className="accent-red-500 w-5 h-5"
               style={{ display: "none" }}
@@ -299,13 +369,14 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
     selectedRowKeys,
     onChange: (selectedKeys: React.Key[]) => {
       if (!student) return;
+      const studentIdentifier = student.mongoId || student.id;
       data.forEach((row) => {
         const shouldBeAttended = selectedKeys.includes(row.key);
         if (row.attended !== shouldBeAttended) {
           if (shouldBeAttended && row.absent) {
-            toggleAbsent(student.id, row.key);
+            toggleAbsent(studentIdentifier, row.key);
           }
-          toggleAttendance(student.id, row.key);
+          toggleAttendance(studentIdentifier, row.key);
         }
       });
     },
@@ -313,9 +384,33 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
     columnWidth: 50,
   };
 
-  function rowClassName(record: SessionRow) {
-    if (record.absent) return "row-absent";
-    return "text-white";
+  function rowClassName(record: SessionRow, index?: number) {
+    // رنگ‌های متفاوت برای هر هفته
+    const weekColors = [
+      "week-1", // هفته 1
+      "week-2", // هفته 2
+      "week-3", // هفته 3
+      "week-4", // هفته 4
+      "week-5", // هفته 5
+    ];
+
+    const colorIndex = (record.weekNumber - 1) % weekColors.length;
+    let classes = `text-white ${weekColors[colorIndex]}`;
+
+    // اگر اولین جلسه هفته است، border بالا اضافه کن
+    const isFirstOfWeek =
+      index === 0 ||
+      (index && data[index - 1]?.weekNumber !== record.weekNumber);
+    if (isFirstOfWeek) {
+      classes += " first-of-week";
+    }
+
+    // اگر غایب است، row-absent class هم اضافه کن
+    if (record.absent) {
+      classes += " row-absent";
+    }
+
+    return classes;
   }
 
   if (!student || !student.sessions) {
@@ -326,9 +421,83 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
     <>
       {contextHolder}
 
+      {/* نمایش آمار ماهانه */}
+      {student && (
+        <div className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-600">
+          <div className="text-center mb-3">
+            <h3 className="text-lg font-bold text-teal-400">
+              آمار ماهانه کلاس‌ها
+            </h3>
+            <p className="text-xs text-gray-400">هر ماه = 4 جلسه</p>
+          </div>
+
+          {/* <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center mb-4">
+            <div>
+              <p className="text-xs text-gray-400">ماه‌های پرداخت شده</p>
+              <p className="text-lg font-bold text-green-400">
+                {paymentStats.paidMonths}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">ماه‌های باقی‌مانده</p>
+              <p className="text-lg font-bold text-yellow-400">
+                {paymentStats.remainingMonths}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">کل ماه‌ها</p>
+              <p className="text-lg font-bold text-blue-400">
+                {paymentStats.totalMonths}
+              </p>
+            </div>
+          </div> */}
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-sm">
+            <div>
+              <p className="text-xs text-gray-400">جلسات پرداخت شده</p>
+              <p className="font-bold text-green-400">
+                {paymentStats.totalPaid}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">جلسات باقی‌مانده</p>
+              <p className="font-bold text-yellow-400">
+                {paymentStats.totalRemaining}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">مبلغ دریافتی</p>
+              <p className="text-xs font-bold text-green-400">
+                {paymentStats.paidAmount.toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">مبلغ باقی‌مانده</p>
+              <p className="text-xs font-bold text-red-400">
+                {paymentStats.remainingAmount.toLocaleString()}
+              </p>
+            </div>
+          </div>
+
+          {student.depositAmount && (
+            <div className="mt-3 pt-3 border-t border-gray-600">
+              <p className="text-xs text-gray-400 text-center">
+                مبلغ واریزی اولیه:{" "}
+                <span className="text-teal-400 font-bold">
+                  {student.depositAmount.toLocaleString()} تومان
+                </span>
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       <ModalCustom
         open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
+        onCancel={() => {
+          setIsModalOpen(false);
+          setIsModalDismissed(true);
+        }}
         footer={null}
         title=""
         className="text-right "
@@ -394,7 +563,10 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
               </Button>
               <Button
                 key="cancel"
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setIsModalDismissed(true);
+                }}
                 className="w-full"
               >
                 لغو

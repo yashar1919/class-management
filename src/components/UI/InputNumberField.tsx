@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { InputNumber } from "antd";
 import { useTranslation } from "react-i18next";
@@ -33,9 +33,16 @@ const InputNumberField: React.FC<InputNumberFieldProps> = ({
 }) => {
   const [focused, setFocused] = useState(false);
   const [internalValue, setInternalValue] = useState<number | null>(
-    value ?? null
+    value ?? (min >= 0 ? min : null)
   );
   const { i18n } = useTranslation();
+
+  // Update internal value when prop value changes
+  useEffect(() => {
+    if (value !== undefined) {
+      setInternalValue(value);
+    }
+  }, [value]);
 
   const isRTL = i18n.language === "fa";
   const inputDir = isRTL ? "rtl" : "ltr";
@@ -48,17 +55,17 @@ const InputNumberField: React.FC<InputNumberFieldProps> = ({
   const labelColor = error
     ? "text-red-500"
     : focused
-    ? "text-teal-500"
-    : "text-gray-400";
+      ? "text-teal-500"
+      : "text-gray-400";
 
   // جای placeholder و addonها بر اساس زبان
   const labelLeft = isRTL
     ? undefined
     : isFloating
-    ? addonBefore
-      ? "2.5rem"
-      : "0.75rem"
-    : "2.2rem";
+      ? addonBefore
+        ? "2.5rem"
+        : "0.75rem"
+      : "2.2rem";
   const labelRight = isRTL
     ? isFloating
       ? addonAfter
@@ -98,8 +105,8 @@ const InputNumberField: React.FC<InputNumberFieldProps> = ({
           error
             ? "border-red-500"
             : focused
-            ? "border-teal-500"
-            : "border-gray-300"
+              ? "border-teal-500"
+              : "border-gray-300"
         } ${className}`}
         style={{
           width: "100%",
@@ -129,7 +136,7 @@ const InputNumberField: React.FC<InputNumberFieldProps> = ({
         }
         min={min}
         max={max}
-        value={currentValue as number | undefined}
+        value={currentValue !== null ? (currentValue as number) : undefined}
         onChange={(val) => {
           setInternalValue(val as number | null);
           onChange?.(val as number | null);

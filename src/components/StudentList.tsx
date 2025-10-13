@@ -205,11 +205,7 @@ export default function StudentList({
                   {selectedStudent?.name || ""}
                 </p>
                 <CalendarTable
-                  studentId={
-                    selectedStudent.id ||
-                    selectedStudent.mongoId ||
-                    selectedStudent._id
-                  }
+                  studentId={selectedStudent.mongoId || selectedStudent.id}
                 />
               </div>
             )}
