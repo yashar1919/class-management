@@ -57,9 +57,35 @@ const Profile = () => {
 
   React.useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+
+    // Throttle function to limit resize event frequency
+    const throttle = (func: () => void, delay: number) => {
+      let timeoutId: NodeJS.Timeout;
+      let lastExecTime = 0;
+      return () => {
+        const currentTime = Date.now();
+
+        if (currentTime - lastExecTime > delay) {
+          func();
+          lastExecTime = currentTime;
+        } else {
+          clearTimeout(timeoutId);
+          timeoutId = setTimeout(
+            () => {
+              func();
+              lastExecTime = Date.now();
+            },
+            delay - (currentTime - lastExecTime)
+          );
+        }
+      };
+    };
+
+    const throttledCheckMobile = throttle(checkMobile, 250); // 250ms throttle
+
+    checkMobile(); // Initial check
+    window.addEventListener("resize", throttledCheckMobile);
+    return () => window.removeEventListener("resize", throttledCheckMobile);
   }, []);
 
   useEffect(() => {

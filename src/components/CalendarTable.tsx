@@ -126,13 +126,39 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+
+    // Throttle function to limit resize event frequency
+    const throttle = (func: () => void, delay: number) => {
+      let timeoutId: NodeJS.Timeout;
+      let lastExecTime = 0;
+      return () => {
+        const currentTime = Date.now();
+
+        if (currentTime - lastExecTime > delay) {
+          func();
+          lastExecTime = currentTime;
+        } else {
+          clearTimeout(timeoutId);
+          timeoutId = setTimeout(
+            () => {
+              func();
+              lastExecTime = Date.now();
+            },
+            delay - (currentTime - lastExecTime)
+          );
+        }
+      };
+    };
+
+    const throttledCheckMobile = throttle(checkMobile, 250); // 250ms throttle
+
+    checkMobile(); // Initial check
+    window.addEventListener("resize", throttledCheckMobile);
+    return () => window.removeEventListener("resize", throttledCheckMobile);
   }, []);
 
-  // محاسبه data بدون useMemo برای اطمینان از بروزرسانی
-  const data: SessionRow[] = (() => {
+  // محاسبه data با useMemo برای بهینه‌سازی عملکرد
+  const data: SessionRow[] = useMemo(() => {
     if (!student || !student.sessions) return [];
     // Sort sessions by date ascending
     const sortedSessions = [...student.sessions].sort(
@@ -176,7 +202,7 @@ export default function CalendarTable({ studentId }: CalendarTableProps) {
           ),
       };
     });
-  })();
+  }, [student, t, i18n.language]);
 
   // Reset dismiss state when student changes
   useEffect(() => {

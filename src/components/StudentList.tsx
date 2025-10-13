@@ -1,5 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  memo,
+  lazy,
+  Suspense,
+} from "react";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -8,11 +15,111 @@ import {
 } from "@ant-design/icons";
 import { ConfigProvider, theme, Spin } from "antd";
 import { useStudentStore } from "../store/studentStore";
-import CalendarTable from "./CalendarTable";
 import { useTranslation } from "react-i18next";
 import ModalCustom from "./UI/ModalCustom";
 import i18n from "@/i18n";
 import { fetchStudents, deleteStudentFromDB } from "@/services/studentService";
+import type { Student } from "../store/studentStore";
+
+// Lazy load CalendarTable for better performance
+const CalendarTable = lazy(() => import("./CalendarTable"));
+
+// Memoized StudentCard component for better performance
+const StudentCard = memo(
+  ({
+    student,
+    onEdit,
+    onDelete,
+    onShowCalendar,
+    t,
+  }: {
+    student: Student;
+    onEdit: (student: Student) => void;
+    onDelete: (student: Student) => void;
+    onShowCalendar: (student: Student) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    t: any;
+  }) => {
+    const handleEdit = useCallback(
+      (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onEdit(student);
+      },
+      [onEdit, student]
+    );
+
+    const handleDelete = useCallback(
+      (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onDelete(student);
+      },
+      [onDelete, student]
+    );
+
+    const handleShowCalendar = useCallback(() => {
+      onShowCalendar(student);
+    }, [onShowCalendar, student]);
+
+    const classDays = useCallback(() => {
+      return (student.sessions ?? [])
+        .map((s) =>
+          new Date(s.date).toLocaleDateString("fa-IR", {
+            weekday: "long",
+          })
+        )
+        .filter((v, i, arr) => arr.indexOf(v) === i)
+        .join("، ");
+    }, [student.sessions]);
+
+    return (
+      <div
+        key={student.mongoId || student.id}
+        className="bg-gradient-to-br from-neutral-900 to-teal-950 rounded-2xl shadow-lg p-5 grid grid-cols-8 cursor-pointer hover:ring-1 hover:ring-teal-400 transition"
+        onClick={handleShowCalendar}
+      >
+        <div className="flex flex-col col-span-7">
+          <span className="font-bold text-lg text-teal-300 mb-5">
+            {student.name}
+          </span>
+          <span>
+            {student.classType === "online"
+              ? t("studentForm.online")
+              : t("studentForm.inPerson")}
+          </span>
+          <span>
+            {t("studentList.classDays")}: {classDays()}
+          </span>
+          <span>
+            {t("studentList.classDuration")}: {student.duration}{" "}
+            {t("studentList.hour")}
+          </span>
+        </div>
+        <div className="col-span-1 flex flex-col gap-2 justify-center items-end">
+          <button
+            onClick={handleEdit}
+            className="bg-blue-500 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-blue-600"
+          >
+            <EditOutlined style={{ fontSize: "20px" }} />
+          </button>
+          <button
+            onClick={handleDelete}
+            className="bg-red-500 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-red-600"
+          >
+            <DeleteOutlined style={{ fontSize: "20px" }} />
+          </button>
+          <button
+            onClick={handleShowCalendar}
+            className="bg-teal-600 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-teal-700"
+          >
+            <TableOutlined style={{ fontSize: "20px" }} />
+          </button>
+        </div>
+      </div>
+    );
+  }
+);
+
+StudentCard.displayName = "StudentCard";
 
 export default function StudentList({
   messageApi,
@@ -67,28 +174,44 @@ export default function StudentList({
   //eslint-disable-next-line
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
 
-  const handleDeleteStudent = async (
-    studentId: string,
-    mongoId: string,
-    name: string
-  ) => {
-    try {
-      await deleteStudentFromDB(mongoId);
-      const students = await fetchStudents();
-      setStudents(students);
-      // نمایش پیام موفقیت با نام دانش‌آموز
-      messageApi.open({
-        type: "success",
-        content: `Student "${name}" deleted successfully!`,
-      });
-    } catch (err) {
-      console.error("API DELETE error:", err);
-      messageApi.open({
-        type: "error",
-        content: "Failed to delete student.",
-      });
-    }
-  };
+  const handleDeleteStudent = useCallback((student: Student) => {
+    setStudentToDelete(student);
+    setDeleteModalOpen(true);
+  }, []);
+
+  const confirmDeleteStudent = useCallback(
+    async (studentId: string, mongoId: string, name: string) => {
+      try {
+        await deleteStudentFromDB(mongoId);
+        const students = await fetchStudents();
+        setStudents(students);
+        // نمایش پیام موفقیت با نام دانش‌آموز
+        messageApi.open({
+          type: "success",
+          content: `Student "${name}" deleted successfully!`,
+        });
+      } catch (err) {
+        console.error("API DELETE error:", err);
+        messageApi.open({
+          type: "error",
+          content: "Failed to delete student.",
+        });
+      }
+    },
+    [messageApi, setStudents]
+  );
+
+  const handleEditStudent = useCallback(
+    (student: Student) => {
+      setEditingStudent(student);
+    },
+    [setEditingStudent]
+  );
+
+  const handleShowCalendar = useCallback((student: Student) => {
+    setSelectedStudent(student);
+    setCalendarModalOpen(true);
+  }, []);
 
   if (loading) {
     return (
@@ -117,72 +240,14 @@ export default function StudentList({
     <>
       <div className="max-w-[950px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         {students.map((student) => (
-          <div
+          <StudentCard
             key={student.mongoId || student.id}
-            className="bg-gradient-to-br from-neutral-900 to-teal-950 rounded-2xl shadow-lg p-5 grid grid-cols-8 cursor-pointer hover:ring-1 hover:ring-teal-400 transition"
-            onClick={() => {
-              setSelectedStudent(student);
-              setCalendarModalOpen(true);
-            }}
-          >
-            <div className="flex flex-col col-span-7">
-              <span className="font-bold text-lg text-teal-300 mb-5">
-                {student.name}
-              </span>
-              <span>
-                {student.classType === "online"
-                  ? t("studentForm.online")
-                  : t("studentForm.inPerson")}
-              </span>
-              <span>
-                {t("studentList.classDays")}:{" "}
-                {(student.sessions ?? [])
-                  .map((s) =>
-                    new Date(s.date).toLocaleDateString("fa-IR", {
-                      weekday: "long",
-                    })
-                  )
-                  .filter((v, i, arr) => arr.indexOf(v) === i)
-                  .join("، ")}
-              </span>
-              <span>
-                {t("studentList.classDuration")}: {student.duration}{" "}
-                {t("studentList.hour")}
-              </span>
-            </div>
-            <div className="col-span-1 flex flex-col gap-2 justify-center items-end">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditingStudent(student);
-                }}
-                className="bg-blue-500 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-blue-600"
-              >
-                <EditOutlined style={{ fontSize: "20px" }} />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setStudentToDelete(student);
-                  setDeleteModalOpen(true);
-                }}
-                className="bg-red-500 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-red-600"
-              >
-                <DeleteOutlined style={{ fontSize: "20px" }} />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedStudent(student);
-                  setCalendarModalOpen(true);
-                }}
-                className="bg-teal-600 text-white p-2 rounded-full flex items-center cursor-pointer hover:bg-teal-700"
-                title={t("studentList.showTable") || "نمایش جدول"}
-              >
-                <TableOutlined style={{ fontSize: "20px" }} />
-              </button>
-            </div>
-          </div>
+            student={student}
+            onEdit={handleEditStudent}
+            onDelete={handleDeleteStudent}
+            onShowCalendar={handleShowCalendar}
+            t={t}
+          />
         ))}
 
         {/* مودال جدول جلسات */}
@@ -204,9 +269,17 @@ export default function StudentList({
                 <p className="text-teal-400 font-light text-2xl mb-5 mx-3">
                   {selectedStudent?.name || ""}
                 </p>
-                <CalendarTable
-                  studentId={selectedStudent.mongoId || selectedStudent.id}
-                />
+                <Suspense
+                  fallback={
+                    <div className="flex justify-center py-8">
+                      <Spin size="large" />
+                    </div>
+                  }
+                >
+                  <CalendarTable
+                    studentId={selectedStudent.mongoId || selectedStudent.id}
+                  />
+                </Suspense>
               </div>
             )}
           </ModalCustom>
@@ -232,7 +305,7 @@ export default function StudentList({
             }}
             onOk={() => {
               if (studentToDelete) {
-                handleDeleteStudent(
+                confirmDeleteStudent(
                   studentToDelete.id,
                   studentToDelete.mongoId,
                   studentToDelete.name
@@ -292,7 +365,7 @@ export default function StudentList({
                   className="bg-red-500 w-full text-white px-6 py-2 rounded-lg font-medium cursor-pointer"
                   onClick={() => {
                     if (studentToDelete) {
-                      handleDeleteStudent(
+                      confirmDeleteStudent(
                         studentToDelete.id,
                         studentToDelete.mongoId,
                         studentToDelete.name

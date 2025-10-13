@@ -28,7 +28,7 @@ import TimePickerCustom from "./UI/TimePickerCustom";
 import InputNumberField from "./UI/InputNumberField";
 import dayjs from "dayjs";
 import PersianCalendarPicker from "./UI/PersianCalendarPicker";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { DateObject } from "react-multi-date-picker";
 import { useTranslation } from "react-i18next";
 import { addWeeks } from "date-fns";
@@ -131,18 +131,21 @@ export default function StudentForm() {
   const updateStudent = useStudentStore((s) => s.updateStudent);
   const setStudents = useStudentStore((s) => s.setStudents);
 
-  const classTypeItems: MenuProps["items"] = [
-    {
-      label: t("studentForm.inPerson"),
-      key: "in-person",
-      icon: <ClusterOutlined />,
-    },
-    {
-      label: t("studentForm.online"),
-      key: "online",
-      icon: <ClusterOutlined />,
-    },
-  ];
+  const classTypeItems: MenuProps["items"] = useMemo(
+    () => [
+      {
+        label: t("studentForm.inPerson"),
+        key: "in-person",
+        icon: <ClusterOutlined />,
+      },
+      {
+        label: t("studentForm.online"),
+        key: "online",
+        icon: <ClusterOutlined />,
+      },
+    ],
+    [t]
+  );
 
   const {
     control,
@@ -187,7 +190,7 @@ export default function StudentForm() {
     }
   }, [multiDay, selectedDates, setValue]);
 
-  function calcEndTime(start: string, duration: number) {
+  const calcEndTime = useCallback((start: string, duration: number) => {
     if (!start) return "--:--";
     const [h, m] = start.split(":").map(Number);
     if (isNaN(h) || isNaN(m)) return "--:--";
@@ -196,7 +199,7 @@ export default function StudentForm() {
     if (endHour >= 24) endHour = endHour % 24;
     const pad = (n: number) => n.toString().padStart(2, "0");
     return `${pad(endHour)}:${pad(endMinute)}`;
-  }
+  }, []);
 
   const endTime = calcEndTime(startTime, duration);
 
