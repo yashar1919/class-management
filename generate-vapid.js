@@ -3,6 +3,7 @@
 // VAPID Key Generator for Production
 // برای اجرا: node generate-vapid.js
 
+//eslint-disable-next-line
 const webpush = require('web-push');
 
 console.log('🔐 تولید VAPID Keys جدید برای Production\n');
