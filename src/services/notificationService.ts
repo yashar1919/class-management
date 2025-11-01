@@ -61,9 +61,10 @@ class NotificationService {
     }
 
     try {
-      // Register Service Worker
+      // Register Service Worker with better error handling
       this.registration = await navigator.serviceWorker.register("/sw.js", {
         scope: "/",
+        updateViaCache: "none", // Force fresh SW on updates
       });
 
       console.log(
@@ -71,8 +72,16 @@ class NotificationService {
         this.registration
       );
 
-      // Wait for service worker to be ready
-      await navigator.serviceWorker.ready;
+      // Wait for service worker to be ready with timeout
+      const readyPromise = navigator.serviceWorker.ready;
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(
+          () => reject(new Error("Service Worker ready timeout")),
+          10000
+        );
+      });
+
+      await Promise.race([readyPromise, timeoutPromise]);
 
       console.log("[NotificationService] Service Worker ready");
 
@@ -81,6 +90,11 @@ class NotificationService {
         "message",
         this.handleServiceWorkerMessage
       );
+
+      // Force update if needed
+      if (this.registration.waiting) {
+        this.registration.waiting.postMessage({ type: "SKIP_WAITING" });
+      }
     } catch (error) {
       console.error(
         "[NotificationService] Failed to register service worker:",
