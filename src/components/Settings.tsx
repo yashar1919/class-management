@@ -1,12 +1,14 @@
 import React from "react";
 import { Switch } from "antd";
 import { useTranslation } from "react-i18next";
+import NotificationManager from "./NotificationManager";
 
 const Settings: React.FC = () => {
   const { i18n, t } = useTranslation();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh]">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+      {/* Language Settings */}
       <div
         className="bg-neutral-900 rounded-xl shadow p-4 w-full max-w-2xl border border-neutral-800"
         style={{ boxShadow: "0px 0px 7px gray" }}
@@ -33,6 +35,11 @@ const Settings: React.FC = () => {
             }}
           />
         </div>
+      </div>
+
+      {/* Notification Settings */}
+      <div className="w-full max-w-2xl">
+        <NotificationManager />
       </div>
     </div>
   );

@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تست خودکار نوتیفیکیشن - کلاسکو</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
+        color: white;
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .container {
+        background: rgba(0, 0, 0, 0.7);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+      }
+      h1 {
+        color: #00bba7;
+        margin-bottom: 20px;
+      }
+      .status {
+        background: rgba(0, 187, 167, 0.1);
+        border: 1px solid #00bba7;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 20px 0;
+      }
+      .log {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 15px;
+        margin: 20px 0;
+        max-height: 300px;
+        overflow-y: auto;
+        text-align: right;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+      }
+      button {
+        background: #00bba7;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 10px;
+        transition: all 0.3s ease;
+      }
+      button:hover {
+        background: #009688;
+      }
+      button:disabled {
+        background: #666;
+        cursor: not-allowed;
+      }
+      .counter {
+        font-size: 24px;
+        color: #00bba7;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎓 تست خودکار نوتیفیکیشن کلاسکو</h1>
+
+      <div class="status">
+        <p>وضعیت: <span id="status">آماده</span></p>
+        <p>تعداد ارسال شده: <span id="counter" class="counter">0</span></p>
+        <p>آخرین ارسال: <span id="lastSent">-</span></p>
+      </div>
+
+      <button id="startBtn" onclick="startAutoSend()">
+        شروع تست (هر 10 ثانیه)
+      </button>
+      <button id="stopBtn" onclick="stopAutoSend()" disabled>توقف</button>
+      <button onclick="sendSingle()">ارسال تکی</button>
+      <button onclick="clearLog()">پاک کردن لاگ</button>
+
+      <div class="log" id="log">
+        <p>لاگ سیستم:</p>
+      </div>
+    </div>
+
+    <script>
+      let intervalId = null;
+      let counter = 0;
+
+      const statusEl = document.getElementById("status");
+      const counterEl = document.getElementById("counter");
+      const lastSentEl = document.getElementById("lastSent");
+      const logEl = document.getElementById("log");
+      const startBtn = document.getElementById("startBtn");
+      const stopBtn = document.getElementById("stopBtn");
+
+      function log(message) {
+        const timestamp = new Date().toLocaleTimeString("fa-IR");
+        const logMessage = `[${timestamp}] ${message}`;
+        const p = document.createElement("p");
+        p.textContent = logMessage;
+        logEl.appendChild(p);
+        logEl.scrollTop = logEl.scrollHeight;
+        console.log(logMessage);
+      }
+
+      async function sendNotification() {
+        try {
+          log("در حال ارسال نوتیفیکیشن...");
+
+          const response = await fetch("/api/notifications/auto-send");
+          const result = await response.json();
+
+          if (result.success) {
+            counter++;
+            counterEl.textContent = counter;
+            lastSentEl.textContent = new Date().toLocaleTimeString("fa-IR");
+            log(
+              `✅ ارسال موفق #${counter} - ${result.details?.successful || 0} کاربر`
+            );
+          } else {
+            log(`❌ ارسال ناموفق: ${result.error}`);
+          }
+        } catch (error) {
+          log(`❌ خطا در ارسال: ${error.message}`);
+        }
+      }
+
+      function startAutoSend() {
+        if (intervalId) return;
+
+        statusEl.textContent = "در حال اجرا...";
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+
+        log("🚀 شروع ارسال خودکار هر 10 ثانیه");
+
+        // ارسال اولیه
+        sendNotification();
+
+        // ارسال هر 10 ثانیه
+        intervalId = setInterval(sendNotification, 10000);
+      }
+
+      function stopAutoSend() {
+        if (!intervalId) return;
+
+        clearInterval(intervalId);
+        intervalId = null;
+
+        statusEl.textContent = "متوقف شده";
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+
+        log("⏹️ ارسال خودکار متوقف شد");
+      }
+
+      async function sendSingle() {
+        await sendNotification();
+      }
+
+      function clearLog() {
+        logEl.innerHTML = "<p>لاگ سیستم:</p>";
+      }
+
+      // Initialize
+      log("سیستم آماده است");
+
+      // Stop on page unload
+      window.addEventListener("beforeunload", () => {
+        if (intervalId) {
+          stopAutoSend();
+        }
+      });
+    </script>
+  </body>
+</html>
