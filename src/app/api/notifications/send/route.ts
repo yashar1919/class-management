@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { MongoClient } from "mongodb";
 import webpush from "web-push";
-
-const client = new MongoClient(process.env.MONGODB_URI as string);
+import { connectToDatabase } from "../../../../lib/mongodb";
 
 // Configure web-push
 webpush.setVapidDetails(
@@ -26,8 +24,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Connect to MongoDB
-    await client.connect();
-    const db = client.db();
+    const { db } = await connectToDatabase();
     const subscriptions = db.collection("push_subscriptions");
 
     // Get active subscriptions
@@ -139,9 +136,8 @@ export async function POST(request: NextRequest) {
       { error: "Failed to send notifications" },
       { status: 500 }
     );
-  } finally {
-    await client.close();
   }
+  // Note: We don't close the connection to keep it alive for reuse
 }
 
 // GET endpoint برای تست - ارسال نوتیفیکیشن هر 10 ثانیه

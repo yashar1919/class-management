@@ -1,17 +1,30 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Card, Button, Switch, Alert, Space, Typography, Divider, Badge, message } from 'antd';
-import { 
-  BellOutlined, 
-  NotificationOutlined, 
-  SendOutlined, 
+import React, { useState } from "react";
+import {
+  Card,
+  Button,
+  Switch,
+  Alert,
+  Space,
+  Typography,
+  Divider,
+  Badge,
+  message,
+} from "antd";
+import {
+  BellOutlined,
+  NotificationOutlined,
+  SendOutlined,
   SettingOutlined,
   CheckCircleOutlined,
   ExclamationCircleOutlined,
-  InfoCircleOutlined
-} from '@ant-design/icons';
-import { useNotification } from '../hooks/useNotification';
+  InfoCircleOutlined,
+  PlayCircleOutlined,
+  PauseCircleOutlined,
+  ThunderboltOutlined,
+} from "@ant-design/icons";
+import { useNotification } from "../hooks/useNotification";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -19,7 +32,9 @@ interface NotificationManagerProps {
   className?: string;
 }
 
-const NotificationManager: React.FC<NotificationManagerProps> = ({ className }) => {
+const NotificationManager: React.FC<NotificationManagerProps> = ({
+  className,
+}) => {
   const {
     isSupported,
     isSubscribed,
@@ -27,10 +42,14 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ className }) 
     permission,
     subscription,
     error,
+    isAutoSending,
+    autoSendCount,
     subscribe,
     unsubscribe,
     sendTestNotification,
-    requestPermission
+    requestPermission,
+    startAutoSend,
+    stopAutoSend,
   } = useNotification();
 
   const [isSendingTest, setIsSendingTest] = useState(false);
@@ -40,13 +59,13 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ className }) 
     try {
       if (checked) {
         await subscribe();
-        message.success('اشتراک نوتیفیکیشن فعال شد! 🎉');
+        message.success("اشتراک نوتیفیکیشن فعال شد! 🎉");
       } else {
         await unsubscribe();
-        message.success('اشتراک نوتیفیکیشن غیرفعال شد');
+        message.success("اشتراک نوتیفیکیشن غیرفعال شد");
       }
     } catch {
-      message.error('خطا در تغییر وضعیت اشتراک');
+      message.error("خطا در تغییر وضعیت اشتراک");
     }
   };
 
@@ -55,13 +74,13 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ className }) 
     try {
       setIsSendingTest(true);
       await sendTestNotification({
-        title: 'تست کلاسکو 🎓',
-        body: `پیام تست ارسال شد! - ${new Date().toLocaleTimeString('fa-IR')}`,
-        url: '/class'
+        title: "تست کلاسکو 🎓",
+        body: `پیام تست ارسال شد! - ${new Date().toLocaleTimeString("fa-IR")}`,
+        url: "/class",
       });
-      message.success('نوتیفیکیشن تست ارسال شد!');
+      message.success("نوتیفیکیشن تست ارسال شد!");
     } catch {
-      message.error('خطا در ارسال نوتیفیکیشن تست');
+      message.error("خطا در ارسال نوتیفیکیشن تست");
     } finally {
       setIsSendingTest(false);
     }
@@ -71,36 +90,36 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ className }) 
   const handleRequestPermission = async () => {
     try {
       const newPermission = await requestPermission();
-      if (newPermission === 'granted') {
-        message.success('مجوز نوتیفیکیشن دریافت شد!');
+      if (newPermission === "granted") {
+        message.success("مجوز نوتیفیکیشن دریافت شد!");
       } else {
-        message.warning('مجوز نوتیفیکیشن رد شد');
+        message.warning("مجوز نوتیفیکیشن رد شد");
       }
     } catch {
-      message.error('خطا در درخواست مجوز');
+      message.error("خطا در درخواست مجوز");
     }
   };
 
   // Get permission status info
   const getPermissionInfo = () => {
     switch (permission) {
-      case 'granted':
+      case "granted":
         return {
-          type: 'success' as const,
-          message: 'مجوز نوتیفیکیشن فعال است',
-          icon: <CheckCircleOutlined />
+          type: "success" as const,
+          message: "مجوز نوتیفیکیشن فعال است",
+          icon: <CheckCircleOutlined />,
         };
-      case 'denied':
+      case "denied":
         return {
-          type: 'error' as const,
-          message: 'مجوز نوتیفیکیشن رد شده است',
-          icon: <ExclamationCircleOutlined />
+          type: "error" as const,
+          message: "مجوز نوتیفیکیشن رد شده است",
+          icon: <ExclamationCircleOutlined />,
         };
       default:
         return {
-          type: 'info' as const,
-          message: 'مجوز نوتیفیکیشن هنوز تعیین نشده',
-          icon: <InfoCircleOutlined />
+          type: "info" as const,
+          message: "مجوز نوتیفیکیشن هنوز تعیین نشده",
+          icon: <InfoCircleOutlined />,
         };
     }
   };
@@ -121,7 +140,7 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ className }) 
   }
 
   return (
-    <Card 
+    <Card
       className={className}
       title={
         <Space>
@@ -133,8 +152,7 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ className }) 
       extra={<SettingOutlined />}
       loading={isLoading}
     >
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Status Alert */}
         {error && (
           <Alert
@@ -154,10 +172,10 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ className }) 
             type={permissionInfo.type}
             icon={permissionInfo.icon}
             action={
-              permission !== 'granted' && (
-                <Button 
-                  size="small" 
-                  type="primary" 
+              permission !== "granted" && (
+                <Button
+                  size="small"
+                  type="primary"
                   onClick={handleRequestPermission}
                   loading={isLoading}
                 >
@@ -173,8 +191,14 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ className }) 
         {/* Subscription Toggle */}
         <div>
           <Title level={5}>اشتراک نوتیفیکیشن</Title>
-          <Space direction="vertical" size="small" style={{ width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Space direction="vertical" size="small" style={{ width: "100%" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <Space>
                 <NotificationOutlined />
                 <Text>دریافت نوتیفیکیشن</Text>
@@ -182,13 +206,13 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ className }) 
               <Switch
                 checked={isSubscribed}
                 onChange={handleSubscriptionToggle}
-                disabled={permission !== 'granted' || isLoading}
+                disabled={permission !== "granted" || isLoading}
                 loading={isLoading}
               />
             </div>
-            
+
             {isSubscribed && subscription && (
-              <Text type="secondary" style={{ fontSize: '12px' }}>
+              <Text type="secondary" style={{ fontSize: "12px" }}>
                 Endpoint: {subscription.endpoint.substring(0, 50)}...
               </Text>
             )}
@@ -197,17 +221,82 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ className }) 
 
         <Divider />
 
+        {/* Auto-Send Notifications */}
+        <div>
+          <Title level={5}>
+            <Space>
+              <ThunderboltOutlined />
+              ارسال خودکار (هر 10 ثانیه)
+              {isAutoSending && <Badge status="processing" />}
+            </Space>
+          </Title>
+          <Paragraph type="secondary">
+            پس از فعال کردن، هر 10 ثانیه نوتیفیکیشن ارسال می‌شود
+          </Paragraph>
+
+          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Space>
+                {isAutoSending ? (
+                  <PauseCircleOutlined style={{ color: "#ff4d4f" }} />
+                ) : (
+                  <PlayCircleOutlined style={{ color: "#52c41a" }} />
+                )}
+                <Text>{isAutoSending ? "در حال ارسال..." : "آماده شروع"}</Text>
+              </Space>
+
+              {isAutoSending ? (
+                <Button
+                  danger
+                  icon={<PauseCircleOutlined />}
+                  onClick={stopAutoSend}
+                  size="large"
+                >
+                  توقف
+                </Button>
+              ) : (
+                <Button
+                  type="primary"
+                  icon={<PlayCircleOutlined />}
+                  onClick={startAutoSend}
+                  disabled={!isSubscribed || permission !== "granted"}
+                  size="large"
+                >
+                  شروع ارسال خودکار
+                </Button>
+              )}
+            </div>
+
+            {/* نمایش آمار ارسال */}
+            {isAutoSending && (
+              <Alert
+                message={`🚀 تعداد ارسال شده: ${autoSendCount} نوتیفیکیشن`}
+                description="نوتیفیکیشن بعدی تا 10 ثانیه دیگر ارسال خواهد شد"
+                type="info"
+                showIcon
+                icon={<ThunderboltOutlined />}
+              />
+            )}
+          </Space>
+        </div>
+
+        <Divider />
+
         {/* Test Notification */}
         <div>
-          <Title level={5}>تست نوتیفیکیشن</Title>
-          <Paragraph type="secondary">
-            برای تست سیستم نوتیفیکیشن، روی دکمه زیر کلیک کنید
-          </Paragraph>
+          <Title level={5}>تست دستی</Title>
+          <Paragraph type="secondary">برای تست تکی سیستم نوتیفیکیشن</Paragraph>
           <Button
             type="primary"
             icon={<SendOutlined />}
             onClick={handleTestNotification}
-            disabled={!isSubscribed || permission !== 'granted'}
+            disabled={!isSubscribed || permission !== "granted"}
             loading={isSendingTest}
             size="large"
           >
@@ -220,23 +309,28 @@ const NotificationManager: React.FC<NotificationManagerProps> = ({ className }) 
           <>
             <Divider />
             <div>
-              <Title level={5}>آمار</Title>
-              <Space direction="vertical">
+              <Title level={5}>آمار کلی</Title>
+              <Space direction="vertical" size="small">
                 <Text>
                   <Badge status="success" />
-                  وضعیت: فعال
+                  وضعیت اشتراک: فعال
                 </Text>
+                <Text>
+                  <Badge status={isAutoSending ? "processing" : "default"} />
+                  ارسال خودکار:{" "}
+                  {isAutoSending ? `فعال (${autoSendCount} ارسال)` : "غیرفعال"}
+                </Text>
+                <Text type="secondary">مجوز: {permission}</Text>
                 <Text type="secondary">
-                  مجوز: {permission}
+                  پشتیبانی مرورگر: {isSupported ? "بله" : "خیر"}
                 </Text>
-                <Text type="secondary">
-                  پشتیبانی مرورگر: {isSupported ? 'بله' : 'خیر'}
-                </Text>
+                {isAutoSending && (
+                  <Text type="success">⏰ بعدی در 10 ثانیه آینده</Text>
+                )}
               </Space>
             </div>
           </>
         )}
-
       </Space>
     </Card>
   );

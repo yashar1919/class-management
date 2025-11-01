@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import NotificationService, {
   NotificationData,
   PushSubscriptionData,
@@ -13,11 +13,15 @@ export interface UseNotificationReturn {
   permission: NotificationPermission;
   subscription: PushSubscriptionData | null;
   error: string | null;
+  isAutoSending: boolean;
+  autoSendCount: number;
   subscribe: () => Promise<void>;
   unsubscribe: () => Promise<void>;
   sendTestNotification: (data?: Partial<NotificationData>) => Promise<void>;
   requestPermission: () => Promise<NotificationPermission>;
   checkSubscription: () => Promise<void>;
+  startAutoSend: () => void;
+  stopAutoSend: () => void;
 }
 
 export const useNotification = (): UseNotificationReturn => {
@@ -30,6 +34,12 @@ export const useNotification = (): UseNotificationReturn => {
     null
   );
   const [error, setError] = useState<string | null>(null);
+  const [isAutoSending, setIsAutoSending] = useState(false);
+  const [autoSendCount, setAutoSendCount] = useState(0);
+
+  // Refs برای interval ID و count
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const countRef = useRef(0);
 
   // Check subscription status
   const checkSubscription = useCallback(async () => {
@@ -130,6 +140,97 @@ export const useNotification = (): UseNotificationReturn => {
       }
     }, []);
 
+  // Start auto-send notifications every 10 seconds
+  const startAutoSend = useCallback(() => {
+    if (intervalRef.current || !isSubscribed || permission !== "granted") {
+      return;
+    }
+
+    setIsAutoSending(true);
+    setAutoSendCount(0);
+    countRef.current = 0;
+
+    // ارسال اولیه
+    sendTestNotification({
+      title: "🔥 کلاسکو - خودکار",
+      body: `ارسال خودکار شروع شد - ${new Date().toLocaleTimeString("fa-IR")}`,
+      requireInteraction: false,
+    }).catch(console.error);
+
+    // تنظیم interval برای هر 10 ثانیه
+    intervalRef.current = setInterval(async () => {
+      try {
+        countRef.current += 1;
+        const currentCount = countRef.current;
+
+        setAutoSendCount(currentCount);
+
+        // ارسال نوتیفیکیشن
+        await sendTestNotification({
+          title: `🎓 کلاسکو #${currentCount}`,
+          body: `پیام خودکار ${currentCount} - ${new Date().toLocaleTimeString("fa-IR")}`,
+          url: "/class",
+          requireInteraction: false,
+          vibrate: [100, 50, 100],
+        });
+      } catch (error) {
+        console.error("[Auto-send] Error:", error);
+      }
+    }, 10000); // 10 ثانیه
+
+    console.log("🚀 Auto-send notifications started (every 10 seconds)");
+  }, [isSubscribed, permission, sendTestNotification]);
+
+  // Stop auto-send notifications
+  const stopAutoSend = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      setIsAutoSending(false);
+      countRef.current = 0;
+      setAutoSendCount(0);
+      console.log("⏹️ Auto-send notifications stopped");
+    }
+  }, []);
+
+  // Cleanup interval on unmount or when subscription changes
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  // Save auto-send preference to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("classco-auto-send", isAutoSending.toString());
+    }
+  }, [isAutoSending]);
+
+  // Auto-start when user subscribes (based on saved preference)
+  useEffect(() => {
+    if (isSubscribed && permission === "granted" && !isAutoSending) {
+      // چک کردن تنظیمات ذخیره شده
+      const savedPreference =
+        typeof window !== "undefined"
+          ? localStorage.getItem("classco-auto-send") === "true"
+          : true; // default true
+
+      if (savedPreference) {
+        // شروع خودکار بعد از 2 ثانیه
+        const timeout = setTimeout(() => {
+          startAutoSend();
+        }, 2000);
+
+        return () => clearTimeout(timeout);
+      }
+    } else if (!isSubscribed && isAutoSending) {
+      stopAutoSend();
+    }
+  }, [isSubscribed, permission, isAutoSending, startAutoSend, stopAutoSend]);
+
   // Initialize on mount
   useEffect(() => {
     const initialize = async () => {
@@ -172,10 +273,14 @@ export const useNotification = (): UseNotificationReturn => {
     permission,
     subscription,
     error,
+    isAutoSending,
+    autoSendCount,
     subscribe,
     unsubscribe,
     sendTestNotification,
     requestPermission,
     checkSubscription,
+    startAutoSend,
+    stopAutoSend,
   };
 };

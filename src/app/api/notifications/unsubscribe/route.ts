@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { MongoClient } from "mongodb";
-
-const client = new MongoClient(process.env.MONGODB_URI as string);
+import { connectToDatabase } from "../../../../lib/mongodb";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,8 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Connect to MongoDB
-    await client.connect();
-    const db = client.db();
+    const { db } = await connectToDatabase();
     const subscriptions = db.collection("push_subscriptions");
 
     // Mark subscription as inactive instead of deleting
@@ -52,7 +49,5 @@ export async function POST(request: NextRequest) {
       { error: "Failed to unsubscribe" },
       { status: 500 }
     );
-  } finally {
-    await client.close();
   }
 }
